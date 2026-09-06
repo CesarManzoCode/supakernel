@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
-import { runDatabaseContractSuite, vitestApi } from '@supakernel/ports-test'
+import { runDatabaseContractSuite } from '@supakernel/ports-test'
+import { vitestApi } from '@supakernel/ports-test/vitest'
 import { describe, it } from 'vitest'
 import { openPostgres } from '../src/adapter.js'
 

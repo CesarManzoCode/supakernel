@@ -33,7 +33,7 @@
     "test:db:pglite": "vitest run --project db-pglite",
     "test:db:postgres": "vitest run --project db-postgres",
     "test:db:workers": "vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts",
-    "test:db:browser": "node --experimental-strip-types packages/db-sqlite/harness/browser/run.mts",
+    "test:db:browser": "node packages/db-sqlite/harness/browser/run.mts",
     "test:db:bun": "bun test packages/db-sqlite/test/bun",
     "test:db:deno": "cd packages/db-pglite/test/deno && deno test -A --no-check",
     "test:schema": "vitest run --project @supakernel/schema",

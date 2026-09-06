@@ -48,6 +48,7 @@ const NORMATIVE_PINS: ReadonlySet<string> = new Set([
   'libpg-query@17.7.4',
   'wrangler@4.129.0',
   'playwright@1.63.0',
+  'playwright-core@1.63.0',
   '@playwright/test@1.63.0',
   'tsup@8.5.1',
   'openapi-typescript@7.13.0',

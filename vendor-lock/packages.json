@@ -42,12 +42,28 @@
       "version": "24.13.3"
     },
     {
+      "integrity": "sha512-HrJrvZv5ayxBzPfwphOoNzkzOIIlifzk0KJrGK2c8R4+LKpMtpYLQeUdjnwjWv/LZlkH2laZk+4w78pi99D4Vw==",
+      "license": "MIT",
+      "name": "esbuild",
+      "publishedAt": "2026-06-11T22:47:05.085Z",
+      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.1.tgz",
+      "version": "0.28.1"
+    },
+    {
       "integrity": "sha512-hTV3LvacQgJhc6GHpu5GYZMQBOAEpJ/LF1JjkixZ8YLh2TtbuN8y0JlNiPTe8PBTV9ChFkKcZMWSYKyhJfkYaQ==",
       "license": "MIT",
       "name": "libpg-query",
       "publishedAt": "2026-07-21T06:12:06.840Z",
       "resolved": "https://registry.npmjs.org/libpg-query/-/libpg-query-17.7.4.tgz",
       "version": "17.7.4"
+    },
+    {
+      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",
+      "license": "Apache-2.0",
+      "name": "playwright",
+      "publishedAt": "2026-09-04T22:45:21.732Z",
+      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "version": "1.63.0"
     },
     {
       "integrity": "sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw==",

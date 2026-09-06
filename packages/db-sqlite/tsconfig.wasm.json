@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": [],
+    "types": ["emscripten"],
     "lib": ["ES2023", "ESNext.Disposable", "DOM", "DOM.Iterable"]
   },
   "references": [{ "path": "./tsconfig.json" }, { "path": "../contracts" }, { "path": "../ports" }],

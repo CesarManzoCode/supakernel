@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "default": "./dist/vitest.js"
     }
   },
   "files": [
@@ -21,8 +25,9 @@
   "sideEffects": false,
   "dependencies": {
     "@supakernel/contracts": "workspace:*",
-    "@supakernel/ports": "workspace:*",
-    "vitest": "5.0.0"
+    "@supakernel/ports": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "vitest": "5.0.0"
+  }
 }

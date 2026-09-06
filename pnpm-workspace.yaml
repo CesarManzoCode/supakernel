@@ -19,7 +19,11 @@ minimumReleaseAgeIgnoreMissingTime: false
 # Each entry is validated by scripts/verify-provenance.mts against the registry publish
 # timestamp and must correspond to a normative pin in the contract. Any future version of
 # the same package is subject to the full 72h gate again.
-minimumReleaseAgeExclude: []
+minimumReleaseAgeExclude:
+  # Playwright 1.63.0 is a normative contract pin (§33.1) published < 72h before the L0 lock
+  # was created. playwright-core is its lockstep internal package at the identical version.
+  - "playwright@1.63.0"
+  - "playwright-core@1.63.0"
 
 # --- lockfile trust (contract §33.1) ---
 trustLockfile: false

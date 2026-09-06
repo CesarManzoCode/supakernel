@@ -1,7 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { runDatabaseContractSuite, vitestApi } from '@supakernel/ports-test'
+import { runDatabaseContractSuite } from '@supakernel/ports-test'
+import { vitestApi } from '@supakernel/ports-test/vitest'
 import { openNodeSqlite } from '../src/node.js'
 
 let dir = ''

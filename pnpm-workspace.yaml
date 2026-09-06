@@ -29,10 +29,10 @@ minimumReleaseAgeExclude:
 trustLockfile: false
 
 # --- dependency build scripts: explicit allowlist only ---
-onlyBuiltDependencies:
-  - "@biomejs/biome"
-  - "esbuild"
-  - "@electric-sql/pglite"
-  - "libpg-query"
-  - "workerd"
-  - "@cloudflare/workerd-linux-64"
+allowBuilds:
+  "@biomejs/biome": true
+  "esbuild": true
+  "@electric-sql/pglite": true
+  "libpg-query": true
+  "workerd": true
+  "@cloudflare/workerd-linux-64": true

@@ -40,7 +40,12 @@ export async function introspectSqlite(driver: SqliteDriver): Promise<ObservedSc
   const unmodeled: UnmodeledObject[] = []
   const masterRows = await driver.all(
     `SELECT type, name, tbl_name, sql FROM sqlite_master
-     WHERE name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY name`,
+     WHERE name NOT LIKE 'sqlite_%'
+       AND name NOT LIKE '\\_cf\\_%' ESCAPE '\\'
+       AND name NOT LIKE 'd1\\_%' ESCAPE '\\'
+       AND name NOT LIKE '\\_litestream%' ESCAPE '\\'
+       AND sql IS NOT NULL
+     ORDER BY name`,
     [],
   )
 

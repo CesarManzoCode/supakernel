@@ -17,6 +17,7 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `postgres` | 3.4.9 | Unlicense |
 | `typescript` | 6.0.3 | Apache-2.0 |
 | `vitest` | 5.0.0 | MIT |
+| `wrangler` | 4.129.0 | MIT OR Apache-2.0 |
 | `zod` | 4.5.4 | MIT |
 
 ## Referenced implementations (behavioural, not vendored)

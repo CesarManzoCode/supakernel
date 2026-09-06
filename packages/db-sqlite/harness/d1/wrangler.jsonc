@@ -1,0 +1,14 @@
+{
+  // First-party D1 conformance worker. Real workerd + real local D1 (contract §10, §30 L2).
+  "name": "supakernel-d1-contract",
+  "main": "worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "supakernel-d1-contract",
+      "database_id": "local-contract-db"
+    }
+  ]
+}

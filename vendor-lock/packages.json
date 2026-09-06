@@ -74,6 +74,14 @@
       "version": "5.0.0"
     },
     {
+      "integrity": "sha512-PGPvs9UPoFrwxT0VogpESSZGvZIctAuTK3wGsLLPHtHsSgS85kNdvtpa2d14UzG8gwLWD64XUGFPGG9tOXG9VQ==",
+      "license": "MIT OR Apache-2.0",
+      "name": "wrangler",
+      "publishedAt": "2026-09-03T17:50:56.290Z",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.129.0.tgz",
+      "version": "4.129.0"
+    },
+    {
       "integrity": "sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==",
       "license": "MIT",
       "name": "zod",

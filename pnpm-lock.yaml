@@ -120,6 +120,9 @@ importers:
       '@supakernel/ports-test':
         specifier: workspace:*
         version: link:../ports-test
+      '@supakernel/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@types/emscripten':
         specifier: 1.41.6
         version: 1.41.6
@@ -189,6 +192,15 @@ importers:
         specifier: workspace:*
         version: link:../ports
     devDependencies:
+      '@supakernel/db-pglite':
+        specifier: workspace:*
+        version: link:../db-pglite
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
+      '@supakernel/db-sqlite':
+        specifier: workspace:*
+        version: link:../db-sqlite
       '@supakernel/ports-test':
         specifier: workspace:*
         version: link:../ports-test

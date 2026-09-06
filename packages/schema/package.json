@@ -27,6 +27,10 @@
     "libpg-query": "17.7.4",
     "@types/node": "24.13.3",
     "vitest": "5.0.0",
-    "@supakernel/ports-test": "workspace:*"
+    "@supakernel/ports-test": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/db-pglite": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/contracts": "workspace:*"
   }
 }

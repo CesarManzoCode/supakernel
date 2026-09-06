@@ -50,32 +50,48 @@ export async function applyMigration(
 
   await ensureJournal(adapter)
   const before = await currentSchemaHash(adapter)
+  if (before === plan.toHash || plan.steps.length === 0) {
+    return { status: 'noop', planId: plan.id, stepsApplied: 0, schemaHash: plan.toHash }
+  }
   if (before !== null && before !== plan.fromHash) {
     throw new Error(
       kernelError({
         category: 'integrity',
         code: 'SK_MIGRATION_DRIFT',
-        message: `database schema hash ${before} does not match the plan's fromHash ${plan.fromHash}`,
+        message: `SK_MIGRATION_DRIFT: database schema hash ${before} does not match the plan's fromHash ${plan.fromHash}`,
         httpStatus: 409,
       }).message,
     )
   }
-  if (before === plan.toHash || plan.steps.length === 0) {
-    return { status: 'noop', planId: plan.id, stepsApplied: 0, schemaHash: plan.toHash }
-  }
 
   const flatten = (step: MigrationStep): SqlStatement[] =>
     step.forward.filter((s) => !s.text.trim().startsWith('--'))
+
+  // The migration DDL is already dialect-compiled by `plan`; only the journal / schema-lock
+  // statements below carry `?` placeholders, which PostgreSQL needs rewritten to `$n`.
+  const meta =
+    plan.family === 'postgres'
+      ? (s: SqlStatement): SqlStatement => pgPlaceholders(s)
+      : (s: SqlStatement): SqlStatement => s
 
   if (adapter.capabilities.transactions === 'callback') {
     await adapter.transaction({ isolation: 'serializable' }, async (tx) => {
       for (const step of plan.steps) {
         for (const stmt of flatten(step)) await tx.execute(stmt)
         await tx.execute(
-          journalStepStatement(plan.id, step.id, step.phase, 'applied', step.checksum, options.now),
+          meta(
+            journalStepStatement(
+              plan.id,
+              step.id,
+              step.phase,
+              'applied',
+              step.checksum,
+              options.now,
+            ),
+          ),
         )
       }
-      await tx.execute(recordSchemaHashStatement(plan.toHash, options.now))
+      await tx.execute(meta(recordSchemaHashStatement(plan.toHash, options.now)))
     })
     return {
       status: before === null ? 'applied' : 'applied',
@@ -118,6 +134,11 @@ export async function applyMigration(
     stepsApplied: applied,
     schemaHash: plan.toHash,
   }
+}
+
+function pgPlaceholders(stmt: SqlStatement): SqlStatement {
+  let n = 0
+  return { text: stmt.text.replace(/\?/g, () => `$${++n}`), parameters: stmt.parameters }
 }
 
 async function postconditionHolds(adapter: DatabaseAdapter, step: MigrationStep): Promise<boolean> {

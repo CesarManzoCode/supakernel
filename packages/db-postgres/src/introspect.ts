@@ -64,9 +64,17 @@ function portableType(dataType: string, udtName: string): PortableType | null {
   }
 }
 
-function parseDefault(raw: string | null, sequences: Set<string>): ColumnDefault | null {
+function parseDefault(
+  raw: string | null,
+  sequences: Set<string>,
+  isEnum = false,
+): ColumnDefault | null {
   if (raw === null) return null
   const d = raw.trim()
+  if (isEnum) {
+    const e = d.match(/^'(.*)'::.+$/s)
+    return e ? { kind: 'literal', value: e[1] ?? '' } : { kind: 'literal', value: d }
+  }
   const nextval = d.match(/^nextval\('([^']+)'::regclass\)$/)
   if (nextval) {
     const seq = (nextval[1] ?? '').replace(/^public\./, '').replace(/"/g, '')
@@ -98,6 +106,7 @@ export async function introspectPostgres(query: PgQuery): Promise<ObservedSchema
     `SELECT c.relname AS name
        FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
       WHERE n.nspname = 'public' AND c.relkind = 'r'
+        AND c.relname NOT LIKE '\\_sk\\_%'
       ORDER BY c.relname`,
   )
 
@@ -119,7 +128,7 @@ export async function introspectPostgres(query: PgQuery): Promise<ObservedSchema
        LEFT JOIN pg_depend d ON d.objid = s.oid AND d.deptype = 'a'
        LEFT JOIN pg_class dt ON dt.oid = d.refobjid
        LEFT JOIN pg_attribute a ON a.attrelid = d.refobjid AND a.attnum = d.refobjsubid
-      WHERE n.nspname = 'public'
+      WHERE n.nspname = 'public' AND s.relname NOT LIKE '\\_sk\\_%'
       ORDER BY s.relname`,
   )) {
     sequences.push({
@@ -156,7 +165,11 @@ async function readTable(
             NOT a.attnotnull AS nullable,
             pg_get_expr(ad.adbin, ad.adrelid) AS default_expr,
             a.attgenerated <> '' AS generated,
-            t.typtype AS typtype
+            t.typtype AS typtype,
+            CASE WHEN t.typtype = 'e' THEN
+              (SELECT array_agg(e.enumlabel ORDER BY e.enumsortorder)
+                 FROM pg_enum e WHERE e.enumtypid = t.oid)
+            END AS enum_labels
        FROM pg_attribute a
        JOIN pg_class c ON c.oid = a.attrelid
        JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -175,13 +188,19 @@ async function readTable(
     if (pt === null) {
       unmodeled.push({ kind: 'column', name: `${name}.${String(c.name)}`, reason: `type ${udt}` })
     }
-    return {
+    const enumLabels = Array.isArray(c.enum_labels) ? (c.enum_labels as string[]) : undefined
+    const base: Column = {
       name: String(c.name),
       type: pt ?? 'text',
       nullable: c.nullable === true,
-      default: parseDefault(c.default_expr === null ? null : String(c.default_expr), seqNames),
+      default: parseDefault(
+        c.default_expr === null ? null : String(c.default_expr),
+        seqNames,
+        pt === 'enum',
+      ),
       generated: c.generated === true,
     }
+    return pt === 'enum' && enumLabels ? { ...base, enumLabels } : base
   })
 
   const conRows = await query(
@@ -245,6 +264,10 @@ async function readTable(
         }
         break
       }
+      case 'n':
+        // PostgreSQL 17+ materializes NOT NULL as a pg_constraint row; it is already captured
+        // by the column's `nullable` flag, so it is not an unmodeled object.
+        break
       default:
         unmodeled.push({
           kind: 'constraint',
@@ -264,6 +287,7 @@ async function readTable(
        JOIN pg_class c ON c.oid = ix.indrelid
        JOIN pg_namespace n ON n.oid = c.relnamespace
       WHERE n.nspname = 'public' AND c.relname = $1
+        AND NOT EXISTS (SELECT 1 FROM pg_constraint con WHERE con.conindid = ix.indexrelid)
       ORDER BY i.relname`,
     [name],
   )

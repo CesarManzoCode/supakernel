@@ -87,7 +87,11 @@ function aExpr(node: Node, table: string): Expr {
     }
   }
   if (exprKind === 'AEXPR_IN') {
-    const items = (node.rexpr as unknown[]).map((e) => {
+    const rexpr = node.rexpr as Node
+    const rawItems: unknown[] = Array.isArray(rexpr)
+      ? rexpr
+      : ((rexpr.List as { items?: unknown[] } | undefined)?.items ?? [])
+    const items = rawItems.map((e) => {
       const v = astToExpr(e, table)
       if (v.kind !== 'literal') throw new UnsupportedExprError('IN list must be literals')
       return v.value

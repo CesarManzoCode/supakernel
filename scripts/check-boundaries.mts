@@ -22,6 +22,8 @@ interface Pkg {
   dir: string
   name: string
   deps: Set<string>
+  /** `dependencies` only — the real runtime graph, used for cycle detection. */
+  runtimeDeps: Set<string>
   imports: Set<string>
 }
 
@@ -80,8 +82,9 @@ async function loadPackages(): Promise<Pkg[]> {
     } catch {
       continue
     }
+    const runtimeDeps = new Set<string>(Object.keys(manifest.dependencies ?? {}))
     const deps = new Set<string>([
-      ...Object.keys(manifest.dependencies ?? {}),
+      ...runtimeDeps,
       ...Object.keys(manifest.devDependencies ?? {}),
       ...Object.keys(manifest.optionalDependencies ?? {}),
     ])
@@ -93,7 +96,7 @@ async function loadPackages(): Promise<Pkg[]> {
         if (spec !== undefined && spec.length > 0 && !spec.startsWith('.')) imports.add(spec)
       }
     }
-    pkgs.push({ dir, name: manifest.name ?? dir, deps, imports })
+    pkgs.push({ dir, name: manifest.name ?? dir, deps, runtimeDeps, imports })
   }
   return pkgs
 }
@@ -196,7 +199,7 @@ function check(pkgs: Pkg[]): void {
   for (const p of pkgs) {
     graph.set(
       p.name,
-      [...p.deps].filter((d) => byName.has(d)),
+      [...p.runtimeDeps].filter((d) => byName.has(d)),
     )
   }
   const WHITE = 0

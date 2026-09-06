@@ -151,19 +151,32 @@ export function createTableStatement(schema: ProjectSchema, table: Table): SqlSt
   for (const c of table.checks) {
     lines.push(`CONSTRAINT ${q(c.name)} CHECK ${exprToSqlite(c.expr, columnType)}`)
   }
+  // SQLite has no enum type: enforce the label set with a CHECK named `<table>_<col>_enum`,
+  // which introspection recognises and folds back into `column.enumLabels`.
+  for (const col of table.columns) {
+    if (col.type === 'enum' && col.enumLabels) {
+      lines.push(
+        `CONSTRAINT ${q(enumCheckName(table.name, col.name))} CHECK (${q(col.name)} IN (${col.enumLabels
+          .map((l) => literal(l))
+          .join(', ')}))`,
+      )
+    }
+  }
   void schema
   return { text: `CREATE TABLE ${q(table.name)} (\n  ${lines.join(',\n  ')}\n)`, parameters: [] }
+}
+
+export function enumCheckName(table: string, column: string): string {
+  return `${table}_${column}_enum`
 }
 
 export function createIndexStatement(table: Table, idx: Index): SqlStatement {
   const columnType = (name: string): PortableType =>
     table.columns.find((c) => c.name === name)?.type ?? 'text'
-  const cols = idx.columns
-    .map((c) => {
-      const t = columnType(c)
-      return DECIMAL_STRING_TYPES.has(t) ? `CAST(${q(c)} AS NUMERIC)` : q(c)
-    })
-    .join(', ')
+  // Plain column list: an int64 column stores a canonical decimal string, so equality lookups
+  // (the only guaranteed use of a portable index) match exactly. Numeric-aware comparison
+  // stays in the WHERE / ORDER BY compilation, not the index access path.
+  const cols = idx.columns.map((c) => q(c)).join(', ')
   const where = idx.where ? ` WHERE ${exprToSqlite(idx.where, columnType)}` : ''
   return {
     text: `CREATE ${idx.unique ? 'UNIQUE ' : ''}INDEX ${q(idx.name)} ON ${q(table.name)} (${cols})${where}`,

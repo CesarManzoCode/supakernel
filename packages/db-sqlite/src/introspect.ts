@@ -2,6 +2,7 @@ import type {
   CheckConstraint,
   Column,
   ColumnDefault,
+  Expr,
   ForeignKey,
   ForeignKeyAction,
   Index,
@@ -43,6 +44,7 @@ export async function introspectSqlite(driver: SqliteDriver): Promise<ObservedSc
      WHERE name NOT LIKE 'sqlite_%'
        AND name NOT LIKE '\\_cf\\_%' ESCAPE '\\'
        AND name NOT LIKE 'd1\\_%' ESCAPE '\\'
+       AND name NOT LIKE '\\_sk\\_%' ESCAPE '\\'
        AND name NOT LIKE '\\_litestream%' ESCAPE '\\'
        AND sql IS NOT NULL
      ORDER BY name`,
@@ -51,6 +53,10 @@ export async function introspectSqlite(driver: SqliteDriver): Promise<ObservedSc
 
   const tables: Table[] = []
   const sequences: Sequence[] = []
+  const indexDdl = new Map<string, string>()
+  for (const m of masterRows) {
+    if (str(m.type) === 'index') indexDdl.set(str(m.name), str(m.sql))
+  }
 
   for (const m of masterRows) {
     const kind = str(m.type)
@@ -70,7 +76,7 @@ export async function introspectSqlite(driver: SqliteDriver): Promise<ObservedSc
     }
     if (kind !== 'table') continue
 
-    const table = await readTable(driver, name, ddl, unmodeled)
+    const table = await readTable(driver, name, ddl, indexDdl, unmodeled)
     tables.push(table)
 
     for (const col of table.columns) {
@@ -94,6 +100,7 @@ async function readTable(
   driver: SqliteDriver,
   name: string,
   ddl: string,
+  indexDdl: Map<string, string>,
   unmodeled: UnmodeledObject[],
 ): Promise<Table> {
   const info = await driver.all(`PRAGMA table_info(${quote(name)})`, [])
@@ -105,17 +112,19 @@ async function readTable(
       unmodeled.push({ kind: 'column', name: `${name}.${str(c.name)}`, reason: `type ${declType}` })
     }
     if (num(c.pk) > 0) pk.push({ name: str(c.name), seq: num(c.pk) })
+    const pt = portable ?? 'text'
     return {
       name: str(c.name),
-      type: portable ?? 'text',
+      type: pt,
       nullable: num(c.notnull) === 0,
-      default: parseDefault(c.dflt_value, ddl, str(c.name)),
+      default: canonicalizeDefault(parseDefault(c.dflt_value, ddl, str(c.name)), pt),
       generated: /\bGENERATED\b/i.test(columnClause(ddl, str(c.name))),
     }
   })
 
   const uniques: UniqueConstraint[] = []
   const indexes: Index[] = []
+  const ddlUniqueNames = parseUniqueConstraintNames(ddl)
   const idxList = await driver.all(`PRAGMA index_list(${quote(name)})`, [])
   for (const idx of idxList) {
     const idxName = str(idx.name)
@@ -125,18 +134,30 @@ async function readTable(
     const origin = str(idx.origin) // 'c' create index, 'u' unique constraint, 'pk'
     if (origin === 'pk') continue
     if (num(idx.unique) === 1 && origin === 'u') {
-      uniques.push({ name: idxName, columns: cols })
+      // Recover the user's CONSTRAINT name from the table DDL, matched by column set.
+      const declared = ddlUniqueNames.find((u) => u.columns.join(',') === cols.join(','))
+      uniques.push({ name: declared?.name ?? idxName, columns: cols })
+      continue
     }
-    indexes.push({
-      name: idxName,
-      columns: cols,
-      unique: num(idx.unique) === 1,
-      where: null, // partial-index predicate recovered in L3
-    })
-    if (idxName.startsWith('sqlite_autoindex')) {
-      // autoindex backs a UNIQUE/PK constraint; keep it only as a unique, not a user index
-      indexes.pop()
+    if (idxName.startsWith('sqlite_autoindex')) continue
+    let where: Index['where'] = null
+    const wherePart = indexDdl.get(idxName)?.match(/\bWHERE\b(.+)$/is)?.[1]
+    if (wherePart) {
+      try {
+        where = parseSqliteCheck(wherePart, name)
+      } catch (err) {
+        if (err instanceof UnsupportedCheckError) {
+          unmodeled.push({
+            kind: 'index',
+            name: idxName,
+            reason: `partial predicate outside portable Expr subset: ${wherePart.trim()}`,
+          })
+          continue
+        }
+        throw err
+      }
     }
+    indexes.push({ name: idxName, columns: cols, unique: num(idx.unique) === 1, where })
   }
 
   const foreignKeys: ForeignKey[] = []
@@ -148,18 +169,44 @@ async function readTable(
     arr.push(fk)
     fkGroups.set(id, arr)
   }
+  const ddlFkNames = parseForeignKeyConstraintNames(ddl)
   for (const [id, group] of fkGroups) {
     const sorted = [...group].sort((a, b) => num(a.seq) - num(b.seq))
     const first = sorted[0]
     if (!first) continue
+    const columns = sorted.map((g) => str(g.from))
+    const declared = ddlFkNames.find((f) => f.columns.join(',') === columns.join(','))
     foreignKeys.push({
-      name: `${name}_fk_${id}`,
-      columns: sorted.map((g) => str(g.from)),
+      name: declared?.name ?? `${name}_fk_${id}`,
+      columns,
       referencesTable: str(first.table),
       referencesColumns: sorted.map((g) => str(g.to)),
       onDelete: FK_ACTION[str(first.on_delete).toUpperCase()] ?? 'no-action',
       onUpdate: FK_ACTION[str(first.on_update).toUpperCase()] ?? 'no-action',
     })
+  }
+
+  const columnType = (col: string): string => columns.find((c) => c.name === col)?.type ?? 'text'
+
+  // Fold the `<table>_<col>_enum` CHECK back into `column.enumLabels` and drop it from checks.
+  const checks: CheckConstraint[] = []
+  for (const c of parseChecks(ddl, name, unmodeled)) {
+    const expr = coerceExprLiterals(c.expr, columnType)
+    const enumCol =
+      expr.kind === 'compare' &&
+      expr.op === 'in' &&
+      expr.left.kind === 'column' &&
+      columnType(expr.left.name) === 'enum' &&
+      expr.right.kind === 'literal' &&
+      Array.isArray(expr.right.value)
+        ? { name: expr.left.name, labels: expr.right.value.map(String) }
+        : null
+    if (enumCol) {
+      const col = columns.find((x) => x.name === enumCol.name)
+      if (col) (col as { enumLabels?: readonly string[] }).enumLabels = enumCol.labels
+      continue
+    }
+    checks.push({ name: c.name, expr })
   }
 
   return {
@@ -168,8 +215,11 @@ async function readTable(
     primaryKey: pk.sort((a, b) => a.seq - b.seq).map((p) => p.name),
     uniques,
     foreignKeys,
-    checks: parseChecks(ddl, name, unmodeled),
-    indexes,
+    checks,
+    indexes: indexes.map((i) => ({
+      ...i,
+      where: i.where ? coerceExprLiterals(i.where, columnType) : null,
+    })),
   }
 }
 
@@ -236,7 +286,11 @@ function parseDefault(
   }
   if (raw === null) return null
   const v = String(raw).trim()
-  if (/^CURRENT_TIMESTAMP$/i.test(v) || /^\(datetime\('now'\)\)$/i.test(v)) {
+  if (
+    /^CURRENT_TIMESTAMP$/i.test(v) ||
+    /^\(datetime\('now'\)\)$/i.test(v) ||
+    /strftime\(\s*'%Y-%m-%dT%H:%M:%f?Z?'\s*,\s*'now'\s*\)/i.test(v)
+  ) {
     return { kind: 'currentTimestamp' }
   }
   if (/lower\(hex\(randomblob/i.test(v) || /\/\*\s*sk:uuidv4\s*\*\//i.test(clause)) {
@@ -247,6 +301,18 @@ function parseDefault(
   if (/^(true|false)$/i.test(v)) return { kind: 'literal', value: /true/i.test(v) }
   if (/^null$/i.test(v)) return { kind: 'literal', value: null }
   return { kind: 'literal', value: v }
+}
+
+/** Map a physical default back to its portable form for a given column type. */
+function canonicalizeDefault(def: ColumnDefault | null, type: string): ColumnDefault | null {
+  if (def === null || def.kind !== 'literal') return def
+  if (type === 'bool' && (def.value === 0 || def.value === 1)) {
+    return { kind: 'literal', value: def.value === 1 }
+  }
+  if ((type === 'int64' || type === 'decimal') && typeof def.value === 'string') {
+    return /^-?\d+(\.\d+)?$/.test(def.value) ? { kind: 'literal', value: Number(def.value) } : def
+  }
+  return def
 }
 
 function identitySequence(seqName: string, ownedBy: string): Sequence {
@@ -263,4 +329,67 @@ function identitySequence(seqName: string, ownedBy: string): Sequence {
 
 function quote(name: string): string {
   return `"${name.replace(/"/g, '""')}"`
+}
+
+/**
+ * SQLite has no boolean storage class: the dialect emits `col = 1` for a bool comparison. When
+ * the compared column is a bool column, coerce the `0` / `1` literal back to `false` / `true`
+ * so a round-trip through introspection is lossless.
+ */
+function coerceExprLiterals(expr: Expr, columnType: (col: string) => string): Expr {
+  switch (expr.kind) {
+    case 'not':
+      return { kind: 'not', term: coerceExprLiterals(expr.term, columnType) }
+    case 'logic':
+      return {
+        kind: 'logic',
+        op: expr.op,
+        terms: expr.terms.map((t) => coerceExprLiterals(t, columnType)),
+      }
+    case 'compare': {
+      const left = coerceExprLiterals(expr.left, columnType)
+      let right = coerceExprLiterals(expr.right, columnType)
+      if (
+        left.kind === 'column' &&
+        columnType(left.name) === 'bool' &&
+        right.kind === 'literal' &&
+        (right.value === 0 || right.value === 1)
+      ) {
+        right = { kind: 'literal', value: right.value === 1 }
+      }
+      return { kind: 'compare', op: expr.op, left, right }
+    }
+    default:
+      return expr
+  }
+}
+
+function parseConstraintNames(
+  ddl: string,
+  keyword: 'UNIQUE' | 'FOREIGN KEY',
+): Array<{ name: string; columns: string[] }> {
+  const out: Array<{ name: string; columns: string[] }> = []
+  const re = new RegExp(`CONSTRAINT\\s+("?[A-Za-z0-9_]+"?)\\s+${keyword}\\s*\\(([^)]*)\\)`, 'gi')
+  let m = re.exec(ddl)
+  while (m !== null) {
+    out.push({
+      name: (m[1] ?? '').replace(/"/g, ''),
+      columns: (m[2] ?? '')
+        .split(',')
+        .map((c) => c.trim().replace(/"/g, ''))
+        .filter((c) => c.length > 0),
+    })
+    m = re.exec(ddl)
+  }
+  return out
+}
+
+/** Recover `CONSTRAINT "x" UNIQUE (cols)` names from a table's stored DDL. */
+function parseUniqueConstraintNames(ddl: string): Array<{ name: string; columns: string[] }> {
+  return parseConstraintNames(ddl, 'UNIQUE')
+}
+
+/** Recover `CONSTRAINT "x" FOREIGN KEY (cols)` names from a table's stored DDL. */
+function parseForeignKeyConstraintNames(ddl: string): Array<{ name: string; columns: string[] }> {
+  return parseConstraintNames(ddl, 'FOREIGN KEY')
 }

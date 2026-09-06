@@ -104,12 +104,40 @@ function defaultClause(def: NonNullable<Column['default']>): string {
   }
 }
 
+export function enumTypeName(table: string, column: string): string {
+  return `sk_enum_${table}_${column}`
+}
+
+function pgColumnType(table: string, col: Column): string {
+  if (col.type === 'enum') return q(enumTypeName(table, col.name))
+  return PG_TYPE[col.type]
+}
+
 function columnClause(table: Table, col: Column): string {
-  const parts = [q(col.name), PG_TYPE[col.type]]
+  const parts = [q(col.name), pgColumnType(table.name, col)]
   if (!col.nullable) parts.push('NOT NULL')
-  if (col.default) parts.push(`DEFAULT ${defaultClause(col.default)}`)
-  void table
+  if (col.default) {
+    parts.push(
+      `DEFAULT ${
+        col.type === 'enum' && col.default.kind === 'literal'
+          ? `${literal(col.default.value)}::${q(enumTypeName(table.name, col.name))}`
+          : defaultClause(col.default)
+      }`,
+    )
+  }
   return parts.join(' ')
+}
+
+/** `CREATE TYPE … AS ENUM (…)` statements for the enum columns a table declares. */
+export function enumTypeStatements(table: Table): SqlStatement[] {
+  return table.columns
+    .filter((c) => c.type === 'enum' && c.enumLabels)
+    .map((c) => ({
+      text: `CREATE TYPE ${q(enumTypeName(table.name, c.name))} AS ENUM (${(c.enumLabels ?? [])
+        .map((l) => literal(l))
+        .join(', ')})`,
+      parameters: [],
+    }))
 }
 
 export function createTableStatement(_schema: ProjectSchema, table: Table): SqlStatement {
@@ -132,15 +160,7 @@ export function createTableStatement(_schema: ProjectSchema, table: Table): SqlS
   for (const c of table.checks) {
     lines.push(`CONSTRAINT ${q(c.name)} CHECK ${exprToPg(c.expr)}`)
   }
-  for (const col of table.columns) {
-    if (col.type === 'enum' && col.enumLabels) {
-      lines.push(
-        `CONSTRAINT ${q(`${table.name}_${col.name}_enum`)} CHECK (${q(col.name)} IN (${col.enumLabels
-          .map((l) => literal(l))
-          .join(', ')}))`,
-      )
-    }
-  }
+  // enum columns are backed by a native `CREATE TYPE … AS ENUM`, which enforces the label set.
   return { text: `CREATE TABLE ${q(table.name)} (\n  ${lines.join(',\n  ')}\n)`, parameters: [] }
 }
 
@@ -154,7 +174,8 @@ export function createIndexStatement(table: Table, idx: Index): SqlStatement {
 }
 
 export function createSequenceStatements(seq: Sequence): SqlStatement[] {
-  const out: SqlStatement[] = [
+  // `OWNED BY` is emitted after the owning table exists (see `sequenceOwnershipStatement`).
+  return [
     {
       text:
         `CREATE SEQUENCE ${q(seq.name)} INCREMENT ${seq.increment} MINVALUE ${seq.min} ` +
@@ -162,11 +183,12 @@ export function createSequenceStatements(seq: Sequence): SqlStatement[] {
       parameters: [],
     },
   ]
-  if (seq.ownedBy) {
-    const [t, c] = seq.ownedBy.split('.') as [string, string]
-    out.push({ text: `ALTER SEQUENCE ${q(seq.name)} OWNED BY ${q(t)}.${q(c)}`, parameters: [] })
-  }
-  return out
+}
+
+export function sequenceOwnershipStatement(seq: Sequence): SqlStatement | null {
+  if (!seq.ownedBy) return null
+  const [t, c] = seq.ownedBy.split('.') as [string, string]
+  return { text: `ALTER SEQUENCE ${q(seq.name)} OWNED BY ${q(t)}.${q(c)}`, parameters: [] }
 }
 
 function fkAction(action: string): string {

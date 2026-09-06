@@ -12,7 +12,8 @@
       "!**/node_modules",
       "!**/*.gen.ts",
       "!vendor-lock",
-      "!pnpm-lock.yaml"
+      "!pnpm-lock.yaml",
+      "!packages/schema/schema.lock.json"
     ]
   },
   "formatter": {
@@ -28,7 +29,12 @@
       "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "error",
-        "noConsole": { "level": "warn", "options": { "allow": ["error", "warn"] } }
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["error", "warn"]
+          }
+        }
       },
       "style": {
         "useConst": "error",

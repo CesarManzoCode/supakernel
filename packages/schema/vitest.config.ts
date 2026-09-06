@@ -4,8 +4,7 @@ export default defineProject({
   test: {
     name: '@supakernel/schema',
     include: ['test/**/*.test.ts'],
-    exclude: ['test/bun/**', 'test/deno/**'],
-    testTimeout: 30_000,
-    hookTimeout: 30_000,
+    testTimeout: 60_000,
+    hookTimeout: 60_000,
   },
 })

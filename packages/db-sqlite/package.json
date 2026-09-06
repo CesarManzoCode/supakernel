@@ -50,6 +50,7 @@
     "playwright": "1.63.0",
     "esbuild": "0.28.1",
     "@electric-sql/pglite": "0.5.8",
-    "@supakernel/db-postgres": "workspace:*"
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/schema": "workspace:*"
   }
 }

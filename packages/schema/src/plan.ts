@@ -216,7 +216,19 @@ function compileChange(
     case 'create-table': {
       const table = desired.tables.find((t) => t.name === change.table)
       if (!table) return []
-      const stmts = [D.createTableStatement(desired, table)]
+      const stmts: SqlStatement[] = family === 'postgres' ? pg.enumTypeStatements(table) : []
+      stmts.push(D.createTableStatement(desired, table))
+      // Postgres: bind each identity column's sequence to it now that the table exists.
+      if (family === 'postgres') {
+        for (const col of table.columns) {
+          const def = col.default
+          if (def?.kind === 'identity') {
+            const seq = desired.sequences.find((s) => s.name === def.sequence)
+            const own = seq ? pg.sequenceOwnershipStatement(seq) : null
+            if (own) stmts.push(own)
+          }
+        }
+      }
       for (const idx of table.indexes) stmts.push(D.createIndexStatement(table, idx))
       return stmts
     }

@@ -29,15 +29,16 @@
     "schema:lock": "node scripts/schema-lock.mts",
     "test:contracts": "vitest run --project @supakernel/contracts",
     "test:ports": "vitest run --project @supakernel/ports",
-    "test:db:node": "vitest run --project db-node",
-    "test:db:pglite": "vitest run --project db-pglite",
-    "test:db:postgres": "vitest run --project db-postgres",
+    "test:db:node": "vitest run --project @supakernel/db-sqlite",
+    "test:db:pglite": "vitest run --project @supakernel/db-pglite",
+    "test:db:postgres": "vitest run --project @supakernel/db-postgres",
     "test:db:workers": "vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts",
     "test:db:browser": "node packages/db-sqlite/harness/browser/run.mts",
     "test:db:bun": "bun test packages/db-sqlite/test/bun",
     "test:db:deno": "cd packages/db-pglite/test/deno && deno test -A --no-check",
     "test:schema": "vitest run --project @supakernel/schema",
-    "test:migrations:matrix": "vitest run --project @supakernel/schema test/migration-matrix.test.ts"
+    "test:migrations:matrix": "vitest run --project @supakernel/schema test/migration-matrix.test.ts",
+    "test:db:sqlite-matrix": "vitest run --project @supakernel/db-sqlite && bun test packages/db-sqlite/test/bun && vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts && node packages/db-sqlite/harness/browser/run.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

@@ -19,3 +19,7 @@ artifacts/
 # lockfile anchor metadata is kept
 !pnpm-lock.yaml.meta.json
 packages/db-sqlite/harness/browser/.dist/
+
+# runtime harness scratch
+.wrangler*/
+**/.wrangler-*/

@@ -21,9 +21,8 @@
   "sideEffects": false,
   "dependencies": {
     "@supakernel/contracts": "workspace:*",
-    "@supakernel/ports": "workspace:*"
-  },
-  "devDependencies": {
+    "@supakernel/ports": "workspace:*",
     "vitest": "5.0.0"
-  }
+  },
+  "devDependencies": {}
 }

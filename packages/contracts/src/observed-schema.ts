@@ -1,4 +1,4 @@
-import type { ProjectSchema } from './schema.ts'
+import type { ProjectSchema } from './schema.js'
 
 /**
  * The result of `introspect()` (contract §9.2, §17.1). Normalized so that a round-trip

@@ -1,4 +1,4 @@
-import type { Json } from './json.ts'
+import type { Json } from './json.js'
 
 /**
  * A parameterized statement. `text` may contain dialect placeholders and, as the single

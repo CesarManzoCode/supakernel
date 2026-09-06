@@ -1,8 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { runDatabaseContractSuite } from '@supakernel/ports-test'
-import { openPglite } from '../src/adapter.ts'
+import { runDatabaseContractSuite, vitestApi } from '@supakernel/ports-test'
+import { openPglite } from '../src/adapter.js'
 
 let dir = ''
 
@@ -13,7 +13,7 @@ function fresh(): string {
 
 let dataDir = fresh()
 
-runDatabaseContractSuite({
+runDatabaseContractSuite(vitestApi(), {
   label: 'PGlite 0.5.8 (on-disk)',
   open: async () => openPglite({ dataDir }),
   reopen: async () => openPglite({ dataDir }),

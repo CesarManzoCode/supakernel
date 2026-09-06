@@ -12,7 +12,7 @@ import type {
   UniqueConstraint,
   UnmodeledObject,
 } from '@supakernel/contracts'
-import { parsePgCheck, UnsupportedPgCheckError } from './check-parser.ts'
+import { parsePgCheck, UnsupportedPgCheckError } from './check-parser.js'
 
 /** A minimal query runner both postgres.js and PGlite can satisfy. */
 export type PgQuery = (

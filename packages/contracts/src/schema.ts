@@ -1,6 +1,6 @@
-import type { Expr } from './expr.ts'
-import type { Json } from './json.ts'
-import type { PolicyRule } from './policy.ts'
+import type { Expr } from './expr.js'
+import type { Json } from './json.js'
+import type { PolicyRule } from './policy.js'
 
 /**
  * Portable column types (contract §8, §33 SchemaIR). Every type outside this list produces

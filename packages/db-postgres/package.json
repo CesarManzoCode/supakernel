@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./pg-common": {
+      "types": "./dist/pg-common.d.ts",
+      "default": "./dist/pg-common.js"
     }
   },
   "files": [

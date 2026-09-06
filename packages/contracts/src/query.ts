@@ -1,5 +1,5 @@
-import type { Expr } from './expr.ts'
-import type { Json } from './json.ts'
+import type { Expr } from './expr.js'
+import type { Json } from './json.js'
 
 /** A projected column, optionally aliased, or a one-hop FK embedding (contract §11.1). */
 export type Selection =

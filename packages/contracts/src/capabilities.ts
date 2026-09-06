@@ -1,4 +1,4 @@
-import type { Family } from './identifiers.ts'
+import type { Family } from './identifiers.js'
 
 export type IsolationLevel = 'read-committed' | 'serializable'
 

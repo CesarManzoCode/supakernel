@@ -1,4 +1,4 @@
-import type { Json } from './json.ts'
+import type { Json } from './json.js'
 
 /**
  * The portable expression grammar (contract §8). This is the ONLY expression language the

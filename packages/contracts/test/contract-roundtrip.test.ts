@@ -11,7 +11,7 @@ import {
   type QueryOperation,
   queryOperationSchema,
   redactError,
-} from '../src/index.ts'
+} from '../src/index.js'
 
 // --- canonical JSON ---
 

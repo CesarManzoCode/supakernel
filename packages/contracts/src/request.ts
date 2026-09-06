@@ -1,4 +1,4 @@
-import type { Principal } from './principal.ts'
+import type { Principal } from './principal.js'
 
 export type IpClass = 'loopback' | 'private' | 'public' | 'unknown'
 

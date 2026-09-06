@@ -8,7 +8,11 @@ import type {
   Transaction,
   TransactionOptions,
 } from '@supakernel/contracts'
-import { introspectPostgres, mapPostgresError, type PgQuery } from '@supakernel/db-postgres'
+import {
+  introspectPostgres,
+  mapPostgresError,
+  type PgQuery,
+} from '@supakernel/db-postgres/pg-common'
 import type { DatabaseAdapter } from '@supakernel/ports'
 
 export interface PgliteAdapterOptions {

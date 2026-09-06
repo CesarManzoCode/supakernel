@@ -5,10 +5,9 @@
     "rootDir": ".",
     "types": ["node"],
     "module": "NodeNext",
-    "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true,
     "noEmit": true,
-    "composite": false
+    "composite": false,
+    "allowImportingTsExtensions": true
   },
   "include": ["**/*.mts"]
 }

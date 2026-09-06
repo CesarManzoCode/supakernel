@@ -9,8 +9,8 @@ import type {
 } from '@supakernel/contracts'
 import type { DatabaseAdapter } from '@supakernel/ports'
 import postgres from 'postgres'
-import { mapPostgresError } from './errors.ts'
-import { introspectPostgres, type PgQuery } from './introspect.ts'
+import { mapPostgresError } from './errors.js'
+import { introspectPostgres, type PgQuery } from './introspect.js'
 
 export interface PostgresAdapterOptions {
   readonly url: string

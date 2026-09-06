@@ -10,14 +10,14 @@
  *  - redacted errors (never echo the offending value verbatim for internal failures)
  */
 import { z } from 'zod'
-import { type KernelError, kernelError } from './error.ts'
-import type { Expr } from './expr.ts'
-import { COMPARE_OPS, CONTEXT_NAMES, EXPR_KINDS } from './expr.ts'
-import type { Json } from './json.ts'
-import { POLICY_ACTIONS } from './policy.ts'
-import type { QueryOperation } from './query.ts'
-import type { ProjectSchema } from './schema.ts'
-import { PORTABLE_TYPES } from './schema.ts'
+import { type KernelError, kernelError } from './error.js'
+import type { Expr } from './expr.js'
+import { COMPARE_OPS, CONTEXT_NAMES, EXPR_KINDS } from './expr.js'
+import type { Json } from './json.js'
+import { POLICY_ACTIONS } from './policy.js'
+import type { QueryOperation } from './query.js'
+import type { ProjectSchema } from './schema.js'
+import { PORTABLE_TYPES } from './schema.js'
 
 // --- Json ---
 

@@ -6,17 +6,17 @@ export type {
   DatabaseCapabilities,
   IsolationLevel as CapabilityIsolationLevel,
   RuntimeLimits,
-} from './capabilities.ts'
-export { DEFAULT_RUNTIME_LIMITS } from './capabilities.ts'
-export type { KernelError, KernelErrorCategory, KernelErrorInit } from './error.ts'
+} from './capabilities.js'
+export { DEFAULT_RUNTIME_LIMITS } from './capabilities.js'
+export type { KernelError, KernelErrorCategory, KernelErrorInit } from './error.js'
 export {
   KERNEL_ERROR_CATEGORIES,
   KernelErrorException,
   kernelError,
   looksLikeLeak,
   redactError,
-} from './error.ts'
-export type { CompareOp, ContextName, Expr, ExprKind } from './expr.ts'
+} from './error.js'
+export type { CompareOp, ContextName, Expr, ExprKind } from './expr.js'
 export {
   assertNever,
   COMPARE_OPS,
@@ -25,7 +25,7 @@ export {
   exprDepth,
   MAX_EXPR_DEPTH,
   referencedTables,
-} from './expr.ts'
+} from './expr.js'
 export type {
   Brand,
   Family,
@@ -41,7 +41,7 @@ export type {
   SessionId,
   SubjectId,
   TenantId,
-} from './identifiers.ts'
+} from './identifiers.js'
 export {
   asFingerprint,
   asOperationId,
@@ -56,25 +56,25 @@ export {
   asTenantId,
   FAMILIES,
   RUNTIME_IDS,
-} from './identifiers.ts'
-export type { Json, JsonArray, JsonObject } from './json.ts'
-export { canonicalJson, isJsonArray, isJsonObject, jsonEquals } from './json.ts'
-export type { ObservedSchema, UnmodeledObject } from './observed-schema.ts'
-export type { ParseResult } from './parse.ts'
+} from './identifiers.js'
+export type { Json, JsonArray, JsonObject } from './json.js'
+export { canonicalJson, isJsonArray, isJsonObject, jsonEquals } from './json.js'
+export type { ObservedSchema, UnmodeledObject } from './observed-schema.js'
+export type { ParseResult } from './parse.js'
 export {
   EXPR_KIND_SET,
   jsonSchema,
   parse,
   projectSchemaSchema,
   queryOperationSchema,
-} from './parse.ts'
-export type { PolicyAction, PolicyFieldSpec, PolicyRule, SecurityPlan } from './policy.ts'
-export { isDeny, POLICY_ACTIONS } from './policy.ts'
-export type { Principal } from './principal.ts'
-export { anonymousPrincipal, isPrivilegedService } from './principal.ts'
-export type { Order, Page, QueryKind, QueryOperation, Selection } from './query.ts'
-export { operationTable, QUERY_KINDS, requiresFilter } from './query.ts'
-export type { IpClass, RequestContext } from './request.ts'
+} from './parse.js'
+export type { PolicyAction, PolicyFieldSpec, PolicyRule, SecurityPlan } from './policy.js'
+export { isDeny, POLICY_ACTIONS } from './policy.js'
+export type { Principal } from './principal.js'
+export { anonymousPrincipal, isPrivilegedService } from './principal.js'
+export type { Order, Page, QueryKind, QueryOperation, Selection } from './query.js'
+export { operationTable, QUERY_KINDS, requiresFilter } from './query.js'
+export type { IpClass, RequestContext } from './request.js'
 export type {
   ComparatorMode,
   ComparisonSpec,
@@ -82,7 +82,7 @@ export type {
   ObservationSpec,
   ScenarioSpec,
   ScenarioStep,
-} from './scenario.ts'
+} from './scenario.js'
 export type {
   CheckConstraint,
   Column,
@@ -96,8 +96,8 @@ export type {
   Sequence,
   Table,
   UniqueConstraint,
-} from './schema.ts'
-export { findColumn, findTable, isPortableType, PORTABLE_TYPES } from './schema.ts'
+} from './schema.js'
+export { findColumn, findTable, isPortableType, PORTABLE_TYPES } from './schema.js'
 export type {
   DbResult,
   DbRow,
@@ -106,5 +106,5 @@ export type {
   SqlValue,
   Transaction,
   TransactionOptions,
-} from './sql.ts'
-export { sql } from './sql.ts'
+} from './sql.js'
+export { sql } from './sql.js'

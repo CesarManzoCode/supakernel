@@ -8,19 +8,19 @@ export type {
   BlobStat,
   ByteRange,
   StagedBlob,
-} from './blob.ts'
-export type { ChangefeedPort, OutboxEvent } from './changefeed.ts'
-export type { ClockPort } from './clock.ts'
-export type { CryptoPort, JwtVerifyOptions, JwtVerifyResult } from './crypto.ts'
-export type { DatabaseAdapter, DatabaseAdapterFactory } from './database.ts'
-export type { FaultName, FaultPort } from './fault.ts'
-export { NULL_FAULT_PORT } from './fault.ts'
-export type { MailMessage, MailPort, MemoryMailSink } from './mail.ts'
-export { createMemoryMailSink } from './mail.ts'
-export type { RandomPort } from './random.ts'
+} from './blob.js'
+export type { ChangefeedPort, OutboxEvent } from './changefeed.js'
+export type { ClockPort } from './clock.js'
+export type { CryptoPort, JwtVerifyOptions, JwtVerifyResult } from './crypto.js'
+export type { DatabaseAdapter, DatabaseAdapterFactory } from './database.js'
+export type { FaultName, FaultPort } from './fault.js'
+export { NULL_FAULT_PORT } from './fault.js'
+export type { MailMessage, MailPort, MemoryMailSink } from './mail.js'
+export { createMemoryMailSink } from './mail.js'
+export type { RandomPort } from './random.js'
 export type {
   RealtimeSession,
   RuntimeAdapter,
   ServeOptions,
   ServerHandle,
-} from './runtime.ts'
+} from './runtime.js'

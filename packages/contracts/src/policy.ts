@@ -1,4 +1,4 @@
-import type { Expr } from './expr.ts'
+import type { Expr } from './expr.js'
 
 export type PolicyAction =
   | 'select'

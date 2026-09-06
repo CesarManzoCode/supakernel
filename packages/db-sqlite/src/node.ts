@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import type { RuntimeId } from '@supakernel/contracts'
-import { SqliteAdapter } from './core.ts'
-import type { PhysicalRow, PhysicalValue, SqliteDriver } from './driver.ts'
+import { SqliteAdapter } from './core.js'
+import type { PhysicalRow, PhysicalValue, SqliteDriver } from './driver.js'
 
 /** `node:sqlite` (Node 24) driver. Synchronous binding wrapped in the async `SqliteDriver`. */
 class NodeSqliteDriver implements SqliteDriver {

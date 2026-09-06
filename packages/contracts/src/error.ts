@@ -1,4 +1,4 @@
-import type { Json } from './json.ts'
+import type { Json } from './json.js'
 
 export type KernelErrorCategory =
   | 'input'

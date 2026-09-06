@@ -1,8 +1,8 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { runDatabaseContractSuite } from '@supakernel/ports-test'
-import { openNodeSqlite } from '../src/node.ts'
+import { runDatabaseContractSuite, vitestApi } from '@supakernel/ports-test'
+import { openNodeSqlite } from '../src/node.js'
 
 let dir = ''
 let file = ''
@@ -15,7 +15,7 @@ function fresh(): string {
 
 fresh()
 
-runDatabaseContractSuite({
+runDatabaseContractSuite(vitestApi(), {
   label: 'node:sqlite (file)',
   open: async () => openNodeSqlite({ path: file }),
   reopen: async () => openNodeSqlite({ path: file }),

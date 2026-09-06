@@ -11,9 +11,9 @@ import type {
   UniqueConstraint,
   UnmodeledObject,
 } from '@supakernel/contracts'
-import { parseSqliteCheck, UnsupportedCheckError } from './check-parser.ts'
-import { portableTypeForSqlite } from './dialect.ts'
-import type { PhysicalValue, SqliteDriver } from './driver.ts'
+import { parseSqliteCheck, UnsupportedCheckError } from './check-parser.js'
+import { portableTypeForSqlite } from './dialect.js'
+import type { PhysicalValue, SqliteDriver } from './driver.js'
 
 function str(v: PhysicalValue | undefined): string {
   return v === null || v === undefined ? '' : String(v)

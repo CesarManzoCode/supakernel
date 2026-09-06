@@ -35,7 +35,7 @@
     "test:db:workers": "node --experimental-strip-types packages/db-sqlite/harness/d1/run.mts",
     "test:db:browser": "node --experimental-strip-types packages/db-sqlite/harness/browser/run.mts",
     "test:db:bun": "bun test packages/db-sqlite/test/bun",
-    "test:db:deno": "deno test -A packages/db-pglite/test/deno",
+    "test:db:deno": "cd packages/db-pglite/test/deno && deno test -A --no-check",
     "test:schema": "vitest run --project @supakernel/schema",
     "test:migrations:matrix": "vitest run --project migrations-matrix"
   },

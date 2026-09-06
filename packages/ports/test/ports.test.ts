@@ -5,7 +5,7 @@ import {
   type DatabaseAdapter,
   NULL_FAULT_PORT,
   type RandomPort,
-} from '../src/index.ts'
+} from '../src/index.js'
 
 describe('ports — shape and defaults', () => {
   it('NULL_FAULT_PORT.hit resolves for every named fault point', async () => {

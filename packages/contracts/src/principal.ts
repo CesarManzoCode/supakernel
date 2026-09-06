@@ -1,4 +1,4 @@
-import type { Json } from './json.ts'
+import type { Json } from './json.js'
 
 /**
  * The authenticated identity of a request. Every field is derived only from verified

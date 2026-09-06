@@ -31,8 +31,8 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "typecheck": "tsc -b --noEmit"
+    "build": "tsc -b tsconfig.all.json",
+    "typecheck": "tsc -b tsconfig.all.json --noEmit"
   },
   "sideEffects": false,
   "dependencies": {

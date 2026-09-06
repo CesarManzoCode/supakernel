@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
-import { runDatabaseContractSuite } from '@supakernel/ports-test'
+import { runDatabaseContractSuite, vitestApi } from '@supakernel/ports-test'
 import { describe, it } from 'vitest'
-import { openPostgres } from '../src/adapter.ts'
+import { openPostgres } from '../src/adapter.js'
 
 const baseUrl = process.env.SUPAKERNEL_TEST_PG_URL
 
@@ -34,7 +34,7 @@ if (!baseUrl) {
 
   await makeDb()
 
-  runDatabaseContractSuite({
+  runDatabaseContractSuite(vitestApi(), {
     label: 'PostgreSQL 18.6 (postgres.js)',
     open: async () => openPostgres({ url }),
     reopen: async () => openPostgres({ url }),

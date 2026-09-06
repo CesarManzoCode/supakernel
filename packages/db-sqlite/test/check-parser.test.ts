@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseSqliteCheck, UnsupportedCheckError } from '../src/check-parser.ts'
+import { parseSqliteCheck, UnsupportedCheckError } from '../src/check-parser.js'
 
 describe('parseSqliteCheck — bounded to the portable Expr grammar', () => {
   it('parses a comparison against a literal', () => {

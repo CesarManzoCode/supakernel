@@ -3,9 +3,16 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["node", "emscripten"],
     "lib": ["ES2023", "ESNext.Disposable", "DOM", "DOM.Iterable"]
   },
   "references": [{ "path": "../contracts" }, { "path": "../ports" }],
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/core.ts",
+    "src/driver.ts",
+    "src/dialect.ts",
+    "src/introspect.ts",
+    "src/errors.ts",
+    "src/check-parser.ts",
+    "src/index.ts"
+  ]
 }

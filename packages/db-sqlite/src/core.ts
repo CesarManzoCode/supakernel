@@ -10,9 +10,9 @@ import {
   type TransactionOptions,
 } from '@supakernel/contracts'
 import type { DatabaseAdapter } from '@supakernel/ports'
-import { type PhysicalRow, type SqliteDriver, toPhysical } from './driver.ts'
-import { mapSqliteError } from './errors.ts'
-import { introspectSqlite } from './introspect.ts'
+import { type PhysicalRow, type SqliteDriver, toPhysical } from './driver.js'
+import { mapSqliteError } from './errors.js'
+import { introspectSqlite } from './introspect.js'
 
 export interface SqliteAdapterOptions {
   readonly id: string

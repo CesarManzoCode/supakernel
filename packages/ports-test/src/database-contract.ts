@@ -1,6 +1,36 @@
 import { canonicalJson, type Family } from '@supakernel/contracts'
 import type { DatabaseAdapter } from '@supakernel/ports'
-import { afterEach, describe, expect, it } from 'vitest'
+
+/**
+ * The jest-compatible test primitives the suite needs. Vitest, `bun:test` and a small Deno
+ * shim all satisfy this, so the suite body is runner-neutral (contract §33.1).
+ */
+export interface TestApi {
+  describe: (name: string, fn: () => void) => void
+  it: {
+    (name: string, fn: () => Promise<void> | void): void
+    (name: string, opts: { timeout?: number }, fn: () => Promise<void> | void): void
+  }
+  expect: (
+    actual: unknown,
+    message?: string,
+  ) => {
+    toBe(expected: unknown): void
+    toEqual(expected: unknown): void
+    toMatchObject(expected: object): void
+    toBeDefined(): void
+    toBeNull(): void
+    toHaveLength(n: number): void
+    toBeGreaterThan(n: number): void
+    resolves: { toBeUndefined(): Promise<void> }
+    rejects: {
+      toThrow(msg?: string | RegExp): Promise<void>
+      toMatchObject(expected: object): Promise<void>
+      toBeDefined(): Promise<void>
+    }
+  }
+  afterEach: (fn: () => Promise<void> | void) => void
+}
 
 /**
  * The shared Database connection contract suite (contract §9.3). Every L2 adapter calls
@@ -131,7 +161,8 @@ function asJson(v: unknown): unknown {
   return typeof v === 'string' ? JSON.parse(v) : v
 }
 
-export function runDatabaseContractSuite(harness: DatabaseContractHarness): void {
+export function runDatabaseContractSuite(testApi: TestApi, harness: DatabaseContractHarness): void {
+  const { describe, it, expect, afterEach } = testApi
   describe(`database connection contract — ${harness.label}`, () => {
     const openHandles: DatabaseAdapter[] = []
 

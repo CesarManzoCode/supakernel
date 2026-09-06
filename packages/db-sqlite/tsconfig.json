@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": ["node", "emscripten"],
+    "lib": ["ES2023", "ESNext.Disposable", "DOM", "DOM.Iterable"]
   },
+  "references": [{ "path": "../contracts" }, { "path": "../ports" }],
   "include": ["src/**/*.ts"]
 }

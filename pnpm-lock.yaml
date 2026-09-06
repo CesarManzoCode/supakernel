@@ -63,9 +63,22 @@ importers:
       '@supakernel/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
       '@supakernel/ports':
         specifier: workspace:*
         version: link:../ports
+    devDependencies:
+      '@supakernel/ports-test':
+        specifier: workspace:*
+        version: link:../ports-test
+      '@types/emscripten':
+        specifier: 1.41.6
+        version: 1.41.6
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
 
   packages/db-postgres:
     dependencies:
@@ -78,6 +91,13 @@ importers:
       postgres:
         specifier: 3.4.9
         version: 3.4.9
+    devDependencies:
+      '@supakernel/ports-test':
+        specifier: workspace:*
+        version: link:../ports-test
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
 
   packages/db-sqlite:
     dependencies:
@@ -91,9 +111,15 @@ importers:
         specifier: workspace:*
         version: link:../ports
     devDependencies:
+      '@supakernel/ports-test':
+        specifier: workspace:*
+        version: link:../ports-test
       '@types/emscripten':
         specifier: 1.41.6
         version: 1.41.6
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
 
   packages/gateway: {}
 

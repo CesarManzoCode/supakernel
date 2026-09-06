@@ -24,5 +24,8 @@
     "@supakernel/ports": "workspace:*",
     "postgres": "3.4.9"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@supakernel/ports-test": "workspace:*",
+    "@types/node": "24.13.3"
+  }
 }

@@ -2,12 +2,28 @@
   "name": "@supakernel/db-sqlite",
   "version": "0.0.0",
   "private": true,
-  "description": "SQLite core + node/bun/d1/wasm entrypoints",
+  "description": "SupaKernel SQLite family: core + node/bun/d1/wasm entrypoints",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
+    },
+    "./bun": {
+      "types": "./dist/bun.d.ts",
+      "default": "./dist/bun.js"
+    },
+    "./d1": {
+      "types": "./dist/d1.d.ts",
+      "default": "./dist/d1.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm.d.ts",
+      "default": "./dist/wasm.js"
     }
   },
   "files": [
@@ -25,6 +41,9 @@
     "@sqlite.org/sqlite-wasm": "3.53.0-build1"
   },
   "devDependencies": {
-    "@types/emscripten": "1.41.6"
+    "@types/emscripten": "1.41.6",
+    "@types/node": "24.13.3",
+    "@supakernel/ports-test": "workspace:*",
+    "@supakernel/contracts": "workspace:*"
   }
 }

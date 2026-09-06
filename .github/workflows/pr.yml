@@ -146,7 +146,7 @@ jobs:
           package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
-      - run: corepack pnpm exec playwright install --with-deps chromium
+      - run: corepack pnpm --filter @supakernel/db-sqlite exec playwright install --with-deps chromium
       - run: corepack pnpm test:db:browser
 
   schema:

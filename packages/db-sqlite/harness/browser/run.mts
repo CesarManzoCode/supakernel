@@ -20,16 +20,24 @@ const require = createRequire(import.meta.url)
 
 /** Vendored DB engines are copied whole and loaded relative to the served worker, so their
  *  own `new URL('./x.wasm', import.meta.url)` resolves against the harness server. */
+function pkgRoot(spec: string): string {
+  // Resolve the package's main entry, then walk up to the directory named after the package.
+  let dir = dirname(require.resolve(spec))
+  while (!dir.endsWith(spec) && dir !== dirname(dir)) dir = dirname(dir)
+  if (!dir.endsWith(spec)) throw new Error(`cannot locate package root for ${spec}`)
+  return dir
+}
+
 const VENDORS: { spec: string; pkgDir: string; entry: string; dest: string }[] = [
   {
     spec: '@sqlite.org/sqlite-wasm',
-    pkgDir: dirname(require.resolve('@sqlite.org/sqlite-wasm/package.json')),
+    pkgDir: pkgRoot('@sqlite.org/sqlite-wasm'),
     entry: 'dist/index.mjs',
     dest: 'sqlite-wasm',
   },
   {
     spec: '@electric-sql/pglite',
-    pkgDir: dirname(require.resolve('@electric-sql/pglite/package.json')),
+    pkgDir: pkgRoot('@electric-sql/pglite'),
     entry: 'dist/index.js',
     dest: 'pglite',
   },

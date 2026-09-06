@@ -17,11 +17,20 @@ import type {
   Transaction,
   TransactionOptions,
 } from '@supakernel/contracts'
-import { introspectPostgres } from '@supakernel/db-postgres/pg-common'
+import { introspectPostgres, mapPostgresError } from '@supakernel/db-postgres/pg-common'
 import type { DatabaseAdapter } from '@supakernel/ports'
 import { type DatabaseContractHarness, runDatabaseContractSuite } from '@supakernel/ports-test'
 import { openWasmSqlite, wipeWasmOpfs } from '../../src/wasm.js'
 import { type CaseResult, createCollectorApi } from './mini-runner.js'
+
+function wrapPgError(err: unknown): Error {
+  const code = (err as { code?: unknown }).code
+  if (typeof code !== 'string' || !/^[0-9A-Z]{5}$/.test(code)) return err as Error
+  const ke = mapPostgresError(err)
+  const e = new Error(`${ke.code}: ${ke.message}`)
+  ;(e as Error & { kernelError: unknown }).kernelError = ke
+  return e
+}
 
 // --- PGlite adapter, browser flavour (single-connection, serializable) ---
 
@@ -47,10 +56,14 @@ class BrowserPgliteAdapter implements DatabaseAdapter {
 
   async execute(statement: SqlStatement, tx?: Transaction): Promise<DbResult> {
     if (tx) return tx.execute(statement)
-    const res = await this.db.query(statement.text, statement.parameters as unknown[])
-    return {
-      rows: (res.rows as Array<Record<string, unknown>>).map((r) => ({ ...r }) as DbRow),
-      rowCount: res.affectedRows ?? res.rows.length,
+    try {
+      const res = await this.db.query(statement.text, statement.parameters as unknown[])
+      return {
+        rows: (res.rows as Array<Record<string, unknown>>).map((r) => ({ ...r }) as DbRow),
+        rowCount: res.affectedRows ?? res.rows.length,
+      }
+    } catch (err) {
+      throw wrapPgError(err)
     }
   }
 
@@ -110,10 +123,18 @@ function sqliteWasmHarness(): DatabaseContractHarness {
 
 function pgliteHarness(): DatabaseContractHarness {
   const dir = 'opfs-ahp://sk-pglite-contract'
+  // OPFS access handles are exclusive: a "crash + reopen" for a single-connection engine is
+  // modelled by releasing the prior handle first, which is what a real process restart does.
+  let current: BrowserPgliteAdapter | undefined
+  const spawn = async (): Promise<BrowserPgliteAdapter> => {
+    if (current) await current.close().catch(() => undefined)
+    current = new BrowserPgliteAdapter(dir)
+    return current
+  }
   return {
     label: 'PGlite + OPFS persistence (Chromium WebWorker)',
-    open: () => Promise.resolve(new BrowserPgliteAdapter(dir)),
-    reopen: () => Promise.resolve(new BrowserPgliteAdapter(dir)),
+    open: spawn,
+    reopen: spawn,
     cleanup: async () => {
       const scratch = new BrowserPgliteAdapter(dir)
       const tables = await scratch.execute({

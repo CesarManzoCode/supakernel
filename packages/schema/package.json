@@ -24,6 +24,9 @@
     "@supakernel/ports": "workspace:*"
   },
   "devDependencies": {
-    "libpg-query": "17.7.4"
+    "libpg-query": "17.7.4",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0",
+    "@supakernel/ports-test": "workspace:*"
   }
 }

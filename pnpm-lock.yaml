@@ -111,6 +111,12 @@ importers:
         specifier: workspace:*
         version: link:../ports
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: 0.5.8
+        version: 0.5.8
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
       '@supakernel/ports-test':
         specifier: workspace:*
         version: link:../ports-test
@@ -183,9 +189,18 @@ importers:
         specifier: workspace:*
         version: link:../ports
     devDependencies:
+      '@supakernel/ports-test':
+        specifier: workspace:*
+        version: link:../ports-test
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
       libpg-query:
         specifier: 17.7.4
         version: 17.7.4
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
   packages/storage: {}
 

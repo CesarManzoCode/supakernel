@@ -11,6 +11,26 @@ import * as sqlite from './dialects/sqlite.js'
 import { diffSchemas, type SchemaChange, type SchemaDiff } from './diff.js'
 import { hashSchema } from './hash.js'
 import { normalizeSchema } from './normalize.js'
+import { SQLITE_REBUILD_KINDS, sqliteRebuildStatements } from './rebuild.js'
+
+function pgDefault(
+  def: NonNullable<ProjectSchema['tables'][number]['columns'][number]['default']>,
+): string {
+  switch (def.kind) {
+    case 'literal':
+      return typeof def.value === 'string'
+        ? `'${def.value.replace(/'/g, "''")}'`
+        : String(def.value)
+    case 'currentTimestamp':
+      return 'now()'
+    case 'uuidV4':
+      return 'gen_random_uuid()'
+    case 'identity':
+      return `nextval('${def.sequence}'::regclass)`
+    default:
+      return 'NULL'
+  }
+}
 
 export type MigrationPhase =
   | 'sequences'
@@ -86,6 +106,7 @@ const CHANGE_PHASE: Record<SchemaChange['kind'], MigrationPhase> = {
   'drop-check': 'constraints',
   'add-index': 'indexes',
   'drop-index': 'indexes',
+  'rebuild-table': 'columns',
 }
 
 function stableId(prefix: string, payload: unknown): string {
@@ -108,13 +129,17 @@ export function planMigration(
 ): MigrationPlan {
   const fromHash = hashSchema(from)
   const toHash = hashSchema(to)
-  const desired = normalizeSchema(to)
-  const diff: SchemaDiff = applyRenames(diffSchemas(from, to, fromHash, toHash), options.renames)
+  const desiredFull = normalizeSchema(to)
+  const fromFull = normalizeSchema(from)
+  const desired = desiredFull
+  const raw: SchemaDiff = applyRenames(diffSchemas(from, to, fromHash, toHash), options.renames)
+  const diff: SchemaDiff =
+    options.family === 'sqlite' ? collapseSqliteRebuilds(raw, fromFull, desiredFull) : raw
 
   const steps: MigrationStep[] = []
   for (const change of diff.changes) {
     const phase = CHANGE_PHASE[change.kind]
-    const forward = compileChange(change, desired, options.family)
+    const forward = compileChange(change, desired, fromFull, options.family)
     const step: MigrationStep = {
       id: stableId('step', { change, family: options.family }),
       phase,
@@ -195,13 +220,171 @@ function isMappedRename(change: SchemaChange, renames: RenameMapping | undefined
   return false
 }
 
+/**
+ * SQLite cannot drop / retype / re-key a column with a simple ALTER. Collapse every
+ * rebuild-forcing change on a table (plus that table's other alters) into ONE
+ * `rebuild-table` step — the 12-step shadow procedure to the final desired shape.
+ */
+function collapseSqliteRebuilds(
+  diff: SchemaDiff,
+  from: ProjectSchema,
+  to: ProjectSchema,
+): SchemaDiff {
+  const rebuildTables = new Set<string>()
+  for (const c of diff.changes) {
+    if ('table' in c && SQLITE_REBUILD_KINDS.has(c.kind)) {
+      if (
+        from.tables.some((t) => t.name === c.table) &&
+        to.tables.some((t) => t.name === c.table)
+      ) {
+        rebuildTables.add(c.table)
+      }
+    }
+  }
+  if (rebuildTables.size === 0) return diff
+
+  const kept: SchemaChange[] = []
+  for (const c of diff.changes) {
+    if ('table' in c && rebuildTables.has(c.table)) {
+      if (c.kind === 'add-index') {
+        // indexes are recreated by the rebuild step itself
+        continue
+      }
+      continue
+    }
+    kept.push(c)
+  }
+  for (const table of [...rebuildTables].sort()) {
+    kept.push({ kind: 'rebuild-table', table, destructive: true })
+  }
+  kept.sort((x, y) => PHASE_ORDER(x.kind) - PHASE_ORDER(y.kind))
+  return {
+    ...diff,
+    changes: kept,
+    destructive: kept.filter((c) => 'destructive' in c && c.destructive),
+  }
+}
+
+function PHASE_ORDER(kind: SchemaChange['kind']): number {
+  return MIGRATION_PHASES.indexOf(CHANGE_PHASE[kind])
+}
+
 function compileChange(
   change: SchemaChange,
   desired: ProjectSchema,
+  from: ProjectSchema,
   family: Family,
 ): readonly SqlStatement[] {
   const D = family === 'postgres' ? pg : sqlite
   const q = (id: string): string => `"${id}"`
+  switch (change.kind) {
+    case 'rebuild-table': {
+      const fromTable = from.tables.find((t) => t.name === change.table)
+      const toTable = desired.tables.find((t) => t.name === change.table)
+      return fromTable && toTable ? sqliteRebuildStatements(desired, fromTable, toTable) : []
+    }
+    case 'drop-column':
+      return family === 'postgres'
+        ? [
+            {
+              text: `ALTER TABLE ${q(change.table)} DROP COLUMN ${q(change.column)}`,
+              parameters: [],
+            },
+          ]
+        : []
+    case 'alter-column': {
+      if (family !== 'postgres') return []
+      const table = desired.tables.find((t) => t.name === change.table)
+      const col = table?.columns.find((c) => c.name === change.column)
+      if (!table || !col) return []
+      const out: SqlStatement[] = []
+      if (change.changed.includes('type')) {
+        out.push({
+          text: `ALTER TABLE ${q(change.table)} ALTER COLUMN ${q(change.column)} TYPE ${pg.PG_TYPE[col.type]} USING ${q(change.column)}::${pg.PG_TYPE[col.type]}`,
+          parameters: [],
+        })
+      }
+      if (change.changed.includes('nullable')) {
+        out.push({
+          text: `ALTER TABLE ${q(change.table)} ALTER COLUMN ${q(change.column)} ${col.nullable ? 'DROP' : 'SET'} NOT NULL`,
+          parameters: [],
+        })
+      }
+      if (change.changed.includes('default')) {
+        out.push({
+          text: `ALTER TABLE ${q(change.table)} ALTER COLUMN ${q(change.column)} ${col.default ? `SET DEFAULT ${pgDefault(col.default)}` : 'DROP DEFAULT'}`,
+          parameters: [],
+        })
+      }
+      return out
+    }
+    case 'drop-check':
+    case 'drop-unique':
+      return family === 'postgres'
+        ? [
+            {
+              text: `ALTER TABLE ${q(change.table)} DROP CONSTRAINT ${q(change.constraint)}`,
+              parameters: [],
+            },
+          ]
+        : []
+    case 'drop-foreign-key':
+      return family === 'postgres'
+        ? [
+            {
+              text: `ALTER TABLE ${q(change.table)} DROP CONSTRAINT ${q(change.constraint)}`,
+              parameters: [],
+            },
+          ]
+        : []
+    case 'add-foreign-key': {
+      if (family !== 'postgres') return []
+      const fk = desired.tables
+        .find((t) => t.name === change.table)
+        ?.foreignKeys.find((f) => f.name === change.constraint)
+      return fk
+        ? [
+            {
+              text: `ALTER TABLE ${q(change.table)} ADD CONSTRAINT ${q(fk.name)} FOREIGN KEY (${fk.columns
+                .map(q)
+                .join(
+                  ', ',
+                )}) REFERENCES ${q(fk.referencesTable)} (${fk.referencesColumns.map(q).join(', ')})`,
+              parameters: [],
+            },
+          ]
+        : []
+    }
+    case 'set-primary-key': {
+      if (family !== 'postgres') return []
+      const table = desired.tables.find((t) => t.name === change.table)
+      return table
+        ? [
+            {
+              text: `ALTER TABLE ${q(change.table)} DROP CONSTRAINT IF EXISTS ${q(`${change.table}_pkey`)}`,
+              parameters: [],
+            },
+            {
+              text: `ALTER TABLE ${q(change.table)} ADD CONSTRAINT ${q(`${change.table}_pkey`)} PRIMARY KEY (${table.primaryKey.map(q).join(', ')})`,
+              parameters: [],
+            },
+          ]
+        : []
+    }
+    case 'drop-table':
+      return [{ text: `DROP TABLE ${q(change.table)}`, parameters: [] }]
+    case 'drop-index':
+      return [
+        {
+          text: `DROP INDEX ${family === 'postgres' ? '' : 'IF EXISTS '}${q(change.index)}`,
+          parameters: [],
+        },
+      ]
+    case 'drop-sequence':
+      return family === 'postgres'
+        ? [{ text: `DROP SEQUENCE IF EXISTS ${q(change.sequence)}`, parameters: [] }]
+        : []
+  }
   switch (change.kind) {
     case 'create-sequence': {
       const seq = desired.sequences.find((s) => s.name === change.sequence)
@@ -292,10 +475,7 @@ function compileChange(
         : []
     }
     default:
-      // drop-*, alter-column, set-primary-key, add-foreign-key: emitted as a documented no-op
-      // placeholder here; L3 apply handles SQLite rebuild + PG ALTER. Kept explicit so nothing
-      // is silently skipped.
-      return [{ text: `-- ${change.kind} on ${JSON.stringify(change)}`, parameters: [] }]
+      return []
   }
 }
 

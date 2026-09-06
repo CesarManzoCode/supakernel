@@ -172,5 +172,41 @@ for (const target of targets) {
         await dispose()
       }
     })
+
+    it('applies a destructive column drop with --allow-destructive, preserving data', async () => {
+      const { adapter, dispose } = await target.open()
+      try {
+        const before = (await parsePgSchema(read('shadow-copy/040-before.sql'))).schema
+        const after = (await parsePgSchema(read('shadow-copy/041-after.sql'))).schema
+        await applyMigration(adapter, planMigration(EMPTY, before, { family: target.family }), {
+          now: now(),
+        })
+        await adapter.execute({
+          text: `INSERT INTO item (id, label, legacy) VALUES ('1', 'keep', 'gone')`,
+          parameters: [],
+        })
+        const plan = planMigration(before, after, {
+          family: target.family,
+          allowDestructive: true,
+        })
+        expect(plan.risk).toBe('destructive-allowed')
+        // SQLite goes through the shadow rebuild; PostgreSQL does a plain DROP COLUMN.
+        expect(
+          plan.steps.some((s) =>
+            target.family === 'sqlite'
+              ? s.change.kind === 'rebuild-table'
+              : s.change.kind === 'drop-column',
+          ),
+        ).toBe(true)
+
+        expect((await applyMigration(adapter, plan, { now: now() })).status).toBe('applied')
+        expect(hashSchema(normalizeSchema(await adapter.introspect()))).toBe(hashSchema(after))
+        const rows = await adapter.execute({ text: `SELECT id, label FROM item`, parameters: [] })
+        expect(rows.rows).toHaveLength(1)
+        expect(String(rows.rows[0]?.label)).toBe('keep')
+      } finally {
+        await dispose()
+      }
+    })
   })
 }

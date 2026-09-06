@@ -74,27 +74,44 @@ export async function applyMigration(
       ? (s: SqlStatement): SqlStatement => pgPlaceholders(s)
       : (s: SqlStatement): SqlStatement => s
 
+  // A SQLite shadow rebuild drops + recreates a table; foreign-key enforcement is suspended
+  // for the rebuild and integrity is re-checked afterwards (contract §17.1). `PRAGMA
+  // foreign_keys` is a no-op inside a transaction, so it is toggled around the whole apply.
+  const needsFkSuspend =
+    plan.family === 'sqlite' && plan.steps.some((s) => s.change.kind === 'rebuild-table')
+
   if (adapter.capabilities.transactions === 'callback') {
-    await adapter.transaction({ isolation: 'serializable' }, async (tx) => {
-      for (const step of plan.steps) {
-        for (const stmt of flatten(step)) await tx.execute(stmt)
-        await tx.execute(
-          meta(
-            journalStepStatement(
-              plan.id,
-              step.id,
-              step.phase,
-              'applied',
-              step.checksum,
-              options.now,
+    if (needsFkSuspend) await adapter.execute(sql('PRAGMA foreign_keys = OFF'))
+    try {
+      await adapter.transaction({ isolation: 'serializable' }, async (tx) => {
+        for (const step of plan.steps) {
+          for (const stmt of flatten(step)) await tx.execute(stmt)
+          await tx.execute(
+            meta(
+              journalStepStatement(
+                plan.id,
+                step.id,
+                step.phase,
+                'applied',
+                step.checksum,
+                options.now,
+              ),
             ),
-          ),
-        )
+          )
+        }
+        await tx.execute(meta(recordSchemaHashStatement(plan.toHash, options.now)))
+      })
+      if (needsFkSuspend) {
+        const violations = await adapter.execute(sql('PRAGMA foreign_key_check'))
+        if (violations.rows.length > 0) {
+          throw new Error('SK_MIGRATION_FK_VIOLATION: shadow rebuild left dangling references')
+        }
       }
-      await tx.execute(meta(recordSchemaHashStatement(plan.toHash, options.now)))
-    })
+    } finally {
+      if (needsFkSuspend) await adapter.execute(sql('PRAGMA foreign_keys = ON'))
+    }
     return {
-      status: before === null ? 'applied' : 'applied',
+      status: 'applied',
       planId: plan.id,
       stepsApplied: plan.steps.length,
       schemaHash: plan.toHash,

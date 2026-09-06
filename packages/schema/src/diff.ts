@@ -24,6 +24,7 @@ export type SchemaChange =
   | { kind: 'drop-check'; table: string; constraint: string; destructive: true }
   | { kind: 'add-index'; table: string; index: string }
   | { kind: 'drop-index'; table: string; index: string; destructive: true }
+  | { kind: 'rebuild-table'; table: string; destructive: true }
 
 export interface SchemaDiff {
   readonly fromHash: string
@@ -198,4 +199,5 @@ const PHASE: Record<SchemaChange['kind'], number> = {
   'drop-check': 94,
   'add-index': 40,
   'drop-index': 95,
+  'rebuild-table': 22,
 }

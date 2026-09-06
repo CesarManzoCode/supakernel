@@ -1,0 +1,28 @@
+{
+  "name": "@supakernel/db-postgres",
+  "version": "0.0.0",
+  "private": true,
+  "description": "postgres.js adapter for PostgreSQL 18.6",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {}
+}

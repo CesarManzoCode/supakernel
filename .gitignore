@@ -1,0 +1,20 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+.vitest/
+*.log
+
+# local toolchain / scratch
+.pgdata*/
+.sk-tmp/
+artifacts/
+!fixtures/regressions/
+.DS_Store
+
+# editor
+.idea/
+.vscode/
+
+# lockfile anchor metadata is kept
+!pnpm-lock.yaml.meta.json

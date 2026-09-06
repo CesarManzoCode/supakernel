@@ -1,0 +1,24 @@
+{
+  "name": "@supakernel/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Canonical types, JSON Schemas and KernelError; dependency-free",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false,
+  "dependencies": {},
+  "devDependencies": {}
+}

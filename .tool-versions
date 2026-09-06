@@ -1,0 +1,5 @@
+nodejs 24.20.0
+pnpm 11.25.0
+bun 1.4.1
+deno 2.9.6
+postgres 18.6

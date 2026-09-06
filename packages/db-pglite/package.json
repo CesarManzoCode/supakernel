@@ -1,0 +1,28 @@
+{
+  "name": "@supakernel/db-pglite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PGlite adapter (PostgreSQL family)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@electric-sql/pglite": "0.5.8"
+  },
+  "devDependencies": {}
+}

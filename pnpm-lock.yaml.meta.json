@@ -1,0 +1,6 @@
+{
+  "createdAt": "2026-09-06T18:36:27Z",
+  "note": "Anchor timestamp for the minimumReleaseAge (72h) window. Set once when the lockfile was first created; scripts/verify-provenance.mts uses it to check that each minimumReleaseAgeExclude entry was genuinely necessary.",
+  "pnpm": "11.25.0",
+  "minimumReleaseAgeMinutes": 4320
+}

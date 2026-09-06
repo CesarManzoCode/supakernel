@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/contracts" },
+    { "path": "packages/ports" },
+    { "path": "packages/ports-test" },
+    { "path": "packages/schema" },
+    { "path": "packages/db-postgres" },
+    { "path": "packages/db-pglite" },
+    { "path": "packages/db-sqlite" }
+  ]
+}

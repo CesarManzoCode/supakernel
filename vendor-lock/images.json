@@ -1,0 +1,77 @@
+{
+  "cutoff": "2026-09-05T00:00:00Z",
+  "entries": [
+    {
+      "digest": "sha256:b5f9ae99d12b036c675eb2bd781e71e71f9360c4eaca8136333d246279696f12",
+      "reference": "ghcr.io/supabase/cli/auth:v2.196.0",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/auth",
+      "tag": "v2.196.0"
+    },
+    {
+      "digest": "sha256:5dc53e588d0b4826f9e3c7d61179e1f8e7493757843ab7f776ffaadf4b0740a4",
+      "reference": "ghcr.io/supabase/cli/edge-runtime:v1.74.3",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/edge-runtime",
+      "tag": "v1.74.3"
+    },
+    {
+      "digest": "sha256:75fcf5f5a72bc4bce354d1b5dfb4636a2e6979f0ce68cdacc51ed1bce2ab494e",
+      "reference": "ghcr.io/supabase/cli/imgproxy:v3.8.0",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/imgproxy",
+      "tag": "v3.8.0"
+    },
+    {
+      "digest": "sha256:37a38e48e9338cd7e89dfeb487f37b02ebfcd9cb23111bed2d345e79d37d6dd6",
+      "reference": "ghcr.io/supabase/cli/mailpit:v1.30.2",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/mailpit",
+      "tag": "v1.30.2"
+    },
+    {
+      "digest": "sha256:c900b2e3276c91e4313b4613784b5f287e6b4815390dfa3a8ed7685987e902c5",
+      "reference": "ghcr.io/supabase/cli/pgmeta:v0.98.0",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/pgmeta",
+      "tag": "v0.98.0"
+    },
+    {
+      "digest": "sha256:a1610ad0a08c72febbbaa39f0a502ef2a046d4e7e7b7b21337a3ff18405aadcd",
+      "reference": "ghcr.io/supabase/cli/postgres:17.6.1.165",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/postgres",
+      "tag": "17.6.1.165"
+    },
+    {
+      "digest": "sha256:838b37d271eae2a9694f69e302169f1cc00c359d5d2595cb7d94646bde2468f6",
+      "reference": "ghcr.io/supabase/cli/postgrest:v16.1",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/postgrest",
+      "tag": "v16.1"
+    },
+    {
+      "digest": "sha256:f81b9ca9e66dd5179430cfdfbf7bbb87ac6faf5a55b3df758e94beebf7a821ac",
+      "reference": "ghcr.io/supabase/cli/realtime:v2.129.3",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/realtime",
+      "tag": "v2.129.3"
+    },
+    {
+      "digest": "sha256:47f9c07eb4f11d1ec19c108ac85454407d491445d690d0c623a61b1af1f7d529",
+      "reference": "ghcr.io/supabase/cli/storage:v1.70.3",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/storage",
+      "tag": "v1.70.3"
+    },
+    {
+      "digest": "sha256:ae3fa23c3ba656de21fa6b8a71d02a78c69e59851a6c22a640a4bc63d3a87adc",
+      "reference": "ghcr.io/supabase/cli/studio:2026.08.17-sha-0c1da8f",
+      "registry": "ghcr.io",
+      "repository": "supabase/cli/studio",
+      "tag": "2026.08.17-sha-0c1da8f"
+    }
+  ],
+  "generatedFrom": "scripts/lock-vendors.mts",
+  "schemaVersion": 1
+}

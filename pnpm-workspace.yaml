@@ -1,0 +1,34 @@
+# SupaKernel workspace + supply-chain policy.
+# Per docs/SupaKernel-Contract.md §33.1: all non-auth pnpm settings live here, not in .npmrc.
+packages:
+  - "packages/*"
+  - "apps/*"
+  - "labs/*"
+
+# --- exact versions only; never a range prefix ---
+savePrefix: ""
+engineStrict: true
+
+# --- supply-chain age gate (contract §33.1) ---
+# 4320 minutes = 72 hours. A dependency version younger than this is refused.
+minimumReleaseAge: 4320
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
+
+# Bootstrap exceptions: ONLY `package@exact-version`, never a bare name, wildcard or range.
+# Each entry is validated by scripts/verify-provenance.mts against the registry publish
+# timestamp and must correspond to a normative pin in the contract. Any future version of
+# the same package is subject to the full 72h gate again.
+minimumReleaseAgeExclude: []
+
+# --- lockfile trust (contract §33.1) ---
+trustLockfile: false
+
+# --- dependency build scripts: explicit allowlist only ---
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - "esbuild"
+  - "@electric-sql/pglite"
+  - "libpg-query"
+  - "workerd"
+  - "@cloudflare/workerd-linux-64"

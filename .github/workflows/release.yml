@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm verify:provenance
@@ -41,6 +42,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       # Full §31 acceptance matrix, dual-arch build hashes, provenance / SBOM / signature and
       # consumer install from packed tarballs are wired in L14.

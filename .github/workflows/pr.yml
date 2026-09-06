@@ -24,6 +24,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm verify:provenance
@@ -39,6 +40,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm typecheck
@@ -52,6 +54,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
@@ -75,6 +78,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
@@ -95,6 +99,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm test:db:bun
@@ -110,6 +115,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm test:db:deno
@@ -122,6 +128,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm test:db:workers
@@ -134,6 +141,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm exec playwright install --with-deps chromium
@@ -147,6 +155,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       - run: corepack pnpm test:schema

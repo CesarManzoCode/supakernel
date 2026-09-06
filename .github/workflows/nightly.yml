@@ -19,6 +19,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.1
@@ -53,6 +54,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24.20.0
+          package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
       - run: corepack pnpm build
       # Direct PostgREST / GoTrue / Storage / Realtime trace suites land here from L11.

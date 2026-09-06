@@ -72,6 +72,14 @@
       "publishedAt": "2026-09-03T12:24:30.312Z",
       "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.0.0.tgz",
       "version": "5.0.0"
+    },
+    {
+      "integrity": "sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==",
+      "license": "MIT",
+      "name": "zod",
+      "publishedAt": "2026-08-29T17:55:42.775Z",
+      "resolved": "https://registry.npmjs.org/zod/-/zod-4.5.4.tgz",
+      "version": "4.5.4"
     }
   ],
   "generatedFrom": "scripts/lock-vendors.mts",

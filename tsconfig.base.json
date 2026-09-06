@@ -21,6 +21,8 @@
     "isolatedDeclarations": true,
     "isolatedModules": true,
     "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
 
     "skipLibCheck": false,
 

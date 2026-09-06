@@ -25,7 +25,9 @@ interface Pkg {
   imports: Set<string>
 }
 
-const RUNTIME_LIB_ALLOW = new Set(['typescript'])
+// contracts may use only the JSON-boundary validator (zod) and the type compiler.
+// Everything heavier (hono, drivers, adapters, node globals) stays out.
+const RUNTIME_LIB_ALLOW = new Set(['typescript', 'zod'])
 
 const violations: string[] = []
 function violation(msg: string): void {

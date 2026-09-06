@@ -19,6 +19,8 @@
     "typecheck": "tsc -b --noEmit"
   },
   "sideEffects": false,
-  "dependencies": {},
+  "dependencies": {
+    "zod": "4.5.4"
+  },
   "devDependencies": {}
 }

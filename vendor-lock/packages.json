@@ -2,6 +2,14 @@
   "cutoff": "2026-09-05T00:00:00Z",
   "entries": [
     {
+      "integrity": "sha512-0ZSAgmEda33xPqVPt+bx2KzrXV1cUCKRRVPGliLu+V7DzHPa04CqPSi1maGEM4O0LDP0iI6HRSW5ULloNwayNw==",
+      "license": "Apache-2.0",
+      "name": "@aws-sdk/client-s3",
+      "publishedAt": "2026-09-04T18:48:11.282Z",
+      "resolved": "https://registry.npmjs.org/@aws-sdk/client-s3/-/client-s3-3.1127.0.tgz",
+      "version": "3.1127.0"
+    },
+    {
       "integrity": "sha512-Lw4VHZRebrReBBnlHa12JQjnIBm3JJAA55PDB9LbBVBF0q4RYphm6KfmIjqtPhf61MxZ5Q9KoK8R8x+7per5Aw==",
       "license": "MIT OR Apache-2.0",
       "name": "@biomejs/biome",

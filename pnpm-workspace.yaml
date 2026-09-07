@@ -30,6 +30,11 @@ minimumReleaseAgeExclude:
   # hono 4.13.7 is a normative contract pin (§33.1, HTTP) published 2026-09-04T19:18:07Z,
   # ~47h before the lock anchor — inside the 72h window at lock creation.
   - "hono@4.13.7"
+  # @aws-sdk/client-s3 3.1127.0 is a normative contract pin (§33.1, blob-s3 S3/R2 adapter)
+  # published 2026-09-04T18:48:11Z — inside the 72h window at lock creation. Its entire
+  # transitive closure (@aws-sdk/*, @smithy/*, tslib) resolves to versions already older
+  # than 72h, so only the top-level package needs the exception.
+  - "@aws-sdk/client-s3@3.1127.0"
 
 # --- lockfile trust (contract §33.1) ---
 trustLockfile: false

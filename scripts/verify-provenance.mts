@@ -62,6 +62,7 @@ const NORMATIVE_PINS: ReadonlySet<string> = new Set([
   '@supabase/auth-js@2.115.0',
   '@supabase/storage-js@2.115.0',
   '@supabase/realtime-js@2.115.0',
+  '@aws-sdk/client-s3@3.1127.0',
 ])
 
 const AGE_GATE_MINUTES = 4320

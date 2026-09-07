@@ -8,6 +8,7 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 
 | Package | Version | License |
 |---|---|---|
+| `@aws-sdk/client-s3` | 3.1127.0 | Apache-2.0 |
 | `@biomejs/biome` | 2.5.12 | MIT OR Apache-2.0 |
 | `@electric-sql/pglite` | 0.5.8 | Apache-2.0 |
 | `@sqlite.org/sqlite-wasm` | 3.53.0-build1 | Apache-2.0 |

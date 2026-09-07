@@ -1,3 +1,16 @@
+import {
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  type GetObjectCommandOutput,
+  HeadObjectCommand,
+  type HeadObjectCommandOutput,
+  ListObjectsV2Command,
+  type ListObjectsV2CommandOutput,
+  PutObjectCommand,
+  S3Client,
+  type S3ClientConfig,
+} from '@aws-sdk/client-s3'
 import { kernelError } from '@supakernel/contracts'
 import type {
   BlobAdapter,
@@ -7,9 +20,21 @@ import type {
   ByteRange,
   StagedBlob,
 } from '@supakernel/ports'
-import { type S3Config, sha256Hex, signS3 } from './sigv4.js'
 
-export type { S3Config } from './sigv4.js'
+export interface S3Config {
+  readonly endpoint: string
+  readonly region: string
+  readonly bucket: string
+  readonly accessKeyId: string
+  readonly secretAccessKey: string
+  /** MinIO / most S3-compatible stores need path-style addressing. Defaults to path-style. */
+  readonly forcePathStyle?: boolean
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes as unknown as ArrayBuffer)
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
 
 function blobError(code: string, message: string, httpStatus: number): Error {
   const e = new Error(`${code}: ${message}`)
@@ -20,6 +45,16 @@ function blobError(code: string, message: string, httpStatus: number): Error {
     httpStatus,
   })
   return e
+}
+
+function httpStatusOf(err: unknown): number | undefined {
+  const meta = (err as { $metadata?: { httpStatusCode?: number } } | null)?.$metadata
+  return meta?.httpStatusCode
+}
+
+function isNotFound(err: unknown): boolean {
+  const name = (err as { name?: string } | null)?.name
+  return name === 'NotFound' || name === 'NoSuchKey' || httpStatusOf(err) === 404
 }
 
 async function collect(stream: ReadableStream<Uint8Array>, maxBytes: number): Promise<Uint8Array> {
@@ -44,40 +79,31 @@ async function collect(stream: ReadableStream<Uint8Array>, maxBytes: number): Pr
 }
 
 /**
- * S3 / R2 `BlobAdapter` (contract §14). Talks the S3 REST API with self-contained SigV4
- * signing (WebCrypto) — no SDK. Staged objects are stored under `staging/<opId>`; `promote`
- * server-side-copies to the final key, then deletes the staged object.
+ * S3 / R2 `BlobAdapter` (contract §14). Built on the pinned `@aws-sdk/client-s3` (§33.1) so
+ * the request signing, retry and streaming paths are the SDK's. Works against AWS S3, MinIO
+ * and Cloudflare R2 (path-style addressing on by default for S3-compatible endpoints).
+ * Staged objects live under `staging/<opId>`; `promote` server-side-copies to the final key
+ * and then deletes the staged object.
  */
 export class S3BlobAdapter implements BlobAdapter {
   readonly id: string
-  private readonly cfg: S3Config
+  private readonly bucket: string
+  private readonly client: S3Client
 
-  constructor(cfg: S3Config & { id?: string }) {
-    this.cfg = cfg
+  constructor(cfg: S3Config & { id?: string; client?: S3Client }) {
+    this.bucket = cfg.bucket
     this.id = cfg.id ?? `blob-s3:${cfg.endpoint}/${cfg.bucket}`
+    const clientConfig: S3ClientConfig = {
+      endpoint: cfg.endpoint,
+      region: cfg.region,
+      credentials: { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey },
+      forcePathStyle: cfg.forcePathStyle !== false,
+    }
+    this.client = cfg.client ?? new S3Client(clientConfig)
   }
 
   private stagedKey(opId: string): string {
     return `staging/${opId}`
-  }
-
-  private async request(
-    method: string,
-    key: string,
-    payload: Uint8Array | null,
-    extraHeaders: Record<string, string> = {},
-  ): Promise<Response> {
-    const payloadHash = payload
-      ? await sha256Hex(payload)
-      : method === 'GET' || method === 'HEAD'
-        ? 'UNSIGNED-PAYLOAD'
-        : await sha256Hex('')
-    const headers = { ...extraHeaders }
-    if (payload) headers['content-length'] = String(payload.byteLength)
-    const signed = await signS3(this.cfg, method, key, payloadHash, headers)
-    const init: RequestInit = { method, headers: signed.headers }
-    if (payload) init.body = Uint8Array.from(payload) as unknown as BodyInit
-    return fetch(signed.url, init)
   }
 
   async putStaged(
@@ -95,101 +121,143 @@ export class S3BlobAdapter implements BlobAdapter {
       )
     }
     const key = this.stagedKey(opId)
-    const res = await this.request('PUT', key, bytes, {
-      ...(expected.contentType ? { 'content-type': expected.contentType } : {}),
-    })
-    if (!res.ok)
-      throw blobError('SK_STORAGE_WRITE_FAILED', `staged write failed (${res.status})`, 502)
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: bytes,
+          ContentLength: bytes.byteLength,
+          ...(expected.contentType ? { ContentType: expected.contentType } : {}),
+        }),
+      )
+    } catch (err) {
+      throw blobError(
+        'SK_STORAGE_WRITE_FAILED',
+        `staged write failed (${httpStatusOf(err) ?? (err as Error).name})`,
+        502,
+      )
+    }
     return { opId, stagedKey: key, bytes: bytes.byteLength, sha256 }
   }
 
   async promote(staged: StagedBlob, finalKey: string): Promise<void> {
-    const copySource = `/${this.cfg.bucket}/${staged.stagedKey.split('/').map(encodeURIComponent).join('/')}`
-    const res = await this.request('PUT', finalKey, new Uint8Array(0), {
-      'x-amz-copy-source': copySource,
-    })
-    if (!res.ok && res.status !== 404) {
-      // 404 → staged already moved (idempotent replay); tolerate if the object now exists
-      if (!(await this.stat(finalKey))) {
-        throw blobError('SK_STORAGE_PROMOTE_FAILED', `promote failed (${res.status})`, 502)
+    try {
+      await this.client.send(
+        new CopyObjectCommand({
+          Bucket: this.bucket,
+          Key: finalKey,
+          CopySource: `${this.bucket}/${staged.stagedKey.split('/').map(encodeURIComponent).join('/')}`,
+        }),
+      )
+    } catch (err) {
+      // A missing staged object → tolerate if the final object already exists (idempotent replay).
+      if (!isNotFound(err) || !(await this.stat(finalKey))) {
+        throw blobError(
+          'SK_STORAGE_PROMOTE_FAILED',
+          `promote failed (${httpStatusOf(err) ?? (err as Error).name})`,
+          502,
+        )
       }
     }
-    await this.request('DELETE', staged.stagedKey, new Uint8Array(0)).catch(() => undefined)
+    await this.client
+      .send(new DeleteObjectCommand({ Bucket: this.bucket, Key: staged.stagedKey }))
+      .catch(() => undefined)
   }
 
   async open(key: string, range?: ByteRange): Promise<BlobRead> {
-    const headers: Record<string, string> = {}
-    if (range) {
-      headers.range = `bytes=${range.start}-${range.end === null ? '' : range.end}`
+    let res: GetObjectCommandOutput
+    try {
+      res = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          ...(range
+            ? { Range: `bytes=${range.start}-${range.end === null ? '' : range.end}` }
+            : {}),
+        }),
+      )
+    } catch (err) {
+      if ((err as { name?: string }).name === 'InvalidRange' || httpStatusOf(err) === 416)
+        throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', 'range not satisfiable', 416)
+      if (isNotFound(err))
+        throw blobError('SK_STORAGE_OBJECT_MISSING', 'object bytes are missing', 500)
+      throw blobError('SK_STORAGE_READ_FAILED', `read failed (${(err as Error).name})`, 502)
     }
-    const res = await this.request('GET', key, null, headers)
-    if (res.status === 416)
-      throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', 'range not satisfiable', 416)
-    if (res.status === 404 || !res.body)
-      throw blobError('SK_STORAGE_OBJECT_MISSING', 'object bytes are missing', 500)
-    const totalBytes = Number(
-      res.headers.get('content-range')?.split('/')[1] ?? res.headers.get('content-length') ?? 0,
-    )
+    const bodyStream = (
+      res.Body as { transformToWebStream?: () => ReadableStream<Uint8Array> } | undefined
+    )?.transformToWebStream?.()
+    if (!bodyStream) throw blobError('SK_STORAGE_OBJECT_MISSING', 'object bytes are missing', 500)
+    const cr = res.ContentRange
     let outRange: { start: number; end: number } | null = null
-    const cr = res.headers.get('content-range')
-    if (cr) {
-      const m = /bytes (\d+)-(\d+)\//.exec(cr)
-      if (m) outRange = { start: Number(m[1]), end: Number(m[2]) }
-    }
+    const m = cr ? /bytes (\d+)-(\d+)\//.exec(cr) : null
+    if (m) outRange = { start: Number(m[1]), end: Number(m[2]) }
+    const totalBytes = Number(cr?.split('/')[1] ?? res.ContentLength ?? 0)
     return {
-      stream: res.body,
+      stream: bodyStream,
       totalBytes,
       range: outRange,
-      sha256: (res.headers.get('etag') ?? '').replace(/"/g, ''),
-      contentType: res.headers.get('content-type'),
+      sha256: (res.ETag ?? '').replace(/"/g, ''),
+      contentType: res.ContentType ?? null,
     }
   }
 
   async stat(key: string): Promise<BlobStat | null> {
-    const res = await this.request('HEAD', key, null)
-    if (res.status === 404) return null
-    if (!res.ok) throw blobError('SK_STORAGE_STAT_FAILED', `stat failed (${res.status})`, 502)
-    const now = res.headers.get('last-modified') ?? new Date().toISOString()
+    let res: HeadObjectCommandOutput
+    try {
+      res = await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }))
+    } catch (err) {
+      if (isNotFound(err)) return null
+      throw blobError(
+        'SK_STORAGE_STAT_FAILED',
+        `stat failed (${httpStatusOf(err) ?? (err as Error).name})`,
+        502,
+      )
+    }
+    const at = (res.LastModified ?? new Date()).toISOString()
     return {
       key,
-      bytes: Number(res.headers.get('content-length') ?? 0),
-      sha256: (res.headers.get('etag') ?? '').replace(/"/g, ''),
-      contentType: res.headers.get('content-type'),
-      createdAt: new Date(now).toISOString(),
-      updatedAt: new Date(now).toISOString(),
+      bytes: Number(res.ContentLength ?? 0),
+      sha256: (res.ETag ?? '').replace(/"/g, ''),
+      contentType: res.ContentType ?? null,
+      createdAt: at,
+      updatedAt: at,
     }
   }
 
   async delete(key: string): Promise<void> {
-    await this.request('DELETE', key, new Uint8Array(0))
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }))
   }
 
   async *listStaged(olderThan: string): AsyncIterable<StagedBlob> {
     const cutoff = Date.parse(olderThan)
-    const signed = await signS3(
-      this.cfg,
-      'GET',
-      '',
-      'UNSIGNED-PAYLOAD',
-      {},
-      { 'list-type': '2', prefix: 'staging/' },
-    )
-    const res = await fetch(signed.url, { method: 'GET', headers: signed.headers })
-    if (!res.ok) return
-    const xml = await res.text()
-    const entries = [...xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)]
-    for (const m of entries) {
-      const body = m[1] ?? ''
-      const key = /<Key>([^<]*)<\/Key>/.exec(body)?.[1] ?? ''
-      const lastMod = /<LastModified>([^<]*)<\/LastModified>/.exec(body)?.[1] ?? ''
-      const size = Number(/<Size>(\d+)<\/Size>/.exec(body)?.[1] ?? '0')
-      if (key && Date.parse(lastMod) < cutoff) {
-        yield { opId: key.replace(/^staging\//, ''), stagedKey: key, bytes: size, sha256: '' }
+    let continuationToken: string | undefined
+    do {
+      const res: ListObjectsV2CommandOutput = await this.client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket,
+          Prefix: 'staging/',
+          ...(continuationToken ? { ContinuationToken: continuationToken } : {}),
+        }),
+      )
+      for (const obj of res.Contents ?? []) {
+        const key = obj.Key ?? ''
+        if (key && (obj.LastModified?.getTime() ?? 0) < cutoff) {
+          yield {
+            opId: key.replace(/^staging\//, ''),
+            stagedKey: key,
+            bytes: obj.Size ?? 0,
+            sha256: '',
+          }
+        }
       }
-    }
+      continuationToken = res.IsTruncated ? res.NextContinuationToken : undefined
+    } while (continuationToken)
   }
 
-  async [Symbol.asyncDispose](): Promise<void> {}
+  async [Symbol.asyncDispose](): Promise<void> {
+    this.client.destroy()
+  }
 }
 
 export function openS3Blob(cfg: S3Config & { id?: string }): S3BlobAdapter {

@@ -2,7 +2,7 @@
   "cutoff": "2026-09-05T00:00:00Z",
   "entries": [
     {
-      "digest": "sha256:b5f9ae99d12b036c675eb2bd781e71e71f9360c4eaca8136333d246279696f12",
+      "digest": "sha256:570efcfd1568341103f39a2503400d7ee470dcf90bbf8934e6aa9df1b9785fc6",
       "reference": "ghcr.io/supabase/cli/auth:v2.196.0",
       "registry": "ghcr.io",
       "repository": "supabase/cli/auth",

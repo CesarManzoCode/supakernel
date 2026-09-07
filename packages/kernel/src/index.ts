@@ -9,8 +9,10 @@ import type {
   PolicyRule,
   Principal,
   RuntimeId,
+  RuntimeLimits,
   SchemaIR,
 } from '@supakernel/contracts'
+import { DEFAULT_RUNTIME_LIMITS } from '@supakernel/contracts'
 import { createDataHandler } from '@supakernel/data'
 import {
   buildCapabilities,
@@ -64,6 +66,12 @@ export interface KernelConfig {
   readonly skipSchemaInstall?: boolean
   /** Hash of the portable core build, published verbatim at the capability endpoint (contract §10). */
   readonly coreHash?: string
+  /** Profile limit reductions — a runtime may only lower a normative default (contract §10). */
+  readonly limits?: Partial<RuntimeLimits>
+  /** Services this profile exposes; defaults to the full set (contract §10). */
+  readonly services?: readonly ('data' | 'auth' | 'storage' | 'realtime' | 'management')[]
+  /** Extra profile exclusions merged into the capability document (contract §10). */
+  readonly exclusions?: readonly string[]
 }
 
 type Handler = (request: Request) => Promise<Response>
@@ -218,12 +226,14 @@ export class KernelInstance {
   }
 
   capabilities(): Json {
+    const baseExclusions = ['rpc', 'broadcast', 'presence', 'oauth', 'mfa', 'edge-functions']
     return buildCapabilities({
       runtime: this.config.runtime,
       databaseFamilies: [this.family],
-      services: ['data', 'auth', 'storage', 'realtime', 'management'],
-      exclusions: ['rpc', 'broadcast', 'presence', 'oauth', 'mfa', 'edge-functions'],
+      services: this.config.services ?? ['data', 'auth', 'storage', 'realtime', 'management'],
+      exclusions: [...new Set([...baseExclusions, ...(this.config.exclusions ?? [])])],
       coreHash: this.config.coreHash ?? 'sk-core-1',
+      ...(this.config.limits ? { limits: this.config.limits } : {}),
     })
   }
 
@@ -261,6 +271,11 @@ export class KernelInstance {
     this.disposed = true
     await this.config.adapter.close().catch(() => undefined)
     await Promise.resolve(this.config.blob[Symbol.asyncDispose]?.()).catch(() => undefined)
+  }
+
+  /** The effective runtime limits for this profile (contract §10). */
+  get limits(): RuntimeLimits {
+    return { ...DEFAULT_RUNTIME_LIMITS, ...(this.config.limits ?? {}) }
   }
 
   get isDisposed(): boolean {

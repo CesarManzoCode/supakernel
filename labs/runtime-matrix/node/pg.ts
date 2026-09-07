@@ -8,6 +8,7 @@ export function adminPgUrl(): string | null {
 
 export interface FreshPgDatabase {
   readonly adapter: DatabaseAdapter
+  readonly url: string
   drop(): Promise<void>
 }
 
@@ -23,9 +24,11 @@ export async function createFreshPgDatabase(adminUrl: string): Promise<FreshPgDa
 
   const url = new URL(adminUrl)
   url.pathname = `/${name}`
-  const adapter = openPostgres({ url: url.toString(), id: `rtm-${name}` })
+  const dbUrl = url.toString()
+  const adapter = openPostgres({ url: dbUrl, id: `rtm-${name}` })
   return {
     adapter,
+    url: dbUrl,
     drop: async () => {
       await adapter.close().catch(() => undefined)
       const a = openPostgres({ url: adminUrl, id: 'rtm-drop' })

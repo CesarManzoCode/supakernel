@@ -5,6 +5,7 @@ import { createGateway } from '@supakernel/gateway'
 import { KernelInstance, type KernelPorts } from '@supakernel/kernel'
 import { compilePostgresRls } from '@supakernel/policy'
 import { type BlobAdapter, createMemoryMailSink, type DatabaseAdapter } from '@supakernel/ports'
+import { RUNTIME_PROFILES } from './manifest.js'
 
 /** The table the fixture app drives, as SupaKernel schema IR. */
 export const FIXTURE_SCHEMA: SchemaIR = {
@@ -103,6 +104,7 @@ export interface Composed {
 /** Compose the kernel + gateway for one runtime against injected adapters (contract §30 L10). */
 export async function composeKernel(opts: ComposeOptions): Promise<Composed> {
   const family = opts.adapter.capabilities.family
+  const profile = RUNTIME_PROFILES[opts.runtime]
   if (!opts.restart) {
     await opts.adapter.execute({ text: FIXTURE_CREATE_TABLE, parameters: [] })
     if (family === 'postgres') {
@@ -130,10 +132,13 @@ export async function composeKernel(opts: ComposeOptions): Promise<Composed> {
     policies: FIXTURE_POLICIES,
     ports,
     management: { token: 'sk_mgmt_matrix', queryEnabled: opts.managementQueryEnabled ?? false },
+    limits: profile.limits,
+    services: profile.services,
+    exclusions: profile.exclusions,
     ...(opts.restart ? { skipSchemaInstall: true } : {}),
     ...(opts.coreHash ? { coreHash: opts.coreHash } : {}),
   })
-  const app = createGateway({ kernel })
+  const app = createGateway({ kernel, maxBodyBytes: kernel.limits.maxRequestBodyBytes })
   return {
     kernel,
     fetch: (request: Request) => Promise.resolve(app.fetch(request)),

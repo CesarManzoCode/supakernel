@@ -106,6 +106,14 @@
       "version": "6.2.11"
     },
     {
+      "integrity": "sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==",
+      "license": "MIT",
+      "name": "json-schema-to-ts",
+      "publishedAt": "2024-08-29T16:56:23.135Z",
+      "resolved": "https://registry.npmjs.org/json-schema-to-ts/-/json-schema-to-ts-3.1.1.tgz",
+      "version": "3.1.1"
+    },
+    {
       "integrity": "sha512-hTV3LvacQgJhc6GHpu5GYZMQBOAEpJ/LF1JjkixZ8YLh2TtbuN8y0JlNiPTe8PBTV9ChFkKcZMWSYKyhJfkYaQ==",
       "license": "MIT",
       "name": "libpg-query",

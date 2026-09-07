@@ -21,6 +21,7 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `esbuild` | 0.28.1 | MIT |
 | `hono` | 4.13.7 | MIT |
 | `jose` | 6.2.11 | MIT |
+| `json-schema-to-ts` | 3.1.1 | MIT |
 | `libpg-query` | 17.7.4 | MIT |
 | `openapi-typescript` | 7.13.0 | MIT |
 | `playwright` | 1.63.0 | Apache-2.0 |

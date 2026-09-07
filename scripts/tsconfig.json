@@ -8,7 +8,7 @@
     "noEmit": true,
     "composite": false,
     "allowImportingTsExtensions": true,
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "include": ["**/*.mts"]
 }

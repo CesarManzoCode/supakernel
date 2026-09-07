@@ -82,6 +82,7 @@
     "vitest": "5.0.0",
     "openapi-typescript": "7.13.0",
     "@types/js-yaml": "4.0.9",
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.1",
+    "json-schema-to-ts": "3.1.1"
   }
 }

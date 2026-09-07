@@ -2,21 +2,28 @@
   "name": "@supakernel/storage",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel storage (stub; see contract)",
+  "description": "Storage subset: buckets, objects, consistency state machine, signed URLs, ranges, recovery (contract §14, §30 L7)",
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist", "src"],
+  "scripts": { "build": "tsc -b", "typecheck": "tsc -b --noEmit" },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/policy": "workspace:*"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "build": "tsc -b",
-    "typecheck": "tsc -b --noEmit"
-  },
-  "sideEffects": false
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/blob-s3": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supabase/supabase-js": "2.115.0",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

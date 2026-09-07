@@ -23,6 +23,18 @@
       "path": "packages/auth"
     },
     {
+      "path": "packages/blob-fs"
+    },
+    {
+      "path": "packages/blob-s3"
+    },
+    {
+      "path": "packages/blob-opfs"
+    },
+    {
+      "path": "packages/storage"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

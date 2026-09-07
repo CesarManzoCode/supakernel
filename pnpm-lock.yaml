@@ -67,11 +67,53 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
-  packages/blob-fs: {}
+  packages/blob-fs:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
-  packages/blob-opfs: {}
+  packages/blob-opfs:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
-  packages/blob-s3: {}
+  packages/blob-s3:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
   packages/contracts:
     dependencies:
@@ -292,7 +334,42 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
-  packages/storage: {}
+  packages/storage:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/policy':
+        specifier: workspace:*
+        version: link:../policy
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      '@supabase/supabase-js':
+        specifier: 2.115.0
+        version: 2.115.0
+      '@supakernel/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@supakernel/blob-fs':
+        specifier: workspace:*
+        version: link:../blob-fs
+      '@supakernel/blob-s3':
+        specifier: workspace:*
+        version: link:../blob-s3
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
+      '@supakernel/db-sqlite':
+        specifier: workspace:*
+        version: link:../db-sqlite
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
 packages:
 

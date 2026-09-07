@@ -2,7 +2,7 @@
   "name": "@supakernel/blob-fs",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel blob-fs (stub; see contract)",
+  "description": "Filesystem BlobAdapter — staged writes, hash/size enforcement, idempotent promote, range reads (contract §14)",
   "type": "module",
   "exports": {
     ".": {
@@ -10,13 +10,20 @@
       "default": "./dist/index.js"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

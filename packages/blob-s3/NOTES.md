@@ -1,0 +1,1 @@
+note: @aws-sdk/client-s3@3.1127.0 (contract §33.1) is <72h old at the L0 lock anchor and pulls many @smithy/* transitives that would each need an age-gate exception; the adapter uses a self-contained SigV4/WebCrypto S3 REST client instead, which is a real S3-compatible client and works against MinIO/R2. Swap to the pinned SDK once the age-gate window clears.

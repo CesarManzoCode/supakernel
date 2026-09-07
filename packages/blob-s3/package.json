@@ -2,21 +2,20 @@
   "name": "@supakernel/blob-s3",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel blob-s3 (stub; see contract)",
+  "description": "S3 / R2 BlobAdapter — S3 REST + SigV4 (WebCrypto), staged writes, hash/size enforcement, range reads (contract §14)",
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist", "src"],
+  "scripts": { "build": "tsc -b", "typecheck": "tsc -b --noEmit" },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "build": "tsc -b",
-    "typecheck": "tsc -b --noEmit"
-  },
-  "sideEffects": false
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

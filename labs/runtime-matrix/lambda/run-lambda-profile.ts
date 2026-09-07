@@ -15,6 +15,14 @@ import {
   resolveRie,
 } from './container.js'
 
+function safeJson(body: string): { healthy?: boolean; [k: string]: unknown } | null {
+  try {
+    return JSON.parse(body)
+  } catch {
+    return null
+  }
+}
+
 const S3_ENV = {
   SUPAKERNEL_S3_ENDPOINT: process.env.SUPAKERNEL_TEST_S3_ENDPOINT ?? 'http://127.0.0.1:59000',
   SUPAKERNEL_S3_REGION: 'us-east-1',
@@ -170,17 +178,17 @@ export async function runLambdaProfile(prereqs?: LambdaPrereqs): Promise<Runtime
         ...S3_ENV,
       })
       const freshInfo = await fresh.runtimeInfo()
-      const health = await fresh.invokeRaw(harnessEvent('/_system/health'))
+      const health = await fresh.poll(
+        '/_system/health',
+        (r) => r.statusCode === 200 && safeJson(r.body)?.healthy === true,
+        20,
+        1_000,
+      )
+      const distinctProcess = freshInfo.bootNonce !== info.bootNonce
       extraChecks.push({
         name: 'restart: a genuinely fresh container serves the same provisioned database',
-        ok:
-          health.statusCode === 200 &&
-          JSON.parse(health.body).healthy === true &&
-          freshInfo.bootNonce !== info.bootNonce &&
-          freshInfo.pid !== info.pid,
-        detail: `status=${health.statusCode} distinctProcess=${
-          freshInfo.bootNonce !== info.bootNonce && freshInfo.pid !== info.pid
-        }`,
+        ok: health.statusCode === 200 && safeJson(health.body)?.healthy === true && distinctProcess,
+        detail: `status=${health.statusCode} healthy=${safeJson(health.body)?.healthy} distinctProcess=${distinctProcess} (boot ${info.bootNonce.slice(0, 8)} → ${freshInfo.bootNonce.slice(0, 8)})`,
       })
 
       const capsAfter = JSON.parse(

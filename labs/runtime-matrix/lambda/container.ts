@@ -259,6 +259,31 @@ export class LambdaContainer {
   /** Matches the `LambdaHandler` shape so the fixture client can drive it unchanged. */
   invoke: LambdaHandler = (event) => this.invokeRaw(event)
 
+  /** Invoke a GET path repeatedly until `accept` is satisfied, or return the last result. */
+  async poll(
+    path: string,
+    accept: (r: ApiGatewayProxyResultV2) => boolean,
+    tries = 20,
+    gapMs = 1_000,
+  ): Promise<ApiGatewayProxyResultV2> {
+    let last: ApiGatewayProxyResultV2 = {
+      statusCode: 0,
+      headers: {},
+      body: '',
+      isBase64Encoded: false,
+    }
+    for (let i = 0; i < tries; i++) {
+      try {
+        last = await this.invokeRaw(harnessEvent(path))
+        if (accept(last)) return last
+      } catch (err) {
+        last = { statusCode: 0, headers: {}, body: String(err), isBase64Encoded: false }
+      }
+      await sleep(gapMs)
+    }
+    return last
+  }
+
   async runtimeInfo(): Promise<HarnessRuntimeInfo> {
     const res = await this.invokeRaw(harnessEvent('/_harness/runtime'))
     return JSON.parse(res.body) as HarnessRuntimeInfo

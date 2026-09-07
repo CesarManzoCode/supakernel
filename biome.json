@@ -9,8 +9,13 @@
     "includes": [
       "**",
       "!**/dist",
+      "!**/.dist",
       "!**/node_modules",
       "!**/*.gen.ts",
+      "!**/*.gen.json",
+      "!**/.wrangler",
+      "!**/.wrangler-state",
+      "!.bundle-audit",
       "!vendor-lock",
       "!pnpm-lock.yaml",
       "!packages/schema/schema.lock.json"

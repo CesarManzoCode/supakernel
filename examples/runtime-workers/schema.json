@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "tables": [
+    {
+      "name": "notes",
+      "columns": [
+        { "name": "id", "type": "text", "nullable": false, "default": null, "generated": false },
+        {
+          "name": "owner_id",
+          "type": "text",
+          "nullable": false,
+          "default": null,
+          "generated": false
+        },
+        { "name": "title", "type": "text", "nullable": false, "default": null, "generated": false }
+      ],
+      "primaryKey": ["id"],
+      "uniques": [],
+      "foreignKeys": [],
+      "checks": [],
+      "indexes": []
+    }
+  ],
+  "sequences": [],
+  "policies": []
+}

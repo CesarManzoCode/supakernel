@@ -12,7 +12,11 @@ interface WorkerScope {
  * decodes each page request, runs the composed gateway handler and posts the response back.
  * Call once the kernel is composed; it announces readiness to the page.
  */
-export function serveInWorker(scope: WorkerScope, handler: WebHandler): void {
+export function serveInWorker(
+  scope: WorkerScope,
+  handler: WebHandler,
+  meta?: Record<string, unknown>,
+): void {
   scope.addEventListener('message', (event) => {
     const msg = event.data as WireMessage
     if (msg.kind !== 'sk-request') return
@@ -33,5 +37,5 @@ export function serveInWorker(scope: WorkerScope, handler: WebHandler): void {
       }
     })()
   })
-  scope.postMessage({ kind: 'sk-ready' })
+  scope.postMessage(meta ? { kind: 'sk-ready', meta } : { kind: 'sk-ready' })
 }

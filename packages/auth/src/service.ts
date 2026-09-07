@@ -1,4 +1,10 @@
-import type { DbRow, Family, Json, Principal } from '@supakernel/contracts'
+import {
+  bytesToBase64Url,
+  type DbRow,
+  type Family,
+  type Json,
+  type Principal,
+} from '@supakernel/contracts'
 import type { CryptoPort, DatabaseAdapter } from '@supakernel/ports'
 import { mintApiKeys, resolveApiKey } from './apikeys.js'
 import { type AuthConfig, type AuthPorts, DEFAULT_AUTH_CONFIG } from './config.js'
@@ -682,7 +688,7 @@ export class AuthService {
     relatesTo: string,
     templateId: string,
   ): Promise<void> {
-    const token = Buffer.from(this.ports.random.bytes(24)).toString('base64url')
+    const token = bytesToBase64Url(this.ports.random.bytes(24))
     const now = this.ports.clock.now()
     const expires = new Date(this.ports.clock.epochMillis() + 3600_000).toISOString()
     await this.db.run(

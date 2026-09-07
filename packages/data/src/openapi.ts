@@ -1,5 +1,10 @@
-import { createHash } from 'node:crypto'
-import { canonicalJson, type Json, type PortableType, type SchemaIR } from '@supakernel/contracts'
+import {
+  canonicalJson,
+  type Json,
+  type PortableType,
+  type SchemaIR,
+  sha256Hex,
+} from '@supakernel/contracts'
 
 const OPENAPI_TYPE: Record<PortableType, { type: string; format?: string }> = {
   bool: { type: 'boolean' },
@@ -90,6 +95,6 @@ export function generateOpenApi(schema: SchemaIR): { document: Json; etag: strin
     paths,
     components: { schemas },
   }
-  const etag = `"${createHash('sha256').update(canonicalJson(document)).digest('hex').slice(0, 32)}"`
+  const etag = `"${sha256Hex(canonicalJson(document)).slice(0, 32)}"`
   return { document, etag }
 }

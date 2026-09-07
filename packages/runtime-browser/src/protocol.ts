@@ -22,6 +22,8 @@ export interface WireResponse {
 
 export interface WireReady {
   readonly kind: 'sk-ready'
+  /** Optional bootstrap data the page needs before it can call the worker (e.g. the anon key). */
+  readonly meta?: Record<string, unknown>
 }
 
 export type WireMessage = WireRequest | WireResponse | WireReady

@@ -1,4 +1,5 @@
 import {
+  bytesToBase64,
   type DbRow,
   type Expr,
   findColumn,
@@ -305,7 +306,7 @@ function normalizeScalar(v: unknown): Json {
   if (v === null || v === undefined) return null
   if (typeof v === 'bigint') return v.toString(10)
   if (v instanceof Date) return v.toISOString()
-  if (v instanceof Uint8Array) return Buffer.from(v).toString('base64')
+  if (v instanceof Uint8Array) return bytesToBase64(v)
   if (typeof v === 'object') {
     // jsonb from postgres.js arrives already parsed
     return v as Json

@@ -28,6 +28,8 @@
     "@supakernel/ports": "workspace:*"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@supabase/realtime-js": "2.115.0",
     "@supabase/supabase-js": "2.115.0",
     "@supakernel/blob-fs": "workspace:*",

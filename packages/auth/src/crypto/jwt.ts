@@ -1,3 +1,4 @@
+import { base64ToUtf8 } from '@supakernel/contracts'
 import type { JwtVerifyOptions, JwtVerifyResult } from '@supakernel/ports'
 import {
   exportJWK,
@@ -89,7 +90,7 @@ export class JwtKeyring {
   ): Promise<JwtVerifyResult> {
     let header: { alg?: unknown; kid?: unknown }
     try {
-      header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64').toString('utf8'))
+      header = JSON.parse(base64ToUtf8(token.split('.')[0] ?? ''))
     } catch {
       return { ok: false, reason: 'malformed' }
     }

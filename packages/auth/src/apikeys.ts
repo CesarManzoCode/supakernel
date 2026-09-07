@@ -1,3 +1,4 @@
+import { bytesToBase64Url } from '@supakernel/contracts'
 import type { CryptoPort } from '@supakernel/ports'
 import type { AuthConfig } from './config.js'
 import type { AuthDb } from './db.js'
@@ -14,7 +15,7 @@ export interface ResolvedApiKey {
 }
 
 function rand(n: number): string {
-  return Buffer.from(crypto.getRandomValues(new Uint8Array(n))).toString('base64url')
+  return bytesToBase64Url(crypto.getRandomValues(new Uint8Array(n)))
 }
 
 /**

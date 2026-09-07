@@ -1,7 +1,7 @@
 {
   "runtime": "deno",
   "runtimeVersion": "deno 2.9.6",
-  "coreHash": "sha256:cb106f43d60b17558db4fefea4238354d1cbda3d6f9f5e796b0b0923a284fc8e",
+  "coreHash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
   "services": ["data", "auth", "storage", "realtime", "management"],
   "databases": ["postgres", "pglite"],
   "blobs": ["fs", "s3"],
@@ -18,7 +18,7 @@
   "capabilityEndpoint": {
     "schemaVersion": 1,
     "runtime": "deno",
-    "core_hash": "sha256:cb106f43d60b17558db4fefea4238354d1cbda3d6f9f5e796b0b0923a284fc8e",
+    "core_hash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
     "services": {
       "data": true,
       "auth": true,

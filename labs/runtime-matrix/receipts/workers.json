@@ -1,7 +1,7 @@
 {
   "runtime": "workers",
   "runtimeVersion": "workerd · wrangler 4.129.0 · compat 2026-09-01",
-  "coreHash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
+  "coreHash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
   "services": ["data", "auth", "storage", "realtime"],
   "databases": ["d1"],
   "blobs": ["r2"],
@@ -19,7 +19,7 @@
   "capabilityEndpoint": {
     "schemaVersion": 1,
     "runtime": "workers",
-    "core_hash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
+    "core_hash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
     "services": {
       "data": true,
       "auth": true,

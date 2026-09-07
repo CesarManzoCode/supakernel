@@ -1,7 +1,7 @@
 {
   "runtime": "lambda",
   "runtimeVersion": "AWS Lambda container · node v24.20.0",
-  "coreHash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
+  "coreHash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
   "services": ["data", "auth", "storage"],
   "databases": ["postgres"],
   "blobs": ["s3"],
@@ -18,7 +18,7 @@
   "capabilityEndpoint": {
     "schemaVersion": 1,
     "runtime": "lambda",
-    "core_hash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
+    "core_hash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
     "services": {
       "data": true,
       "auth": true,

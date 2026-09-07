@@ -1,188 +1,221 @@
 {
-  "runtime": "bun",
-  "runtimeVersion": "bun 1.4.1",
+  "runtime": "browser",
+  "runtimeVersion": "Chromium (Playwright 1.63.0) · dedicated WebWorker · OPFS",
   "coreHash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
-  "services": ["data", "auth", "storage", "realtime", "management"],
-  "databases": ["postgres", "bun:sqlite", "pglite"],
-  "blobs": ["fs", "s3"],
-  "exclusions": ["rpc", "broadcast", "presence", "oauth", "mfa", "edge-functions"],
+  "services": ["data", "auth", "storage"],
+  "databases": ["pglite", "sqlite-wasm"],
+  "blobs": ["opfs"],
+  "exclusions": [
+    "rpc",
+    "broadcast",
+    "presence",
+    "oauth",
+    "mfa",
+    "edge-functions",
+    "realtime-socket",
+    "management-sql",
+    "public-http-listener",
+    "smtp"
+  ],
   "capabilityEndpoint": {
     "schemaVersion": 1,
-    "runtime": "bun",
+    "runtime": "browser",
     "core_hash": "sha256:56ffcfc063322c2ea5420c411897c8e5621c9401d0753fa950fbe804b483dfba",
     "services": {
       "data": true,
       "auth": true,
       "storage": true,
-      "realtime": true,
-      "management": "read-only-plus-loopback-sql"
+      "realtime": false,
+      "management": false
     },
     "database": {
       "families": ["sqlite"]
     },
     "limits": {
-      "maxRequestBodyBytes": 10485760,
-      "maxObjectUploadBytes": 52428800,
+      "maxRequestBodyBytes": 4194304,
+      "maxObjectUploadBytes": 8388608,
       "maxQueryParams": 100,
       "maxExprDepth": 12,
       "defaultRowLimit": 1000,
       "maxRowLimit": 10000,
       "requestTimeoutMs": 30000,
       "shutdownTimeoutMs": 10000,
-      "socketQueueBytes": 1048576,
-      "socketQueueEvents": 1024
+      "socketQueueBytes": 0,
+      "socketQueueEvents": 0
     },
-    "exclusions": ["rpc", "broadcast", "presence", "oauth", "mfa", "edge-functions"]
+    "exclusions": [
+      "rpc",
+      "broadcast",
+      "presence",
+      "oauth",
+      "mfa",
+      "edge-functions",
+      "realtime-socket",
+      "management-sql",
+      "public-http-listener",
+      "smtp"
+    ]
   },
   "passList": [
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "auth: sign up user A",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "auth: sign in user A",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "auth: getUser reflects the signed-in identity",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: A inserts an owned row (WITH CHECK passes)",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: A reads back exactly its own row",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: an anon insert is rejected (default-deny)",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: A updates its row title",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "auth: sign up + sign in user B",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: B cannot see A rows (row-level isolation)",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: B cannot insert a row owned by A (WITH CHECK)",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "storage: A round-trips an object through a bucket",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "data: A deletes its row",
       "ok": true
     },
     {
-      "target": "bun (bun:sqlite + fs)",
+      "target": "browser (sqlite-wasm, OPFS)",
       "name": "auth: A signs out; the token no longer authenticates",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "auth: sign up user A",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "auth: sign in user A",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "auth: getUser reflects the signed-in identity",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: A inserts an owned row (WITH CHECK passes)",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: A reads back exactly its own row",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: an anon insert is rejected (default-deny)",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: A updates its row title",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "auth: sign up + sign in user B",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: B cannot see A rows (row-level isolation)",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: B cannot insert a row owned by A (WITH CHECK)",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "storage: A round-trips an object through a bucket",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "data: A deletes its row",
       "ok": true
     },
     {
-      "target": "bun (pglite + fs)",
+      "target": "browser (pglite, OPFS)",
       "name": "auth: A signs out; the token no longer authenticates",
       "ok": true
     }
   ],
   "extraChecks": [
     {
-      "name": "realtime: postgres_changes over native WebSocket",
+      "name": "exclusions: realtime-socket + management-sql + public-http-listener published",
       "ok": true
     },
     {
-      "name": "limits: capability endpoint present",
+      "name": "services: Data/Auth/Storage present, Realtime + Management absent",
       "ok": true
     },
     {
-      "name": "restart: state persists across dispose + recompose",
+      "name": "both OPFS database profiles completed the scenario",
       "ok": true
     }
   ],
   "bundleAudit": {
     "checked": true,
-    "forbidden": [],
+    "forbidden": [
+      "node:fs",
+      "node:fs/promises",
+      "node:net",
+      "node:tls",
+      "node:child_process",
+      "node:http",
+      "node:https",
+      "node:worker_threads",
+      "ws",
+      "pg"
+    ],
     "ok": true
   }
 }

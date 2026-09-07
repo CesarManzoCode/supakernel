@@ -64,7 +64,16 @@
     "test:management:mcp": "vitest run --project @supakernel/management test/mcp.test.ts",
     "test:cli": "vitest run --project @supakernel/cli",
     "docs:test": "node scripts/docs-test.mts",
-    "build:cli": "tsc -b apps/cli/tsconfig.json"
+    "build:cli": "tsc -b apps/cli/tsconfig.json",
+    "test:runtime:node": "vitest run --config labs/runtime-matrix/vitest.config.ts labs/runtime-matrix/node",
+    "test:runtime:lambda": "vitest run --config labs/runtime-matrix/vitest.config.ts labs/runtime-matrix/lambda",
+    "test:runtime:workers": "vitest run --config labs/runtime-matrix/workers/vitest.config.ts",
+    "test:runtime:browser": "node labs/runtime-matrix/browser/run.mts",
+    "test:runtime": "bun test labs/runtime-matrix/bun",
+    "test:runtime:bun": "bun test labs/runtime-matrix/bun",
+    "test:runtime:deno": "cd labs/runtime-matrix/deno && deno test -A --no-check",
+    "test:runtime:all": "pnpm test:runtime:node && pnpm test:runtime:lambda && pnpm test:runtime:workers && pnpm test:runtime:browser && bun test labs/runtime-matrix/bun && (cd labs/runtime-matrix/deno && deno test -A --no-check)",
+    "verify:bundles": "node scripts/verify-bundles.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
@@ -72,6 +81,7 @@
     "typescript": "6.0.3",
     "vitest": "5.0.0",
     "openapi-typescript": "7.13.0",
-    "@types/js-yaml": "4.0.9"
+    "@types/js-yaml": "4.0.9",
+    "esbuild": "0.28.1"
   }
 }

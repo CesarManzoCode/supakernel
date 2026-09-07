@@ -1,5 +1,10 @@
-import { createHash } from 'node:crypto'
-import { canonicalJson, type Json, type PolicyAction, type Principal } from '@supakernel/contracts'
+import {
+  canonicalJson,
+  type Json,
+  type PolicyAction,
+  type Principal,
+  sha256Hex,
+} from '@supakernel/contracts'
 import type { CombinedPolicy } from './combine.js'
 
 /**
@@ -22,7 +27,7 @@ export function fingerprint(
     permissive: combined.permissive.map((p) => ruleShape(p.rule)),
     restrictive: combined.restrictive.map((r) => ruleShape(r.rule)),
   }
-  return `pf_${createHash('sha256').update(canonicalJson(shape)).digest('hex').slice(0, 32)}`
+  return `pf_${sha256Hex(canonicalJson(shape)).slice(0, 32)}`
 }
 
 function ruleShape(rule: {

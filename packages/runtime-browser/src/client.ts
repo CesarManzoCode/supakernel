@@ -3,8 +3,8 @@ import { decodeResponse, encodeRequest, type WireMessage } from './protocol.js'
 export interface BrowserClient {
   /** A `fetch` implementation to hand to `@supabase/supabase-js`'s `global.fetch`. */
   readonly fetch: typeof fetch
-  /** Resolves once the worker has reported it is ready to serve. */
-  ready(): Promise<void>
+  /** Resolves once the worker has reported it is ready to serve, with any bootstrap metadata. */
+  ready(): Promise<Record<string, unknown>>
   dispose(): void
 }
 
@@ -23,15 +23,15 @@ interface WorkerLike {
 export function createBrowserClient(worker: WorkerLike): BrowserClient {
   let nextId = 1
   const pending = new Map<number, (msg: Extract<WireMessage, { kind: 'sk-response' }>) => void>()
-  let readyResolve: (() => void) | null = null
-  const readyPromise = new Promise<void>((resolve) => {
+  let readyResolve: ((meta: Record<string, unknown>) => void) | null = null
+  const readyPromise = new Promise<Record<string, unknown>>((resolve) => {
     readyResolve = resolve
   })
 
   const onMessage = (event: MessageEvent): void => {
     const msg = event.data as WireMessage
     if (msg.kind === 'sk-ready') {
-      readyResolve?.()
+      readyResolve?.(msg.meta ?? {})
       return
     }
     if (msg.kind === 'sk-response') {

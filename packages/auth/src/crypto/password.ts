@@ -6,17 +6,19 @@
  *
  * The work factor changes only through a migration + rehash-on-login.
  */
+import { base64ToBytes, bytesToBase64 } from '@supakernel/contracts'
+
 const ITERATIONS = 600_000
 const SALT_BYTES = 16
 const HASH_BITS = 256
 const PREFIX = 'sk-pbkdf2-sha256'
 
 function b64(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString('base64')
+  return bytesToBase64(bytes)
 }
 /** ArrayBuffer-backed copy — WebCrypto rejects SharedArrayBuffer-typed views. */
 function unb64(s: string): Uint8Array<ArrayBuffer> {
-  return Uint8Array.from(Buffer.from(s, 'base64'))
+  return Uint8Array.from(base64ToBytes(s))
 }
 
 async function derive(

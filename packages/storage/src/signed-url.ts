@@ -23,7 +23,14 @@ const MAX_TTL = 7 * 24 * 3600
 export async function mintSignedToken(
   crypto: CryptoPort,
   keyId: string,
-  input: { project: string; bucket: string; path: string; ttlSeconds: number; nowMs: number; nonce?: string },
+  input: {
+    project: string
+    bucket: string
+    path: string
+    ttlSeconds: number
+    nowMs: number
+    nonce?: string
+  },
 ): Promise<string> {
   const ttl = Math.min(MAX_TTL, Math.max(MIN_TTL, Math.floor(input.ttlSeconds)))
   const iat = Math.floor(input.nowMs / 1000)
@@ -46,7 +53,11 @@ export async function verifySignedToken(
   token: string,
   expect: { project: string; bucket: string; path: string; nowMs: number },
 ): Promise<SignedTokenClaims> {
-  const result = await crypto.verifyJwt(token, { issuer: 'storage', audience: 'storage', algorithms: ['ES256'] })
+  const result = await crypto.verifyJwt(token, {
+    issuer: 'storage',
+    audience: 'storage',
+    algorithms: ['ES256'],
+  })
   if (!result.ok) throw STORAGE_ERRORS.invalidSignedToken()
   return assertClaims(result.claims as Record<string, unknown>, expect)
 }

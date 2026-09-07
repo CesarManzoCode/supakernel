@@ -21,5 +21,8 @@ export function resolveRange(range: ByteRange, total: number): { start: number; 
     const start = Math.max(0, total + range.start)
     return { start, end: total - 1 }
   }
-  return { start: range.start, end: range.end === null ? total - 1 : Math.min(range.end, total - 1) }
+  return {
+    start: range.start,
+    end: range.end === null ? total - 1 : Math.min(range.end, total - 1),
+  }
 }

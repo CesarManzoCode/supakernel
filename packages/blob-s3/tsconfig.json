@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "outDir": "./dist", "rootDir": "./src", "types": ["node"], "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext.Disposable"] },
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext.Disposable"]
+  },
   "references": [{ "path": "../contracts" }, { "path": "../ports" }],
   "include": ["src/**/*.ts"]
 }

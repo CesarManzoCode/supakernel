@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { createReadStream, createWriteStream } from 'node:fs'
-import { mkdir, readdir, rename, rm, stat as fsStat } from 'node:fs/promises'
+import { stat as fsStat, mkdir, readdir, rename, rm } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { Readable } from 'node:stream'
 import { kernelError } from '@supakernel/contracts'
@@ -44,7 +44,7 @@ export class FsBlobAdapter implements BlobAdapter {
   }
 
   private staged(opId: string): string {
-    return join(this.root, 'staging', safeSegment(opId))
+    return join(this.root, 'staging', opId.replace(/[^A-Za-z0-9._-]/g, '_'))
   }
   private object(key: string): string {
     return join(this.root, 'objects', safeSegment(key))
@@ -75,16 +75,24 @@ export class FsBlobAdapter implements BlobAdapter {
           throw blobError('SK_STORAGE_TOO_LARGE', 'object exceeds the bucket size limit', 413)
         }
         hash.update(value)
-        await new Promise<void>((resolve, reject) => out.write(value, (err) => (err ? reject(err) : resolve())))
+        await new Promise<void>((resolve, reject) =>
+          out.write(value, (err) => (err ? reject(err) : resolve())),
+        )
       }
     } finally {
       reader.releaseLock()
     }
-    await new Promise<void>((resolve, reject) => out.end((err?: Error | null) => (err ? reject(err) : resolve())))
+    await new Promise<void>((resolve, reject) =>
+      out.end((err?: Error | null) => (err ? reject(err) : resolve())),
+    )
     const sha256 = hash.digest('hex')
     if (expected.sha256 && expected.sha256 !== sha256) {
       await rm(stagedKey, { force: true })
-      throw blobError('SK_STORAGE_HASH_MISMATCH', 'uploaded bytes do not match the expected digest', 400)
+      throw blobError(
+        'SK_STORAGE_HASH_MISMATCH',
+        'uploaded bytes do not match the expected digest',
+        400,
+      )
     }
     return { opId, stagedKey, bytes, sha256 }
   }
@@ -103,7 +111,12 @@ export class FsBlobAdapter implements BlobAdapter {
     const now = new Date().toISOString()
     await writeFile(
       this.meta(finalKey),
-      JSON.stringify({ bytes: staged.bytes, sha256: staged.sha256, createdAt: now, updatedAt: now }),
+      JSON.stringify({
+        bytes: staged.bytes,
+        sha256: staged.sha256,
+        createdAt: now,
+        updatedAt: now,
+      }),
     )
   }
 

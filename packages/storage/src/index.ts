@@ -6,11 +6,11 @@ export { type ObjectState, StorageDb, storageSchemaStatements, storageTable } fr
 export { STORAGE_ERRORS, StorageError } from './errors.js'
 export { parseRangeHeader, resolveRange } from './range.js'
 export { createStorageHandler, type StorageHandlerDeps } from './routes.js'
-export { mintSignedToken, type SignedTokenClaims, verifySignedToken } from './signed-url.js'
 export {
   type BucketInfo,
   type ObjectInfo,
-  StorageService,
   type StoragePorts,
+  StorageService,
   type StorageServiceOptions,
 } from './service.js'
+export { mintSignedToken, type SignedTokenClaims, verifySignedToken } from './signed-url.js'

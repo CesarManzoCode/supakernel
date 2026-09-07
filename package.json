@@ -48,7 +48,11 @@
     "test:auth": "vitest run --project @supakernel/auth",
     "test:auth:matrix": "vitest run --project @supakernel/auth",
     "test:crypto": "vitest run --project @supakernel/auth test/crypto.test.ts",
-    "property:auth": "vitest run --project @supakernel/auth test/refresh.test.ts test/security.test.ts"
+    "property:auth": "vitest run --project @supakernel/auth test/refresh.test.ts test/security.test.ts",
+    "test:storage": "vitest run --project @supakernel/storage",
+    "test:storage:matrix": "vitest run --project @supakernel/storage",
+    "test:storage:s3": "SUPAKERNEL_TEST_S3=1 vitest run --project @supakernel/storage --project @supakernel/blob-s3",
+    "test:blob:fs": "vitest run --project @supakernel/blob-fs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

@@ -1,4 +1,10 @@
-import { type DbRow, type Family, type SqlValue, sql, type Transaction } from '@supakernel/contracts'
+import {
+  type DbRow,
+  type Family,
+  type SqlValue,
+  sql,
+  type Transaction,
+} from '@supakernel/contracts'
 import type { DatabaseAdapter } from '@supakernel/ports'
 
 export function storageTable(name: 'buckets' | 'objects', family: Family): string {

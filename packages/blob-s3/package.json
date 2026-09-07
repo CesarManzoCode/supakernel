@@ -4,9 +4,20 @@
   "private": true,
   "description": "S3 / R2 BlobAdapter — S3 REST + SigV4 (WebCrypto), staged writes, hash/size enforcement, range reads (contract §14)",
   "type": "module",
-  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "files": ["dist", "src"],
-  "scripts": { "build": "tsc -b", "typecheck": "tsc -b --noEmit" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
   "sideEffects": false,
   "dependencies": {
     "@supakernel/contracts": "workspace:*",

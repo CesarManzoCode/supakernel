@@ -7,8 +7,15 @@ import {
   type Principal,
   type SchemaIR,
 } from '@supakernel/contracts'
-import type { BlobAdapter, ByteRange, ClockPort, CryptoPort, DatabaseAdapter, RandomPort } from '@supakernel/ports'
 import { buildSecurityPlan, checkRowAllowed } from '@supakernel/policy'
+import type {
+  BlobAdapter,
+  ByteRange,
+  ClockPort,
+  CryptoPort,
+  DatabaseAdapter,
+  RandomPort,
+} from '@supakernel/ports'
 import { canonicalPath, isValidBucketName } from './canonical.js'
 import { StorageDb, storageTable } from './db.js'
 import { STORAGE_ERRORS, StorageError } from './errors.js'
@@ -80,7 +87,15 @@ export class StorageService {
     this.policySchema = {
       version: 1,
       tables: [
-        { name: 'objects', columns: RESOURCE_COLUMNS, primaryKey: ['bucket_id', 'name'], uniques: [], foreignKeys: [], checks: [], indexes: [] },
+        {
+          name: 'objects',
+          columns: RESOURCE_COLUMNS,
+          primaryKey: ['bucket_id', 'name'],
+          uniques: [],
+          foreignKeys: [],
+          checks: [],
+          indexes: [],
+        },
       ],
       sequences: [],
       policies: [...(o.policies ?? [])],
@@ -98,10 +113,16 @@ export class StorageService {
 
   async createBucket(
     principal: Principal,
-    input: { name: string; public?: boolean; fileSizeLimit?: number | null; allowedMimeTypes?: string[] | null },
+    input: {
+      name: string
+      public?: boolean
+      fileSizeLimit?: number | null
+      allowedMimeTypes?: string[] | null
+    },
   ): Promise<BucketInfo> {
     if (!isValidBucketName(input.name)) throw STORAGE_ERRORS.unsupported('invalid bucket name')
-    if (await this.db.one(`SELECT id FROM ${this.B()} WHERE name = ?`, [input.name])) throw STORAGE_ERRORS.bucketExists()
+    if (await this.db.one(`SELECT id FROM ${this.B()} WHERE name = ?`, [input.name]))
+      throw STORAGE_ERRORS.bucketExists()
     const now = this.ports.clock.now()
     const id = input.name
     await this.db.run(
@@ -164,16 +185,24 @@ export class StorageService {
 
   async emptyBucket(name: string): Promise<void> {
     const bucket = await this.getBucket(name)
-    const rows = await this.db.all(`SELECT id, name, version FROM ${this.O()} WHERE bucket_id = ?`, [bucket.id])
+    const rows = await this.db.all(
+      `SELECT id, name, version FROM ${this.O()} WHERE bucket_id = ?`,
+      [bucket.id],
+    )
     for (const r of rows) {
-      await this.blob.delete(this.finalKey(bucket.id, String(r.name), String(r.version))).catch(() => undefined)
+      await this.blob
+        .delete(this.finalKey(bucket.id, String(r.name), String(r.version)))
+        .catch(() => undefined)
     }
     await this.db.run(`DELETE FROM ${this.O()} WHERE bucket_id = ?`, [bucket.id])
   }
 
   async deleteBucket(name: string): Promise<void> {
     const bucket = await this.getBucket(name)
-    const rows = await this.db.all(`SELECT id FROM ${this.O()} WHERE bucket_id = ? AND state = 'ready'`, [bucket.id])
+    const rows = await this.db.all(
+      `SELECT id FROM ${this.O()} WHERE bucket_id = ? AND state = 'ready'`,
+      [bucket.id],
+    )
     if (rows.length > 0) throw STORAGE_ERRORS.unsupported('bucket is not empty')
     await this.db.run(`DELETE FROM ${this.B()} WHERE name = ?`, [name])
   }
@@ -185,11 +214,20 @@ export class StorageService {
     bucketName: string,
     rawPath: string,
     body: ReadableStream<Uint8Array>,
-    opts: { contentType?: string | null; cacheControl?: string | null; upsert?: boolean; expectedSha256?: string } = {},
+    opts: {
+      contentType?: string | null
+      cacheControl?: string | null
+      upsert?: boolean
+      expectedSha256?: string
+    } = {},
   ): Promise<ObjectInfo> {
     const path = canonicalPath(rawPath)
     const bucket = await this.getBucket(bucketName)
-    await this.authorize(principal, 'storage.write', { bucket_id: bucket.id, name: path, owner: principal.subjectId })
+    await this.authorize(principal, 'storage.write', {
+      bucket_id: bucket.id,
+      name: path,
+      owner: principal.subjectId,
+    })
 
     const prior = await this.currentReady(bucket.id, path)
     if (prior && !opts.upsert) throw STORAGE_ERRORS.objectExists()
@@ -224,7 +262,7 @@ export class StorageService {
 
     // 2/3. write staged bytes; enforce size + hash
     const limit = bucket.file_size_limit ?? DEFAULT_LIMIT
-    let staged
+    let staged: Awaited<ReturnType<BlobAdapter['putStaged']>>
     try {
       staged = await this.blob.putStaged(opId, body, {
         maxBytes: limit,
@@ -251,7 +289,10 @@ export class StorageService {
 
     // 6. upsert: keep the previous object visible until now, then retire it
     if (prior) {
-      await this.db.run(`UPDATE ${this.O()} SET state = 'deleting', updated_at = ? WHERE id = ?`, [now, prior.id])
+      await this.db.run(`UPDATE ${this.O()} SET state = 'deleting', updated_at = ? WHERE id = ?`, [
+        now,
+        prior.id,
+      ])
       await this.blob.delete(this.finalKey(bucket.id, path, prior.version)).catch(() => undefined)
       await this.db.run(`DELETE FROM ${this.O()} WHERE id = ?`, [prior.id])
     }
@@ -264,36 +305,67 @@ export class StorageService {
     bucketName: string,
     rawPath: string,
     range?: ByteRange,
-  ): Promise<{ stream: ReadableStream<Uint8Array>; info: ObjectInfo; range: { start: number; end: number } | null; total: number }> {
+  ): Promise<{
+    stream: ReadableStream<Uint8Array>
+    info: ObjectInfo
+    range: { start: number; end: number } | null
+    total: number
+  }> {
     const path = canonicalPath(rawPath)
     const bucket = await this.getBucket(bucketName)
     const obj = await this.currentReady(bucket.id, path)
     if (!obj) {
       // a non-ready row must not masquerade as 404 if bytes are actually missing (contract §14.2)
-      const any = await this.db.one(`SELECT state FROM ${this.O()} WHERE bucket_id = ? AND name = ? ORDER BY created_at DESC`, [bucket.id, path])
+      const any = await this.db.one(
+        `SELECT state FROM ${this.O()} WHERE bucket_id = ? AND name = ? ORDER BY created_at DESC`,
+        [bucket.id, path],
+      )
       if (any && any.state === 'corrupt') throw STORAGE_ERRORS.integrityFailure()
       throw STORAGE_ERRORS.objectNotFound()
     }
     if (!bucket.public) {
-      await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: path, owner: obj.owner })
+      await this.authorize(principal, 'storage.read', {
+        bucket_id: bucket.id,
+        name: path,
+        owner: obj.owner,
+      })
     }
     return this.serveBytes(bucket.id, obj, range)
   }
 
   private async serveBytes(
     bucketId: string,
-    obj: { id: string; name: string; version: string; owner: string | null; size: number; content_type: string | null; cache_control: string | null; created_at: string; updated_at: string },
+    obj: {
+      id: string
+      name: string
+      version: string
+      owner: string | null
+      size: number
+      content_type: string | null
+      cache_control: string | null
+      created_at: string
+      updated_at: string
+    },
     range?: ByteRange,
-  ): Promise<{ stream: ReadableStream<Uint8Array>; info: ObjectInfo; range: { start: number; end: number } | null; total: number }> {
-    let read
+  ): Promise<{
+    stream: ReadableStream<Uint8Array>
+    info: ObjectInfo
+    range: { start: number; end: number } | null
+    total: number
+  }> {
+    let read: Awaited<ReturnType<BlobAdapter['open']>>
     try {
       read = await this.blob.open(this.finalKey(bucketId, obj.name, obj.version), range)
     } catch (err) {
       if (err instanceof StorageError && err.kernelError.code === 'SK_STORAGE_RANGE') throw err
       const ke = (err as { kernelError?: { code?: string } }).kernelError
-      if (ke?.code === 'SK_STORAGE_RANGE_NOT_SATISFIABLE') throw STORAGE_ERRORS.rangeNotSatisfiable(obj.size)
+      if (ke?.code === 'SK_STORAGE_RANGE_NOT_SATISFIABLE')
+        throw STORAGE_ERRORS.rangeNotSatisfiable(obj.size)
       // ready row but the bytes are gone → mark corrupt, 500 integrity (never a misleading 404)
-      await this.db.run(`UPDATE ${this.O()} SET state = 'corrupt', updated_at = ? WHERE id = ?`, [this.ports.clock.now(), obj.id])
+      await this.db.run(`UPDATE ${this.O()} SET state = 'corrupt', updated_at = ? WHERE id = ?`, [
+        this.ports.clock.now(),
+        obj.id,
+      ])
       throw STORAGE_ERRORS.integrityFailure()
     }
     return {
@@ -304,12 +376,21 @@ export class StorageService {
     }
   }
 
-  async objectInfoFor(principal: Principal, bucketName: string, rawPath: string): Promise<ObjectInfo> {
+  async objectInfoFor(
+    principal: Principal,
+    bucketName: string,
+    rawPath: string,
+  ): Promise<ObjectInfo> {
     const path = canonicalPath(rawPath)
     const bucket = await this.getBucket(bucketName)
     const obj = await this.currentReady(bucket.id, path)
     if (!obj) throw STORAGE_ERRORS.objectNotFound()
-    if (!bucket.public) await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: path, owner: obj.owner })
+    if (!bucket.public)
+      await this.authorize(principal, 'storage.read', {
+        bucket_id: bucket.id,
+        name: path,
+        owner: obj.owner,
+      })
     return this.objectInfo(obj)
   }
 
@@ -318,27 +399,44 @@ export class StorageService {
     bucketName: string,
     prefix: string,
     opts: { limit?: number; offset?: number } = {},
-  ): Promise<Array<{ name: string; id: string; metadata: { size: number; mimetype: string | null } }>> {
+  ): Promise<
+    Array<{ name: string; id: string; metadata: { size: number; mimetype: string | null } }>
+  > {
     const bucket = await this.getBucket(bucketName)
-    await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: prefix, owner: principal.subjectId })
+    await this.authorize(principal, 'storage.read', {
+      bucket_id: bucket.id,
+      name: prefix,
+      owner: principal.subjectId,
+    })
     const like = `${prefix.replace(/[%_]/g, '\\$&')}%`
     const rows = await this.db.all(
       `SELECT id, name, size, content_type, owner FROM ${this.O()} WHERE bucket_id = ? AND state = 'ready' AND name LIKE ? ESCAPE '\\' ORDER BY name LIMIT ? OFFSET ?`,
       [bucket.id, like, opts.limit ?? 100, opts.offset ?? 0],
     )
-    const out: Array<{ name: string; id: string; metadata: { size: number; mimetype: string | null } }> = []
+    const out: Array<{
+      name: string
+      id: string
+      metadata: { size: number; mimetype: string | null }
+    }> = []
     for (const r of rows) {
       if (!bucket.public) {
         try {
-          await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: String(r.name), owner: (r.owner as string) ?? null })
+          await this.authorize(principal, 'storage.read', {
+            bucket_id: bucket.id,
+            name: String(r.name),
+            owner: (r.owner as string) ?? null,
+          })
         } catch {
           continue
         }
       }
       out.push({
         id: String(r.id),
-        name: String(r.name).slice(prefix.length),
-        metadata: { size: Number(r.size ?? 0), mimetype: (r.content_type as string | null) ?? null },
+        name: String(r.name).slice(prefix.length).replace(/^\//, ''),
+        metadata: {
+          size: Number(r.size ?? 0),
+          mimetype: (r.content_type as string | null) ?? null,
+        },
       })
     }
     return out
@@ -349,19 +447,39 @@ export class StorageService {
     const bucket = await this.getBucket(bucketName)
     const obj = await this.currentReady(bucket.id, path)
     if (!obj) throw STORAGE_ERRORS.objectNotFound()
-    await this.authorize(principal, 'storage.write', { bucket_id: bucket.id, name: path, owner: obj.owner })
-    await this.db.run(`UPDATE ${this.O()} SET state = 'deleting', updated_at = ? WHERE id = ?`, [this.ports.clock.now(), obj.id])
+    await this.authorize(principal, 'storage.write', {
+      bucket_id: bucket.id,
+      name: path,
+      owner: obj.owner,
+    })
+    await this.db.run(`UPDATE ${this.O()} SET state = 'deleting', updated_at = ? WHERE id = ?`, [
+      this.ports.clock.now(),
+      obj.id,
+    ])
     await this.blob.delete(this.finalKey(bucket.id, path, obj.version)).catch(() => undefined)
     await this.db.run(`DELETE FROM ${this.O()} WHERE id = ?`, [obj.id])
   }
 
-  async copy(principal: Principal, bucketName: string, from: string, to: string): Promise<ObjectInfo> {
+  async copy(
+    principal: Principal,
+    bucketName: string,
+    from: string,
+    to: string,
+  ): Promise<ObjectInfo> {
     const bucket = await this.getBucket(bucketName)
     const src = await this.currentReady(bucket.id, canonicalPath(from))
     if (!src) throw STORAGE_ERRORS.objectNotFound()
-    await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: src.name, owner: src.owner })
+    await this.authorize(principal, 'storage.read', {
+      bucket_id: bucket.id,
+      name: src.name,
+      owner: src.owner,
+    })
     const read = await this.blob.open(this.finalKey(bucket.id, src.name, src.version))
-    return this.upload(principal, bucketName, to, read.stream, { contentType: src.content_type, cacheControl: src.cache_control, upsert: true })
+    return this.upload(principal, bucketName, to, read.stream, {
+      contentType: src.content_type,
+      cacheControl: src.cache_control,
+      upsert: true,
+    })
   }
 
   async move(principal: Principal, bucketName: string, from: string, to: string): Promise<void> {
@@ -381,7 +499,11 @@ export class StorageService {
     const bucket = await this.getBucket(bucketName)
     const obj = await this.currentReady(bucket.id, path)
     if (!obj) throw STORAGE_ERRORS.objectNotFound()
-    await this.authorize(principal, 'storage.read', { bucket_id: bucket.id, name: path, owner: obj.owner })
+    await this.authorize(principal, 'storage.read', {
+      bucket_id: bucket.id,
+      name: path,
+      owner: obj.owner,
+    })
     const token = await mintSignedToken(this.crypto, this.signingKeyId, {
       project: this.projectRef,
       bucket: bucketName,
@@ -405,7 +527,11 @@ export class StorageService {
           const { signedURL } = await this.createSignedUrl(principal, bucketName, p, ttlSeconds)
           return { path: p, signedURL, error: null }
         } catch (err) {
-          return { path: p, signedURL: null, error: err instanceof StorageError ? err.kernelError.code : 'error' }
+          return {
+            path: p,
+            signedURL: null,
+            error: err instanceof StorageError ? err.kernelError.code : 'error',
+          }
         }
       }),
     )
@@ -416,7 +542,12 @@ export class StorageService {
     rawPath: string,
     token: string,
     range?: ByteRange,
-  ): Promise<{ stream: ReadableStream<Uint8Array>; info: ObjectInfo; range: { start: number; end: number } | null; total: number }> {
+  ): Promise<{
+    stream: ReadableStream<Uint8Array>
+    info: ObjectInfo
+    range: { start: number; end: number } | null
+    total: number
+  }> {
     const path = canonicalPath(rawPath)
     await verifySignedToken(this.crypto, token, {
       project: this.projectRef,
@@ -434,7 +565,12 @@ export class StorageService {
     bucketName: string,
     rawPath: string,
     range?: ByteRange,
-  ): Promise<{ stream: ReadableStream<Uint8Array>; info: ObjectInfo; range: { start: number; end: number } | null; total: number }> {
+  ): Promise<{
+    stream: ReadableStream<Uint8Array>
+    info: ObjectInfo
+    range: { start: number; end: number } | null
+    total: number
+  }> {
     const path = canonicalPath(rawPath)
     const bucket = await this.getBucket(bucketName)
     if (!bucket.public) throw STORAGE_ERRORS.notAuthorized()
@@ -445,9 +581,13 @@ export class StorageService {
 
   // ---- recovery (contract §14.2) ----
 
-  async recover(staleBeforeIso?: string): Promise<{ promoted: number; aborted: number; corrupted: number; deleted: number }> {
+  async recover(
+    staleBeforeIso?: string,
+  ): Promise<{ promoted: number; aborted: number; corrupted: number; deleted: number }> {
     const stats = { promoted: 0, aborted: 0, corrupted: 0, deleted: 0 }
-    const rows = await this.db.all(`SELECT * FROM ${this.O()} WHERE state IN ('staging','deleting','corrupt')`)
+    const rows = await this.db.all(
+      `SELECT * FROM ${this.O()} WHERE state IN ('staging','deleting','corrupt')`,
+    )
     for (const r of rows) {
       const bucketId = String(r.bucket_id)
       const key = this.finalKey(bucketId, String(r.name), String(r.version))
@@ -474,12 +614,16 @@ export class StorageService {
     for (const r of ready) {
       const key = this.finalKey(String(r.bucket_id), String(r.name), String(r.version))
       if (!(await this.blob.stat(key).catch(() => null))) {
-        await this.db.run(`UPDATE ${this.O()} SET state = 'corrupt', updated_at = ? WHERE id = ?`, [this.ports.clock.now(), String(r.id)])
+        await this.db.run(`UPDATE ${this.O()} SET state = 'corrupt', updated_at = ? WHERE id = ?`, [
+          this.ports.clock.now(),
+          String(r.id),
+        ])
         stats.corrupted++
       }
     }
     // orphan staged blobs older than the TTL
-    const cutoff = staleBeforeIso ?? new Date(this.ports.clock.epochMillis() - 24 * 3600_000).toISOString()
+    const cutoff =
+      staleBeforeIso ?? new Date(this.ports.clock.epochMillis() - 24 * 3600_000).toISOString()
     for await (const staged of this.blob.listStaged(cutoff)) {
       const owned = await this.db.one(`SELECT id FROM ${this.O()} WHERE op_id = ?`, [staged.opId])
       if (!owned) {
@@ -498,20 +642,34 @@ export class StorageService {
     resource: { bucket_id: string; name: string; owner: string | null },
   ): Promise<void> {
     if (isPrivilegedService(principal)) return
-    const hasStoragePolicy = this.policySchema.policies.some((p) => p.action === action && p.table === 'objects')
+    const hasStoragePolicy = this.policySchema.policies.some(
+      (p) => p.action === action && p.table === 'objects',
+    )
     if (!hasStoragePolicy) {
       // default: authenticated principals may operate on non-public buckets; anon may not
       if (principal.kind === 'anonymous') throw STORAGE_ERRORS.notAuthorized()
       return
     }
     const plan = buildSecurityPlan(
-      { schema: this.policySchema, rules: this.policySchema.policies, principal, now: this.ports.clock.now() },
+      {
+        schema: this.policySchema,
+        rules: this.policySchema.policies,
+        principal,
+        now: this.ports.clock.now(),
+      },
       { table: 'objects', action },
     )
     if (plan.decision === 'deny') throw STORAGE_ERRORS.notAuthorized()
-    const row: Record<string, Json> = { bucket_id: resource.bucket_id, name: resource.name, owner: resource.owner }
-    const usingOk = plan.rowUsing === null || checkRowAllowed({ ...plan, rowCheck: plan.rowUsing }, row, this.ports.clock.now())
-    const checkOk = action === 'storage.write' ? checkRowAllowed(plan, row, this.ports.clock.now()) : true
+    const row: Record<string, Json> = {
+      bucket_id: resource.bucket_id,
+      name: resource.name,
+      owner: resource.owner,
+    }
+    const usingOk =
+      plan.rowUsing === null ||
+      checkRowAllowed({ ...plan, rowCheck: plan.rowUsing }, row, this.ports.clock.now())
+    const checkOk =
+      action === 'storage.write' ? checkRowAllowed(plan, row, this.ports.clock.now()) : true
     if (!usingOk || !checkOk) throw STORAGE_ERRORS.notAuthorized()
   }
 
@@ -555,7 +713,10 @@ export class StorageService {
     }
   }
 
-  private requireObject(bucketId: string, name: string): Promise<NonNullable<Awaited<ReturnType<StorageService['currentReady']>>>> {
+  private requireObject(
+    bucketId: string,
+    name: string,
+  ): Promise<NonNullable<Awaited<ReturnType<StorageService['currentReady']>>>> {
     return this.currentReady(bucketId, name).then((o) => {
       if (!o) throw STORAGE_ERRORS.objectNotFound()
       return o
@@ -590,7 +751,9 @@ export class StorageService {
       name: String(row.name),
       public: row.public === true || row.public === 1,
       file_size_limit: row.file_size_limit == null ? null : Number(row.file_size_limit),
-      allowed_mime_types: row.allowed_mime_types ? (JSON.parse(String(row.allowed_mime_types)) as string[]) : null,
+      allowed_mime_types: row.allowed_mime_types
+        ? (JSON.parse(String(row.allowed_mime_types)) as string[])
+        : null,
       created_at: String(row.created_at),
       updated_at: String(row.updated_at),
     }

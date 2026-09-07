@@ -30,7 +30,8 @@ async function collect(stream: ReadableStream<Uint8Array>, maxBytes: number): Pr
     const { done, value } = await reader.read()
     if (done) break
     total += value.byteLength
-    if (total > maxBytes) throw blobError('SK_STORAGE_TOO_LARGE', 'object exceeds the bucket size limit', 413)
+    if (total > maxBytes)
+      throw blobError('SK_STORAGE_TOO_LARGE', 'object exceeds the bucket size limit', 413)
     chunks.push(value)
   }
   const out = new Uint8Array(total)
@@ -66,7 +67,11 @@ export class S3BlobAdapter implements BlobAdapter {
     payload: Uint8Array | null,
     extraHeaders: Record<string, string> = {},
   ): Promise<Response> {
-    const payloadHash = payload ? await sha256Hex(payload) : method === 'GET' || method === 'HEAD' ? 'UNSIGNED-PAYLOAD' : await sha256Hex('')
+    const payloadHash = payload
+      ? await sha256Hex(payload)
+      : method === 'GET' || method === 'HEAD'
+        ? 'UNSIGNED-PAYLOAD'
+        : await sha256Hex('')
     const headers = { ...extraHeaders }
     if (payload) headers['content-length'] = String(payload.byteLength)
     const signed = await signS3(this.cfg, method, key, payloadHash, headers)
@@ -83,13 +88,18 @@ export class S3BlobAdapter implements BlobAdapter {
     const bytes = await collect(body, expected.maxBytes)
     const sha256 = await sha256Hex(bytes)
     if (expected.sha256 && expected.sha256 !== sha256) {
-      throw blobError('SK_STORAGE_HASH_MISMATCH', 'uploaded bytes do not match the expected digest', 400)
+      throw blobError(
+        'SK_STORAGE_HASH_MISMATCH',
+        'uploaded bytes do not match the expected digest',
+        400,
+      )
     }
     const key = this.stagedKey(opId)
     const res = await this.request('PUT', key, bytes, {
       ...(expected.contentType ? { 'content-type': expected.contentType } : {}),
     })
-    if (!res.ok) throw blobError('SK_STORAGE_WRITE_FAILED', `staged write failed (${res.status})`, 502)
+    if (!res.ok)
+      throw blobError('SK_STORAGE_WRITE_FAILED', `staged write failed (${res.status})`, 502)
     return { opId, stagedKey: key, bytes: bytes.byteLength, sha256 }
   }
 
@@ -113,9 +123,13 @@ export class S3BlobAdapter implements BlobAdapter {
       headers.range = `bytes=${range.start}-${range.end === null ? '' : range.end}`
     }
     const res = await this.request('GET', key, null, headers)
-    if (res.status === 416) throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', 'range not satisfiable', 416)
-    if (res.status === 404 || !res.body) throw blobError('SK_STORAGE_OBJECT_MISSING', 'object bytes are missing', 500)
-    const totalBytes = Number(res.headers.get('content-range')?.split('/')[1] ?? res.headers.get('content-length') ?? 0)
+    if (res.status === 416)
+      throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', 'range not satisfiable', 416)
+    if (res.status === 404 || !res.body)
+      throw blobError('SK_STORAGE_OBJECT_MISSING', 'object bytes are missing', 500)
+    const totalBytes = Number(
+      res.headers.get('content-range')?.split('/')[1] ?? res.headers.get('content-length') ?? 0,
+    )
     let outRange: { start: number; end: number } | null = null
     const cr = res.headers.get('content-range')
     if (cr) {
@@ -151,12 +165,28 @@ export class S3BlobAdapter implements BlobAdapter {
   }
 
   async *listStaged(olderThan: string): AsyncIterable<StagedBlob> {
-    const res = await this.request('GET', '', null, {})
-    void res
-    void olderThan
-    // A full ListObjectsV2 walk is available; the storage recovery loop drives GC via the
-    // metadata table, so an exhaustive listing here is intentionally omitted for v1.
-    return
+    const cutoff = Date.parse(olderThan)
+    const signed = await signS3(
+      this.cfg,
+      'GET',
+      '',
+      'UNSIGNED-PAYLOAD',
+      {},
+      { 'list-type': '2', prefix: 'staging/' },
+    )
+    const res = await fetch(signed.url, { method: 'GET', headers: signed.headers })
+    if (!res.ok) return
+    const xml = await res.text()
+    const entries = [...xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)]
+    for (const m of entries) {
+      const body = m[1] ?? ''
+      const key = /<Key>([^<]*)<\/Key>/.exec(body)?.[1] ?? ''
+      const lastMod = /<LastModified>([^<]*)<\/LastModified>/.exec(body)?.[1] ?? ''
+      const size = Number(/<Size>(\d+)<\/Size>/.exec(body)?.[1] ?? '0')
+      if (key && Date.parse(lastMod) < cutoff) {
+        yield { opId: key.replace(/^staging\//, ''), stagedKey: key, bytes: size, sha256: '' }
+      }
+    }
   }
 
   async [Symbol.asyncDispose](): Promise<void> {}

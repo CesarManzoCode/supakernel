@@ -34,13 +34,21 @@ export const STORAGE_ERRORS: {
   bucketExists: () => e('conflict', 'SK_STORAGE_BUCKET_EXISTS', 'The resource already exists', 409),
   objectNotFound: () => e('not_found', 'SK_STORAGE_OBJECT_NOT_FOUND', 'Object not found', 404),
   objectExists: () => e('conflict', 'SK_STORAGE_OBJECT_EXISTS', 'The resource already exists', 409),
-  notAuthorized: () => e('authz', 'SK_STORAGE_NOT_AUTHORIZED', 'new row violates row-level security policy', 403),
-  integrityFailure: () => e('integrity', 'SK_STORAGE_INTEGRITY', 'object bytes are missing or corrupt', 500),
-  tooLarge: () => e('input', 'SK_STORAGE_TOO_LARGE', 'The object exceeded the maximum allowed size', 413),
+  notAuthorized: () =>
+    e('authz', 'SK_STORAGE_NOT_AUTHORIZED', 'new row violates row-level security policy', 403),
+  integrityFailure: () =>
+    e('integrity', 'SK_STORAGE_INTEGRITY', 'object bytes are missing or corrupt', 500),
+  tooLarge: () =>
+    e('input', 'SK_STORAGE_TOO_LARGE', 'The object exceeded the maximum allowed size', 413),
   invalidSignedToken: () => e('authn', 'SK_STORAGE_BAD_SIGNED_TOKEN', 'Invalid signature', 400),
   rangeNotSatisfiable: (size: number) =>
     new StorageError(
-      kernelError({ category: 'input', code: 'SK_STORAGE_RANGE', message: `bytes */${size}`, httpStatus: 416 }),
+      kernelError({
+        category: 'input',
+        code: 'SK_STORAGE_RANGE',
+        message: `bytes */${size}`,
+        httpStatus: 416,
+      }),
     ),
   unsupported: (feature: string) =>
     e('capability', 'SK_CAP_STORAGE_UNSUPPORTED', `unsupported: ${feature}`, 400),

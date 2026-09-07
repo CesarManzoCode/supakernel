@@ -4,9 +4,20 @@
   "private": true,
   "description": "Storage subset: buckets, objects, consistency state machine, signed URLs, ranges, recovery (contract §14, §30 L7)",
   "type": "module",
-  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "files": ["dist", "src"],
-  "scripts": { "build": "tsc -b", "typecheck": "tsc -b --noEmit" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
   "sideEffects": false,
   "dependencies": {
     "@supakernel/contracts": "workspace:*",

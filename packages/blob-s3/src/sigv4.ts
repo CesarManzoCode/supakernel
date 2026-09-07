@@ -13,7 +13,13 @@ export interface S3Config {
 const enc = new TextEncoder()
 
 async function hmac(key: ArrayBuffer | Uint8Array, data: string): Promise<ArrayBuffer> {
-  const k = await crypto.subtle.importKey('raw', key as BufferSource, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const k = await crypto.subtle.importKey(
+    'raw',
+    key as BufferSource,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
   return crypto.subtle.sign('HMAC', k, enc.encode(data))
 }
 
@@ -43,7 +49,11 @@ export async function signS3(
 ): Promise<SignedRequest> {
   const base = new URL(cfg.endpoint)
   const host = base.host
-  const canonicalUri = `/${cfg.forcePathStyle === false ? '' : `${cfg.bucket}/`}${key.split('/').map(encodeURIComponent).join('/')}`.replace('//', '/')
+  const canonicalUri =
+    `/${cfg.forcePathStyle === false ? '' : `${cfg.bucket}/`}${key.split('/').map(encodeURIComponent).join('/')}`.replace(
+      '//',
+      '/',
+    )
   const now = new Date()
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
   const dateStamp = amzDate.slice(0, 8)
@@ -64,14 +74,18 @@ export async function signS3(
     .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(query[k] as string)}`)
     .join('&')
 
-  const canonicalRequest = [method, canonicalUri, canonicalQuery, canonicalHeaders, signedHeaders, payloadHash].join('\n')
-  const scope = `${dateStamp}/${cfg.region}/s3/aws4_request`
-  const stringToSign = [
-    'AWS4-HMAC-SHA256',
-    amzDate,
-    scope,
-    await sha256Hex(canonicalRequest),
+  const canonicalRequest = [
+    method,
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    payloadHash,
   ].join('\n')
+  const scope = `${dateStamp}/${cfg.region}/s3/aws4_request`
+  const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, await sha256Hex(canonicalRequest)].join(
+    '\n',
+  )
 
   const kDate = await hmac(enc.encode(`AWS4${cfg.secretAccessKey}`), dateStamp)
   const kRegion = await hmac(kDate, cfg.region)

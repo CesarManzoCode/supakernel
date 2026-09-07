@@ -26,7 +26,7 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
 
 function segment(key: string): string {
   // OPFS names cannot contain '/'; store objects under a flat, hashed name + a sidecar meta.
-  return key.replace(/[^A-Za-z0-9._-]/g, '_') + '__' + hashName(key)
+  return `${key.replace(/[^A-Za-z0-9._-]/g, '_')}__${hashName(key)}`
 }
 function hashName(key: string): string {
   let h = 2166136261
@@ -60,8 +60,8 @@ export class OpfsBlobAdapter implements BlobAdapter {
   constructor(options: { root?: string; id?: string } = {}) {
     this.id = options.id ?? 'blob-opfs'
     const sub = options.root ?? 'sk-blob'
-    this.rootPromise = (navigator.storage.getDirectory() as unknown as Promise<DirHandle>).then((d) =>
-      d.getDirectoryHandle(sub, { create: true }),
+    this.rootPromise = (navigator.storage.getDirectory() as unknown as Promise<DirHandle>).then(
+      (d) => d.getDirectoryHandle(sub, { create: true }),
     )
   }
 
@@ -81,7 +81,8 @@ export class OpfsBlobAdapter implements BlobAdapter {
       const { done, value } = await reader.read()
       if (done) break
       total += value.byteLength
-      if (total > expected.maxBytes) throw blobError('SK_STORAGE_TOO_LARGE', 'object exceeds the bucket size limit', 413)
+      if (total > expected.maxBytes)
+        throw blobError('SK_STORAGE_TOO_LARGE', 'object exceeds the bucket size limit', 413)
       chunks.push(value)
     }
     const bytes = new Uint8Array(total)
@@ -92,7 +93,11 @@ export class OpfsBlobAdapter implements BlobAdapter {
     }
     const sha256 = await sha256Hex(bytes)
     if (expected.sha256 && expected.sha256 !== sha256) {
-      throw blobError('SK_STORAGE_HASH_MISMATCH', 'uploaded bytes do not match the expected digest', 400)
+      throw blobError(
+        'SK_STORAGE_HASH_MISMATCH',
+        'uploaded bytes do not match the expected digest',
+        400,
+      )
     }
     const fh = await (await this.dir('staging')).getFileHandle(opId, { create: true })
     const w = await fh.createWritable()
@@ -106,7 +111,13 @@ export class OpfsBlobAdapter implements BlobAdapter {
     const objects = await this.dir('objects')
     const name = segment(finalKey)
     if (!src) {
-      if (await objects.getFileHandle(name).then(() => true).catch(() => false)) return
+      if (
+        await objects
+          .getFileHandle(name)
+          .then(() => true)
+          .catch(() => false)
+      )
+        return
       throw blobError('SK_STORAGE_PROMOTE_FAILED', 'staged bytes are gone', 502)
     }
     const file = await src.getFile()
@@ -117,7 +128,15 @@ export class OpfsBlobAdapter implements BlobAdapter {
     await w.close()
     const mh = await objects.getFileHandle(`${name}.meta`, { create: true })
     const mw = await mh.createWritable()
-    await mw.write(new TextEncoder().encode(JSON.stringify({ bytes: staged.bytes, sha256: staged.sha256, createdAt: new Date().toISOString() })))
+    await mw.write(
+      new TextEncoder().encode(
+        JSON.stringify({
+          bytes: staged.bytes,
+          sha256: staged.sha256,
+          createdAt: new Date().toISOString(),
+        }),
+      ),
+    )
     await mw.close()
     await (await this.dir('staging')).removeEntry(staged.stagedKey).catch(() => undefined)
   }
@@ -133,7 +152,8 @@ export class OpfsBlobAdapter implements BlobAdapter {
     if (range) {
       start = Math.max(0, range.start)
       end = range.end === null ? total - 1 : Math.min(range.end, total - 1)
-      if (start > end || start >= total) throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', `bytes */${total}`, 416)
+      if (start > end || start >= total)
+        throw blobError('SK_STORAGE_RANGE_NOT_SATISFIABLE', `bytes */${total}`, 416)
     }
     const slice = file.slice(start, end + 1)
     const meta = await this.readMeta(key)
@@ -175,7 +195,12 @@ export class OpfsBlobAdapter implements BlobAdapter {
       if ((handle as FileHandle).kind !== 'file') continue
       const file = await (handle as FileHandle).getFile()
       if (file.lastModified < cutoff) {
-        yield { opId: name, stagedKey: name, bytes: file.size, sha256: await sha256Hex(new Uint8Array(await file.arrayBuffer())) }
+        yield {
+          opId: name,
+          stagedKey: name,
+          bytes: file.size,
+          sha256: await sha256Hex(new Uint8Array(await file.arrayBuffer())),
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
-import { type Json, redactError } from '@supakernel/contracts'
 import type { Principal } from '@supakernel/contracts'
+import { type Json, redactError } from '@supakernel/contracts'
 import { STORAGE_ERRORS, StorageError } from './errors.js'
 import { parseRangeHeader } from './range.js'
 import type { ObjectInfo, StorageService } from './service.js'
@@ -15,7 +15,9 @@ const BASE = /^\/?(storage\/v1\/?)?/
  * A `fetch`-shaped Storage handler (contract §14, §30 L7) that `@supabase/storage-js` points at
  * via a custom fetch. Nothing here imports Hono or an adapter.
  */
-export function createStorageHandler(deps: StorageHandlerDeps): (request: Request) => Promise<Response> {
+export function createStorageHandler(
+  deps: StorageHandlerDeps,
+): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url)
     const path = url.pathname.replace(BASE, '').replace(/\/$/, '')
@@ -26,9 +28,21 @@ export function createStorageHandler(deps: StorageHandlerDeps): (request: Reques
     } catch (err) {
       if (err instanceof StorageError) {
         const ke = redactError(err.kernelError)
-        return json(ke.httpStatus, { statusCode: String(ke.httpStatus), error: ke.code, message: ke.message })
+        return json(ke.httpStatus, {
+          statusCode: String(ke.httpStatus),
+          error: ke.code,
+          message: ke.message,
+        })
       }
-      const ke = redactError({ category: 'internal', code: 'SK_INTERNAL', message: 'internal error', details: null, hint: null, httpStatus: 500, retryable: true })
+      const ke = redactError({
+        category: 'internal',
+        code: 'SK_INTERNAL',
+        message: 'internal error',
+        details: null,
+        hint: null,
+        httpStatus: 500,
+        retryable: true,
+      })
       return json(ke.httpStatus, { statusCode: '500', error: 'internal', message: ke.message })
     }
   }
@@ -106,7 +120,8 @@ async function objectRoutes(
   if (method === 'GET' && (kind === 'authenticated' || kind === 'public' || kind === 'sign')) {
     const [bucket, ...pathParts] = tail
     const path = pathParts.join('/')
-    if (kind === 'public') return serve(await s.publicDownload(str(bucket), path, range ?? undefined), range)
+    if (kind === 'public')
+      return serve(await s.publicDownload(str(bucket), path, range ?? undefined), range)
     if (kind === 'sign') {
       const token = url.searchParams.get('token') ?? ''
       return serve(await s.downloadSigned(str(bucket), path, token, range ?? undefined), range)
@@ -114,10 +129,21 @@ async function objectRoutes(
     return serve(await s.download(await principal(), str(bucket), path, range ?? undefined), range)
   }
 
-  if (method === 'GET' && kind === 'info' && tail[0] === 'authenticated') {
-    const [, bucket, ...pathParts] = tail
-    const info = await s.objectInfoFor(await principal(), str(bucket), pathParts.join('/'))
+  if (method === 'GET' && kind === 'info') {
+    const [head, ...pathParts] = tail
+    const parts = head === 'authenticated' || head === 'public' ? pathParts : [head, ...pathParts]
+    const [bucket, ...rest2] = parts
+    const info = await s.objectInfoFor(await principal(), str(bucket), rest2.join('/'))
     return json(200, info as unknown as Json)
+  }
+
+  // storage-js download: GET /object/:bucket/*path (no special segment)
+  if (method === 'GET' && kind && !['list', 'move', 'copy', 'upload'].includes(kind)) {
+    const [bucket, ...pathParts] = rest
+    return serve(
+      await s.download(await principal(), str(bucket), pathParts.join('/'), range ?? undefined),
+      range,
+    )
   }
 
   if (method === 'POST' && kind === 'list') {
@@ -147,10 +173,20 @@ async function objectRoutes(
     const [bucket, ...pathParts] = tail
     const b = await body(request)
     if (pathParts.length === 0 && Array.isArray(b.paths)) {
-      const out = await s.createSignedUrls(await principal(), str(bucket), b.paths as string[], num(b.expiresIn) ?? 60)
+      const out = await s.createSignedUrls(
+        await principal(),
+        str(bucket),
+        b.paths as string[],
+        num(b.expiresIn) ?? 60,
+      )
       return json(200, out as unknown as Json)
     }
-    const { signedURL } = await s.createSignedUrl(await principal(), str(bucket), pathParts.join('/'), num(b.expiresIn) ?? 60)
+    const { signedURL } = await s.createSignedUrl(
+      await principal(),
+      str(bucket),
+      pathParts.join('/'),
+      num(b.expiresIn) ?? 60,
+    )
     return json(200, { signedURL })
   }
 
@@ -170,7 +206,19 @@ async function objectRoutes(
 
   if (method === 'DELETE') {
     const [bucket, ...pathParts] = rest
-    await s.remove(await principal(), str(bucket), pathParts.join('/'))
+    const p = await principal()
+    if (pathParts.length === 0) {
+      // storage-js batch remove: DELETE /object/:bucket  { prefixes: [...] }
+      const b = await body(request)
+      const prefixes = Array.isArray(b.prefixes) ? (b.prefixes as string[]) : []
+      const removed: Array<{ name: string }> = []
+      for (const path of prefixes) {
+        await s.remove(p, str(bucket), path)
+        removed.push({ name: path })
+      }
+      return json(200, removed as unknown as Json)
+    }
+    await s.remove(p, str(bucket), pathParts.join('/'))
     return json(200, { message: 'Successfully deleted' })
   }
 
@@ -178,7 +226,12 @@ async function objectRoutes(
 }
 
 async function serve(
-  r: { stream: ReadableStream<Uint8Array>; info: ObjectInfo; range: { start: number; end: number } | null; total: number },
+  r: {
+    stream: ReadableStream<Uint8Array>
+    info: ObjectInfo
+    range: { start: number; end: number } | null
+    total: number
+  },
   requested: ReturnType<typeof parseRangeHeader>,
 ): Promise<Response> {
   const headers: Record<string, string> = {
@@ -236,5 +289,8 @@ function numOrNull(v: unknown): number | null {
   return Number.isFinite(n) && v !== null && v !== undefined && v !== '' ? n : null
 }
 function json(status: number, b: Json): Response {
-  return new Response(JSON.stringify(b), { status, headers: { 'content-type': 'application/json; charset=utf-8' } })
+  return new Response(JSON.stringify(b), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  })
 }

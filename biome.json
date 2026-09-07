@@ -13,6 +13,7 @@
       "!**/node_modules",
       "!**/*.gen.ts",
       "!**/*.gen.json",
+      "!labs/runtime-matrix/receipts",
       "!**/.wrangler",
       "!**/.wrangler-state",
       "!.bundle-audit",

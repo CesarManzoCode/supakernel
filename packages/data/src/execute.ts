@@ -174,10 +174,38 @@ async function runMutation(
     throw new Error('runMutation: not a mutation')
   }
 
+  // SQLite family: enforce WITH CHECK *before* the write. An interactive binding could roll a
+  // post-write check back, but D1 (atomic-batch) cannot — so the row must never be written when
+  // the check fails (contract §11.3, §13.2). For UPDATE the post-image is the existing row (read
+  // under the USING filter) merged with the patch.
+  if (ctx.family === 'sqlite' && op.kind === 'insert') {
+    for (const row of op.rows) {
+      if (!checkRowAllowed(plan.security, row, ctx.now)) throw checkViolationError()
+    }
+  }
+  if (ctx.family === 'sqlite' && op.kind === 'update') {
+    const preSpec: StatementSpec = {
+      kind: 'select',
+      table: plan.table,
+      columns: allCols,
+      where: spec.kind === 'update' ? spec.where : null,
+      order: [],
+      limit: null,
+      offset: null,
+      countOnly: false,
+      columnType: ct,
+    }
+    const targets = (await exec(buildStatement(preSpec, dialect))).map((r) => normalizeRow(r))
+    for (const t of targets) {
+      const postImage = { ...t, ...op.patch }
+      if (!checkRowAllowed(plan.security, postImage, ctx.now)) throw checkViolationError()
+    }
+  }
+
   const raw = await exec(buildStatement(spec, dialect))
   const full = raw.map((r) => normalizeRow(r))
 
-  // SQLite family: enforce WITH CHECK on the post-image inside this same transaction.
+  // Belt-and-suspenders for an interactive binding: a post-image check still rolls back.
   if (ctx.family === 'sqlite' && (op.kind === 'insert' || op.kind === 'update')) {
     for (const row of full) {
       if (!checkRowAllowed(plan.security, row, ctx.now)) throw checkViolationError()

@@ -10,6 +10,8 @@ export interface WorkersEnv {
   readonly SUPAKERNEL_SERVER_SECRET?: string
   readonly SUPAKERNEL_CORS_ORIGINS?: string
   readonly SUPAKERNEL_MANAGEMENT_TOKEN?: string
+  /** The portable-core hash, computed at bundle time (a Worker cannot read the source itself). */
+  readonly SUPAKERNEL_CORE_HASH?: string
 }
 
 export interface WorkersConfig {
@@ -17,6 +19,7 @@ export interface WorkersConfig {
   readonly serverSecret: string
   readonly corsOrigins: readonly string[]
   readonly managementToken: string | null
+  readonly coreHash: string | null
 }
 
 export function readWorkersConfig(env: WorkersEnv): WorkersConfig {
@@ -28,5 +31,6 @@ export function readWorkersConfig(env: WorkersEnv): WorkersConfig {
       .map((o) => o.trim())
       .filter(Boolean),
     managementToken: env.SUPAKERNEL_MANAGEMENT_TOKEN ?? null,
+    coreHash: env.SUPAKERNEL_CORE_HASH ?? null,
   }
 }

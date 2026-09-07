@@ -1,10 +1,10 @@
 {
-  "runtime": "lambda",
-  "runtimeVersion": "AWS Lambda container · node v24.20.0",
+  "runtime": "workers",
+  "runtimeVersion": "workerd · wrangler 4.129.0 · compat 2026-09-01",
   "coreHash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
-  "services": ["data", "auth", "storage"],
-  "databases": ["postgres"],
-  "blobs": ["s3"],
+  "services": ["data", "auth", "storage", "realtime"],
+  "databases": ["d1"],
+  "blobs": ["r2"],
   "exclusions": [
     "rpc",
     "broadcast",
@@ -12,34 +12,35 @@
     "oauth",
     "mfa",
     "edge-functions",
-    "realtime-websocket",
-    "local-filesystem-durability"
+    "management-raw-sql",
+    "smtp",
+    "filesystem"
   ],
   "capabilityEndpoint": {
     "schemaVersion": 1,
-    "runtime": "lambda",
+    "runtime": "workers",
     "core_hash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
     "services": {
       "data": true,
       "auth": true,
       "storage": true,
-      "realtime": false,
+      "realtime": true,
       "management": false
     },
     "database": {
-      "families": ["postgres"]
+      "families": ["sqlite"]
     },
     "limits": {
-      "maxRequestBodyBytes": 6291456,
-      "maxObjectUploadBytes": 6291456,
+      "maxRequestBodyBytes": 10485760,
+      "maxObjectUploadBytes": 26214400,
       "maxQueryParams": 100,
       "maxExprDepth": 12,
       "defaultRowLimit": 1000,
       "maxRowLimit": 10000,
-      "requestTimeoutMs": 29000,
+      "requestTimeoutMs": 30000,
       "shutdownTimeoutMs": 10000,
-      "socketQueueBytes": 0,
-      "socketQueueEvents": 0
+      "socketQueueBytes": 1048576,
+      "socketQueueEvents": 1024
     },
     "exclusions": [
       "rpc",
@@ -48,101 +49,111 @@
       "oauth",
       "mfa",
       "edge-functions",
-      "realtime-websocket",
-      "local-filesystem-durability"
+      "management-raw-sql",
+      "smtp",
+      "filesystem"
     ]
   },
   "passList": [
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "auth: sign up user A",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "auth: sign in user A",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "auth: getUser reflects the signed-in identity",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: A inserts an owned row (WITH CHECK passes)",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: A reads back exactly its own row",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: an anon insert is rejected (default-deny)",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: A updates its row title",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "auth: sign up + sign in user B",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: B cannot see A rows (row-level isolation)",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: B cannot insert a row owned by A (WITH CHECK)",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "storage: A round-trips an object through a bucket",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "data: A deletes its row",
       "ok": true
     },
     {
-      "target": "lambda (postgres 18.6 + s3, API Gateway v2)",
+      "target": "workers (D1 + R2, real workerd)",
       "name": "auth: A signs out; the token no longer authenticates",
       "ok": true
     }
   ],
   "extraChecks": [
     {
-      "name": "limits: capability endpoint publishes the reduced Lambda body cap",
-      "ok": true,
-      "detail": "maxRequestBodyBytes=6291456"
-    },
-    {
-      "name": "exclusion: realtime-websocket is published",
+      "name": "realtime: postgres_changes over a real WebSocketPair",
       "ok": true
     },
     {
-      "name": "exclusion: a Realtime socket upgrade is refused (426)",
-      "ok": true,
-      "detail": "status=426"
+      "name": "exclusions: raw-SQL Management + SMTP + filesystem published",
+      "ok": true
     },
     {
-      "name": "restart: a fresh container serves the same provisioned database",
-      "ok": true,
-      "detail": "status=200"
+      "name": "limits: reduced object-upload cap published",
+      "ok": true
+    },
+    {
+      "name": "management: no raw-SQL surface (realtime present, management read-only)",
+      "ok": true
     }
   ],
   "bundleAudit": {
     "checked": true,
-    "forbidden": [],
+    "forbidden": [
+      "node:fs",
+      "node:fs/promises",
+      "node:net",
+      "node:tls",
+      "node:child_process",
+      "node:http",
+      "node:https",
+      "node:worker_threads",
+      "ws",
+      "pg",
+      "node:crypto"
+    ],
     "ok": true
   }
 }

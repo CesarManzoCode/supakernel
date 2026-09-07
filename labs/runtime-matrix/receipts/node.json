@@ -1,7 +1,7 @@
 {
   "runtime": "node",
   "runtimeVersion": "node v24.20.0",
-  "coreHash": "sha256:16bbbfe72d19bcd1664ee2fe5d22d84ebdbc7a1e3ba3f8df7948a9ee3b1a1263",
+  "coreHash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
   "services": ["data", "auth", "storage", "realtime", "management"],
   "databases": ["postgres", "node:sqlite", "pglite"],
   "blobs": ["fs", "s3"],
@@ -9,7 +9,7 @@
   "capabilityEndpoint": {
     "schemaVersion": 1,
     "runtime": "node",
-    "core_hash": "sha256:16bbbfe72d19bcd1664ee2fe5d22d84ebdbc7a1e3ba3f8df7948a9ee3b1a1263",
+    "core_hash": "sha256:7d2f72862e5ba8937eff6d13bc55319223db5d0f6d35f2c62a90df3dc2b6a01f",
     "services": {
       "data": true,
       "auth": true,

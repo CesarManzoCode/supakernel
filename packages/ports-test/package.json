@@ -1,0 +1,33 @@
+{
+  "name": "@supakernel/ports-test",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Test-only shared Database connection contract suite",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest.d.ts",
+      "default": "./dist/vitest.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "5.0.0"
+  }
+}

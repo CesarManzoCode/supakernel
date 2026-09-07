@@ -1,0 +1,111 @@
+{
+  "cutoff": "2026-09-05T00:00:00Z",
+  "entries": [
+    {
+      "integrity": "sha512-Lw4VHZRebrReBBnlHa12JQjnIBm3JJAA55PDB9LbBVBF0q4RYphm6KfmIjqtPhf61MxZ5Q9KoK8R8x+7per5Aw==",
+      "license": "MIT OR Apache-2.0",
+      "name": "@biomejs/biome",
+      "publishedAt": "2026-09-03T07:24:43.993Z",
+      "resolved": "https://registry.npmjs.org/@biomejs/biome/-/biome-2.5.12.tgz",
+      "version": "2.5.12"
+    },
+    {
+      "integrity": "sha512-n9tsbUOhwx2epK1V0ZG9Ar4SHWUju04dhmzZXiSBXwBoleOvIfals33NAaWgagQVAL4Rbvx/Ptsu3P+pA09f6Q==",
+      "license": "Apache-2.0",
+      "name": "@electric-sql/pglite",
+      "publishedAt": "2026-08-26T18:40:08.921Z",
+      "resolved": "https://registry.npmjs.org/@electric-sql/pglite/-/pglite-0.5.8.tgz",
+      "version": "0.5.8"
+    },
+    {
+      "integrity": "sha512-PfWPWN2n+/37doa8oh2/oUXk4OOsRYZsxc1W1sDXIGb/Pu5Yrb+f2eyYpgQMGITVX7HVgxhs9P18Rc6I97ym/g==",
+      "license": "Apache-2.0",
+      "name": "@sqlite.org/sqlite-wasm",
+      "publishedAt": "2026-04-21T20:34:42.631Z",
+      "resolved": "https://registry.npmjs.org/@sqlite.org/sqlite-wasm/-/sqlite-wasm-3.53.0-build1.tgz",
+      "version": "3.53.0-build1"
+    },
+    {
+      "integrity": "sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg==",
+      "license": "MIT",
+      "name": "@types/emscripten",
+      "publishedAt": "2026-09-01T20:08:43.623Z",
+      "resolved": "https://registry.npmjs.org/@types/emscripten/-/emscripten-1.41.6.tgz",
+      "version": "1.41.6"
+    },
+    {
+      "integrity": "sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==",
+      "license": "MIT",
+      "name": "@types/node",
+      "publishedAt": "2026-07-08T06:48:03.261Z",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.13.3.tgz",
+      "version": "24.13.3"
+    },
+    {
+      "integrity": "sha512-HrJrvZv5ayxBzPfwphOoNzkzOIIlifzk0KJrGK2c8R4+LKpMtpYLQeUdjnwjWv/LZlkH2laZk+4w78pi99D4Vw==",
+      "license": "MIT",
+      "name": "esbuild",
+      "publishedAt": "2026-06-11T22:47:05.085Z",
+      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.1.tgz",
+      "version": "0.28.1"
+    },
+    {
+      "integrity": "sha512-hTV3LvacQgJhc6GHpu5GYZMQBOAEpJ/LF1JjkixZ8YLh2TtbuN8y0JlNiPTe8PBTV9ChFkKcZMWSYKyhJfkYaQ==",
+      "license": "MIT",
+      "name": "libpg-query",
+      "publishedAt": "2026-07-21T06:12:06.840Z",
+      "resolved": "https://registry.npmjs.org/libpg-query/-/libpg-query-17.7.4.tgz",
+      "version": "17.7.4"
+    },
+    {
+      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",
+      "license": "Apache-2.0",
+      "name": "playwright",
+      "publishedAt": "2026-09-04T22:45:21.732Z",
+      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "version": "1.63.0"
+    },
+    {
+      "integrity": "sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw==",
+      "license": "Unlicense",
+      "name": "postgres",
+      "publishedAt": "2026-04-05T15:18:33.078Z",
+      "resolved": "https://registry.npmjs.org/postgres/-/postgres-3.4.9.tgz",
+      "version": "3.4.9"
+    },
+    {
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
+      "license": "Apache-2.0",
+      "name": "typescript",
+      "publishedAt": "2026-04-16T23:38:27.905Z",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+      "version": "6.0.3"
+    },
+    {
+      "integrity": "sha512-gpsMNoRhMjMktVxPtstOH4/PJuPyovVaMDr4oDilXaGH1EcqM2OE96SoHT2VIQ6fTGtTjqmHDrEu2X9RQiXf8Q==",
+      "license": "MIT",
+      "name": "vitest",
+      "publishedAt": "2026-09-03T12:24:30.312Z",
+      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.0.0.tgz",
+      "version": "5.0.0"
+    },
+    {
+      "integrity": "sha512-PGPvs9UPoFrwxT0VogpESSZGvZIctAuTK3wGsLLPHtHsSgS85kNdvtpa2d14UzG8gwLWD64XUGFPGG9tOXG9VQ==",
+      "license": "MIT OR Apache-2.0",
+      "name": "wrangler",
+      "publishedAt": "2026-09-03T17:50:56.290Z",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.129.0.tgz",
+      "version": "4.129.0"
+    },
+    {
+      "integrity": "sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==",
+      "license": "MIT",
+      "name": "zod",
+      "publishedAt": "2026-08-29T17:55:42.775Z",
+      "resolved": "https://registry.npmjs.org/zod/-/zod-4.5.4.tgz",
+      "version": "4.5.4"
+    }
+  ],
+  "generatedFrom": "scripts/lock-vendors.mts",
+  "schemaVersion": 1
+}

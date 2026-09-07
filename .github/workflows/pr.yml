@@ -1,0 +1,166 @@
+name: pr
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+  # `gh` (used by scripts/lib/evidence.mts for `gh api`) needs an auth token in Actions.
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm verify:provenance
+      - run: corepack pnpm check:boundaries
+      - run: corepack pnpm lock:vendors
+      - run: git diff --exit-code
+
+  static:
+    runs-on: ubuntu-latest
+    needs: evidence
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm typecheck
+      - run: corepack pnpm lint
+
+  unit:
+    runs-on: ubuntu-latest
+    needs: evidence
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:contracts
+      - run: corepack pnpm test:ports
+
+  database-node:
+    runs-on: ubuntu-latest
+    needs: static
+    services:
+      postgres:
+        image: ghcr.io/supabase/cli/postgres:17.6.1.165
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 10s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:db:node
+      - run: corepack pnpm test:db:pglite
+      - run: corepack pnpm test:db:postgres
+        env:
+          SUPAKERNEL_TEST_PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+
+  database-bun:
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:db:bun
+
+  database-deno:
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.9.6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:db:deno
+
+  database-workers:
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:db:workers
+
+  database-browser:
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm --filter @supakernel/db-sqlite exec playwright install --with-deps chromium
+      - run: corepack pnpm test:db:browser
+
+  schema:
+    runs-on: ubuntu-latest
+    needs: database-node
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm test:schema
+      - run: corepack pnpm test:migrations:matrix
+      - run: corepack pnpm schema:lock
+      - run: git diff --exit-code

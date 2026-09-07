@@ -1,0 +1,49 @@
+{
+  "name": "supakernel-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SupaKernel \u2014 portable TypeScript backend runtime with a single semantic core and a verification lab. See docs/SupaKernel-Contract.md.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": "24.20.0",
+    "pnpm": "11.25.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "labs/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty && tsc -p scripts/tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lock:vendors": "node scripts/lock-vendors.mts",
+    "verify:provenance": "node scripts/verify-provenance.mts",
+    "check:boundaries": "node scripts/check-boundaries.mts",
+    "schema:lock": "node scripts/schema-lock.mts",
+    "test:contracts": "vitest run --project @supakernel/contracts",
+    "test:ports": "vitest run --project @supakernel/ports",
+    "test:db:node": "vitest run --project @supakernel/db-sqlite",
+    "test:db:pglite": "vitest run --project @supakernel/db-pglite",
+    "test:db:postgres": "vitest run --project @supakernel/db-postgres",
+    "test:db:workers": "vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts",
+    "test:db:browser": "node packages/db-sqlite/harness/browser/run.mts",
+    "test:db:bun": "bun test packages/db-sqlite/test/bun",
+    "test:db:deno": "cd packages/db-pglite/test/deno && deno test -A --no-check",
+    "test:schema": "vitest run --project @supakernel/schema",
+    "test:migrations:matrix": "vitest run --project @supakernel/schema test/migration-matrix.test.ts",
+    "test:db:sqlite-matrix": "vitest run --project @supakernel/db-sqlite && bun test packages/db-sqlite/test/bun && vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts && node packages/db-sqlite/harness/browser/run.mts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@types/node": "24.13.3",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  }
+}

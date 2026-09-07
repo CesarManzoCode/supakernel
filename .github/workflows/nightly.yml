@@ -1,0 +1,61 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+
+jobs:
+  full-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.1
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.9.6
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      - run: corepack pnpm exec playwright install --with-deps chromium
+      - run: corepack pnpm verify:provenance
+      - run: corepack pnpm check:boundaries
+      - run: corepack pnpm typecheck
+      - run: corepack pnpm lint
+      - run: corepack pnpm test
+      - run: corepack pnpm test:db:bun
+      - run: corepack pnpm test:db:deno
+      - run: corepack pnpm test:db:workers
+      - run: corepack pnpm test:db:browser
+      - run: corepack pnpm test:migrations:matrix
+      - name: upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-artifacts
+          path: artifacts/
+          retention-days: 30
+
+  vendor-direct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - run: corepack enable && corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm build
+      # Direct PostgREST / GoTrue / Storage / Realtime trace suites land here from L11.
+      - run: echo "vendor direct trace suites are added in L11"

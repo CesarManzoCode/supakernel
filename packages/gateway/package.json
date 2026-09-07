@@ -1,0 +1,22 @@
+{
+  "name": "@supakernel/gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SupaKernel gateway (stub; see contract)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false
+}

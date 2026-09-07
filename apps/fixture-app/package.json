@@ -1,0 +1,22 @@
+{
+  "name": "@supakernel/fixture-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Canonical supabase-js fixture app (stub)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false
+}

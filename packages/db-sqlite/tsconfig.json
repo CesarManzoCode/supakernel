@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2023", "ESNext.Disposable", "DOM", "DOM.Iterable"]
+  },
+  "references": [{ "path": "../contracts" }, { "path": "../ports" }],
+  "include": [
+    "src/core.ts",
+    "src/driver.ts",
+    "src/dialect.ts",
+    "src/introspect.ts",
+    "src/errors.ts",
+    "src/check-parser.ts",
+    "src/index.ts"
+  ]
+}

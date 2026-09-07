@@ -1,0 +1,11 @@
+{
+  "imports": {
+    "@supakernel/ports-test": "../../../ports-test/dist/index.js",
+    "@supakernel/contracts": "../../../contracts/dist/index.js",
+    "@supakernel/ports": "../../../ports/dist/index.js",
+    "@supakernel/db-postgres/pg-common": "../../../db-postgres/dist/pg-common.js",
+    "@electric-sql/pglite": "npm:@electric-sql/pglite@0.5.8",
+    "vitest": "npm:vitest@5.0.0",
+    "zod": "npm:zod@4.5.4"
+  }
+}

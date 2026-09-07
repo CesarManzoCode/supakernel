@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": [
+    "packages/schema/schema/0001-kernel-outbox.sql"
+  ],
+  "hash": "sha256:7e1141f6e0a3b44e63e14ec7cea02bc6064fb3ee109ffc1a9cad3e77df1131fb",
+  "ir": {
+    "policies": [],
+    "sequences": [
+      {
+        "cycle": false,
+        "increment": "1",
+        "max": "9223372036854775807",
+        "min": "1",
+        "name": "outbox_sequence_seq",
+        "ownedBy": "outbox.sequence",
+        "start": "1"
+      }
+    ],
+    "tables": [
+      {
+        "checks": [
+          {
+            "expr": {
+              "kind": "compare",
+              "left": {
+                "kind": "column",
+                "name": "op",
+                "table": "outbox"
+              },
+              "op": "in",
+              "right": {
+                "kind": "literal",
+                "value": [
+                  "INSERT",
+                  "UPDATE",
+                  "DELETE"
+                ]
+              }
+            },
+            "name": "outbox_op_valid"
+          }
+        ],
+        "columns": [
+          {
+            "default": {
+              "kind": "identity",
+              "sequence": "outbox_sequence_seq"
+            },
+            "generated": false,
+            "name": "sequence",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "default": {
+              "kind": "literal",
+              "value": "public"
+            },
+            "generated": false,
+            "name": "event_schema",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "default": null,
+            "generated": false,
+            "name": "event_table",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "default": null,
+            "generated": false,
+            "name": "op",
+            "nullable": false,
+            "type": "text"
+          },
+          {
+            "default": null,
+            "generated": false,
+            "name": "primary_key",
+            "nullable": false,
+            "type": "json"
+          },
+          {
+            "default": null,
+            "generated": false,
+            "name": "old_record",
+            "nullable": true,
+            "type": "json"
+          },
+          {
+            "default": null,
+            "generated": false,
+            "name": "new_record",
+            "nullable": true,
+            "type": "json"
+          },
+          {
+            "default": {
+              "kind": "currentTimestamp"
+            },
+            "generated": false,
+            "name": "committed_at",
+            "nullable": false,
+            "type": "timestamptz"
+          }
+        ],
+        "foreignKeys": [],
+        "indexes": [
+          {
+            "columns": [
+              "event_table"
+            ],
+            "name": "outbox_table_idx",
+            "unique": false,
+            "where": null
+          }
+        ],
+        "name": "outbox",
+        "primaryKey": [
+          "sequence"
+        ],
+        "uniques": []
+      }
+    ],
+    "version": 1
+  }
+}

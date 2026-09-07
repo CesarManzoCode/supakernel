@@ -1,0 +1,79 @@
+{
+  "cutoff": "2026-09-05T00:00:00Z",
+  "entries": [
+    {
+      "commit": "31c5a1a40c7e98ef5149f73788e0480130c9491a",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "typescript",
+      "license": "MIT",
+      "ref": "31c5a1a40c7e98ef5149f73788e0480130c9491a",
+      "repository": "CesarManzoCode/supadiff",
+      "url": "https://github.com/CesarManzoCode/supadiff"
+    },
+    {
+      "commit": "0492f72e487e2463b0d7b938365a8b3383364cb9",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "rust",
+      "license": "NOASSERTION",
+      "ref": "0492f72e487e2463b0d7b938365a8b3383364cb9",
+      "repository": "CesarManzoCode/thalyx",
+      "url": "https://github.com/CesarManzoCode/thalyx"
+    },
+    {
+      "commit": "6de489c7ba20e9004583005b38ca70ffe20ff6b2",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "haskell",
+      "license": "MIT",
+      "ref": "v16.1",
+      "repository": "PostgREST/postgrest",
+      "url": "https://github.com/PostgREST/postgrest"
+    },
+    {
+      "commit": "0204331ca41a5b49f076b6fa3dc6c0d20b996590",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "go",
+      "license": "MIT",
+      "ref": "v2.196.0",
+      "repository": "supabase/auth",
+      "url": "https://github.com/supabase/auth"
+    },
+    {
+      "commit": "997a1e69a4a83466964ed874d3a604c88a7b3866",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "typescript",
+      "license": "NOASSERTION",
+      "ref": "v2.116.0",
+      "repository": "supabase/cli",
+      "url": "https://github.com/supabase/cli"
+    },
+    {
+      "commit": "14abaf6d3262b4c663a8f754a76c646e2dbbb431",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "typescript",
+      "license": "Apache-2.0",
+      "ref": "14abaf6d3262b4c663a8f754a76c646e2dbbb431",
+      "repository": "supabase/evals",
+      "url": "https://github.com/supabase/evals"
+    },
+    {
+      "commit": "91812f42c4653ed55270e0bf4df6e9530de7966e",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "elixir",
+      "license": "Apache-2.0",
+      "ref": "v2.129.3",
+      "repository": "supabase/realtime",
+      "url": "https://github.com/supabase/realtime"
+    },
+    {
+      "commit": "288dd95c4c06f3df72a2369ea5196a8e400aeed7",
+      "cutoff": "2026-09-05T00:00:00Z",
+      "language": "typescript",
+      "license": "Apache-2.0",
+      "ref": "v1.70.3",
+      "repository": "supabase/storage",
+      "url": "https://github.com/supabase/storage"
+    }
+  ],
+  "generatedFrom": "scripts/lock-vendors.mts",
+  "schemaVersion": 1
+}

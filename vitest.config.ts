@@ -17,6 +17,7 @@ export default defineConfig({
       'packages/ports-test',
       'packages/schema',
       'packages/policy',
+      'packages/data',
       'packages/db-postgres',
       'packages/db-pglite',
       'packages/db-sqlite',

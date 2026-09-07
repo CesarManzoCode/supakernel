@@ -78,6 +78,8 @@ export function buildSecurityPlan(ctx: PolicyContext, req: PlanRequest): Securit
     combined.permissive,
     combined.restrictive,
     allColumns,
+    // immutable columns block writes only when an existing row is modified.
+    req.action === 'update' || req.action === 'storage.write',
   )
 
   if (decision === 'allow') {

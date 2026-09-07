@@ -97,9 +97,29 @@ export function compilePostgresRls(schema: SchemaIR, rules: readonly PolicyRule[
     rules.map((r) => r.table).filter((t) => schema.tables.some((x) => x.name === t)),
   )
 
+  // Any project-defined role named in a policy (beyond anon/authenticated/service_role) is
+  // created as a NOLOGIN role and inherits `authenticated`, so a request can `SET LOCAL ROLE`
+  // to it (contract §13.1).
+  const customRoles = [
+    ...new Set(
+      rules
+        .map((r) => r.role)
+        .filter((r) => r !== '*' && !SK_ROLES.includes(r as (typeof SK_ROLES)[number])),
+    ),
+  ]
+  for (const role of customRoles) {
+    out.push({
+      text: `DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${role.replace(/'/g, "''")}') THEN CREATE ROLE ${q(role)} NOLOGIN; END IF; END $$`,
+      parameters: [],
+    })
+  }
+  const grantRoles = ['"anon"', '"authenticated"', '"service_role"', ...customRoles.map(q)].join(
+    ', ',
+  )
+
   for (const table of rlsTables) {
     out.push({
-      text: `GRANT SELECT, INSERT, UPDATE, DELETE ON ${q(table)} TO "anon", "authenticated", "service_role"`,
+      text: `GRANT SELECT, INSERT, UPDATE, DELETE ON ${q(table)} TO ${grantRoles}`,
       parameters: [],
     })
     out.push({ text: `ALTER TABLE ${q(table)} ENABLE ROW LEVEL SECURITY`, parameters: [] })

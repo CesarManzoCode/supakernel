@@ -23,10 +23,14 @@ export function computeFieldMask(
   permissive: readonly ExpandedRule[],
   restrictive: readonly ExpandedRule[],
   allColumns: readonly string[],
+  /** `immutable` columns are blocked from writing only when an existing row is modified. */
+  enforceImmutable = true,
 ): FieldMask {
   const immutable = new Set<string>()
-  for (const r of [...permissive, ...restrictive]) {
-    for (const f of r.immutable) immutable.add(f)
+  if (enforceImmutable) {
+    for (const r of [...permissive, ...restrictive]) {
+      for (const f of r.immutable) immutable.add(f)
+    }
   }
 
   const readable = new Set<string>()

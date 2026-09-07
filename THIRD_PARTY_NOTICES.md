@@ -11,6 +11,7 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `@biomejs/biome` | 2.5.12 | MIT OR Apache-2.0 |
 | `@electric-sql/pglite` | 0.5.8 | Apache-2.0 |
 | `@sqlite.org/sqlite-wasm` | 3.53.0-build1 | Apache-2.0 |
+| `@supabase/supabase-js` | 2.115.0 | MIT |
 | `@types/emscripten` | 1.41.6 | MIT |
 | `@types/node` | 24.13.3 | MIT |
 | `esbuild` | 0.28.1 | MIT |

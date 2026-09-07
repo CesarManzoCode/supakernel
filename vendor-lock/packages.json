@@ -26,6 +26,14 @@
       "version": "3.53.0-build1"
     },
     {
+      "integrity": "sha512-PYJSxtCo37R7tTZW6pAqsxUeSx/dlhA7zn8RzKEUSCqyTxCUhG+iHrDTb04UyVBYbttaUbhwkNTvb8h5HW+uZA==",
+      "license": "MIT",
+      "name": "@supabase/supabase-js",
+      "publishedAt": "2026-09-03T16:21:48.106Z",
+      "resolved": "https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.115.0.tgz",
+      "version": "2.115.0"
+    },
+    {
       "integrity": "sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg==",
       "license": "MIT",
       "name": "@types/emscripten",

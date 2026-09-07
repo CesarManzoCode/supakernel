@@ -20,6 +20,9 @@
       "path": "packages/data"
     },
     {
+      "path": "packages/auth"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

@@ -44,7 +44,11 @@
     "mutation:semantic": "vitest run --project @supakernel/policy test/semantic-mutants.test.ts",
     "test:db:sqlite-matrix": "vitest run --project @supakernel/db-sqlite && bun test packages/db-sqlite/test/bun && vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts && node packages/db-sqlite/harness/browser/run.mts",
     "test:data": "vitest run --project @supakernel/data",
-    "test:data:codec": "vitest run --project @supakernel/data test/codec.test.ts"
+    "test:data:codec": "vitest run --project @supakernel/data test/codec.test.ts",
+    "test:auth": "vitest run --project @supakernel/auth",
+    "test:auth:matrix": "vitest run --project @supakernel/auth",
+    "test:crypto": "vitest run --project @supakernel/auth test/crypto.test.ts",
+    "property:auth": "vitest run --project @supakernel/auth test/refresh.test.ts test/security.test.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

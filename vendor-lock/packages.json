@@ -58,6 +58,14 @@
       "version": "0.28.1"
     },
     {
+      "integrity": "sha512-A5NPn7g8EAzGU3IzRs+Yiq8K5n3ypYS75M5+KKiVHdUexfpWK1kP4ZMq7QnTGDoMj6TJ1dtcEJjW60yZDXS4hg==",
+      "license": "MIT",
+      "name": "jose",
+      "publishedAt": "2026-09-04T09:36:27.381Z",
+      "resolved": "https://registry.npmjs.org/jose/-/jose-6.2.11.tgz",
+      "version": "6.2.11"
+    },
+    {
       "integrity": "sha512-hTV3LvacQgJhc6GHpu5GYZMQBOAEpJ/LF1JjkixZ8YLh2TtbuN8y0JlNiPTe8PBTV9ChFkKcZMWSYKyhJfkYaQ==",
       "license": "MIT",
       "name": "libpg-query",

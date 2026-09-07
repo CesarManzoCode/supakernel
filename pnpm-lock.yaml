@@ -39,7 +39,33 @@ importers:
 
   labs/upstream-evidence: {}
 
-  packages/auth: {}
+  packages/auth:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+      jose:
+        specifier: 6.2.11
+        version: 6.2.11
+    devDependencies:
+      '@supabase/supabase-js':
+        specifier: 2.115.0
+        version: 2.115.0
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
+      '@supakernel/db-sqlite':
+        specifier: workspace:*
+        version: link:../db-sqlite
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
   packages/blob-fs: {}
 
@@ -952,6 +978,9 @@ packages:
     resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
     engines: {node: '>=20.0.0'}
 
+  jose@6.2.11:
+    resolution: {integrity: sha512-A5NPn7g8EAzGU3IzRs+Yiq8K5n3ypYS75M5+KKiVHdUexfpWK1kP4ZMq7QnTGDoMj6TJ1dtcEJjW60yZDXS4hg==}
+
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
@@ -1719,6 +1748,8 @@ snapshots:
     optional: true
 
   iceberg-js@0.8.1: {}
+
+  jose@6.2.11: {}
 
   kleur@4.1.5: {}
 

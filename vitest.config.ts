@@ -18,6 +18,7 @@ export default defineConfig({
       'packages/schema',
       'packages/policy',
       'packages/data',
+      'packages/auth',
       'packages/db-postgres',
       'packages/db-pglite',
       'packages/db-sqlite',

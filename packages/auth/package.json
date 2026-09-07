@@ -2,7 +2,7 @@
   "name": "@supakernel/auth",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel auth (stub; see contract)",
+  "description": "GoTrue-compatible Auth subset: users, password, JWT, API keys, sessions, refresh rotation, admin (contract §12, §30 L6)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,19 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "jose": "6.2.11"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supabase/supabase-js": "2.115.0",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

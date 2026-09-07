@@ -35,6 +35,9 @@
       "path": "packages/storage"
     },
     {
+      "path": "packages/realtime"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

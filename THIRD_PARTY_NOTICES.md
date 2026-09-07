@@ -11,9 +11,11 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `@biomejs/biome` | 2.5.12 | MIT OR Apache-2.0 |
 | `@electric-sql/pglite` | 0.5.8 | Apache-2.0 |
 | `@sqlite.org/sqlite-wasm` | 3.53.0-build1 | Apache-2.0 |
+| `@supabase/realtime-js` | 2.115.0 | MIT |
 | `@supabase/supabase-js` | 2.115.0 | MIT |
 | `@types/emscripten` | 1.41.6 | MIT |
 | `@types/node` | 24.13.3 | MIT |
+| `@types/ws` | 8.18.1 | MIT |
 | `esbuild` | 0.28.1 | MIT |
 | `jose` | 6.2.11 | MIT |
 | `libpg-query` | 17.7.4 | MIT |
@@ -22,6 +24,7 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `typescript` | 6.0.3 | Apache-2.0 |
 | `vitest` | 5.0.0 | MIT |
 | `wrangler` | 4.129.0 | MIT OR Apache-2.0 |
+| `ws` | 8.21.3 | MIT |
 | `zod` | 4.5.4 | MIT |
 
 ## Referenced implementations (behavioural, not vendored)

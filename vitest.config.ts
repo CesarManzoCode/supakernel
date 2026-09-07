@@ -21,6 +21,7 @@ export default defineConfig({
       'packages/blob-fs',
       'packages/blob-s3',
       'packages/storage',
+      'packages/realtime',
       'packages/auth',
       'packages/db-postgres',
       'packages/db-pglite',

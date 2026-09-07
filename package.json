@@ -52,7 +52,11 @@
     "test:storage": "vitest run --project @supakernel/storage",
     "test:storage:matrix": "vitest run --project @supakernel/storage",
     "test:storage:s3": "SUPAKERNEL_TEST_S3=1 vitest run --project @supakernel/storage --project @supakernel/blob-s3",
-    "test:blob:fs": "vitest run --project @supakernel/blob-fs"
+    "test:blob:fs": "vitest run --project @supakernel/blob-fs",
+    "test:realtime": "vitest run --project @supakernel/realtime",
+    "test:realtime:node": "vitest run --project @supakernel/realtime",
+    "test:realtime:bun": "bun test packages/realtime/test/bun",
+    "test:realtime:deno": "cd packages/realtime/test/deno && deno test -A --no-check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

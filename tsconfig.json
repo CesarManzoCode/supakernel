@@ -14,6 +14,9 @@
       "path": "packages/schema"
     },
     {
+      "path": "packages/policy"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

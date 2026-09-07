@@ -148,7 +148,30 @@ importers:
 
   packages/management: {}
 
-  packages/policy: {}
+  packages/policy:
+    dependencies:
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../ports
+    devDependencies:
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../db-postgres
+      '@supakernel/db-sqlite':
+        specifier: workspace:*
+        version: link:../db-sqlite
+      '@supakernel/ports-test':
+        specifier: workspace:*
+        version: link:../ports-test
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
   packages/ports:
     dependencies:

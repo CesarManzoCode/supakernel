@@ -38,6 +38,10 @@
     "test:db:deno": "cd packages/db-pglite/test/deno && deno test -A --no-check",
     "test:schema": "vitest run --project @supakernel/schema",
     "test:migrations:matrix": "vitest run --project @supakernel/schema test/migration-matrix.test.ts",
+    "test:policy": "vitest run --project @supakernel/policy",
+    "test:policy:matrix": "vitest run --project @supakernel/policy",
+    "test:security:attacks": "vitest run --project @supakernel/policy test/attacks.test.ts test/semantic-mutants.test.ts",
+    "mutation:semantic": "vitest run --project @supakernel/policy test/semantic-mutants.test.ts",
     "test:db:sqlite-matrix": "vitest run --project @supakernel/db-sqlite && bun test packages/db-sqlite/test/bun && vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts && node packages/db-sqlite/harness/browser/run.mts"
   },
   "devDependencies": {

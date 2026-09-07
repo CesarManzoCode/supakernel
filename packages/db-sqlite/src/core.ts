@@ -106,9 +106,23 @@ export class SqliteAdapter implements DatabaseAdapter {
   ): Promise<T> {
     this.assertOpen()
     if (this.transactionModel !== 'interactive') {
-      throw new Error(
-        'SK_CAPABILITY: this SQLite binding has no interactive transaction; use atomicBatch',
-      )
+      // D1 has no interactive transaction. Run the block as sequential autocommit: each
+      // `tx.execute` commits immediately. SupaKernel's mutation paths are built for this —
+      // single-statement mutations are atomic, refresh rotation is a conditional CAS
+      // (`UPDATE … WHERE used = false`) checked by row count, and post-images come back via
+      // RETURNING — so no step depends on reading another step's uncommitted write, and the
+      // reuse/replay/family-revocation design already tolerates a torn rotation (contract
+      // §9.2, §12.2). This keeps Auth / Data / Storage working on the Workers profile (§10).
+      if (this.txDepth > 0) {
+        throw kernelException('SK_DB_NESTED_TX', 'nested transactions are not supported')
+      }
+      this.txDepth++
+      this.txCounter++
+      try {
+        return await fn(new SqliteTransaction(`tx-${this.txCounter}`, this.driver))
+      } finally {
+        this.txDepth--
+      }
     }
     if (this.txDepth > 0) {
       throw kernelException('SK_DB_NESTED_TX', 'nested transactions are not supported')

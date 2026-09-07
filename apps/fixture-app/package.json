@@ -2,7 +2,7 @@
   "name": "@supakernel/fixture-app",
   "version": "0.0.0",
   "private": true,
-  "description": "Canonical supabase-js fixture app (stub)",
+  "description": "Canonical Data/Auth/Storage fixture scenario run by every runtime profile (contract §30 L10)",
   "type": "module",
   "exports": {
     ".": {

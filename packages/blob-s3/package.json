@@ -2,7 +2,7 @@
   "name": "@supakernel/blob-s3",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel blob-s3 (stub; see contract)",
+  "description": "S3 / R2 BlobAdapter — @aws-sdk/client-s3, staged writes, hash/size enforcement, range reads (contract §14)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,16 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@aws-sdk/client-s3": "3.1127.0"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

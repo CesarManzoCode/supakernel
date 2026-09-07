@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": [],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts"]
+  "references": [{ "path": "../contracts" }],
+  "include": ["src/**/*.ts", "src/deno-serve.d.ts"]
 }

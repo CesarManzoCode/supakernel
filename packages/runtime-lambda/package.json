@@ -2,7 +2,7 @@
   "name": "@supakernel/runtime-lambda",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel runtime-lambda (stub; see contract)",
+  "description": "AWS Lambda (Node 24 container) profile: API Gateway v2 ⇄ fetch adapter, env + limits (contract §10, §30 L10)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,13 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

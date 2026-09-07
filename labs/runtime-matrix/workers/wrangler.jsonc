@@ -1,0 +1,25 @@
+{
+  // First-party Workers runtime-profile harness. Real workerd + local D1 + local R2
+  // (contract §10, §30 L10). compatibility date pinned per §10.
+  "name": "supakernel-runtime-workers",
+  "main": "worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "supakernel-runtime-workers",
+      "database_id": "local-runtime-workers-db"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "supakernel-runtime-workers"
+    }
+  ],
+  "vars": {
+    "SUPAKERNEL_PROJECT_REF": "local",
+    "SUPAKERNEL_SERVER_SECRET": "runtime-matrix-secret"
+  }
+}

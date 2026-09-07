@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "resolvedAt": "2026-09-07T04:35:00Z",
+  "note": "AWS Lambda Node 24 base image for the L10 lambda runtime profile (contract §10). Digests resolved from the public.ecr.aws registry v2 API; no Docker daemon is required to verify them. The multi-arch index tag is rebuilt frequently by AWS while the per-platform manifests stay content-identical — the L10 acceptance gate (labs/runtime-matrix/lambda) pins the linux/amd64 manifest digest directly for reproducibility.",
+  "base": {
+    "reference": "public.ecr.aws/lambda/nodejs:24",
+    "indexDigest": "sha256:ba8267e65e24c53ab13256b11bd004a01e23c4ec7f0d5301522a57fba6868b63",
+    "platforms": {
+      "linux/amd64": "sha256:2472f0273d8848d8b2aa6528f5526b8a514b70703596199efe5a4b84d3d59b0b",
+      "linux/arm64": "sha256:104527dd19c1907b4aaf328b5b3af1ac0c5db6bb9c76be8cb73fb295ec58b0fe"
+    }
+  }
+}

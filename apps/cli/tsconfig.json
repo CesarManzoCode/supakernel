@@ -2,7 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2023"]
   },
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/schema" },
+    { "path": "../../packages/management" }
+  ],
   "include": ["src/**/*.ts"]
 }

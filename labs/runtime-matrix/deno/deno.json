@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "test:runtime": "deno test -A --no-check"
+  },
+  "nodeModulesDir": "manual"
+}

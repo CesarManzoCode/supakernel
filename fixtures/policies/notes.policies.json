@@ -1,0 +1,145 @@
+{
+  "$comment": "Policy fixture for contract §13 / §30 L4. Table `notes` is owned per (tenant_id, owner_id). `secret_flag` is never readable. Ownership columns are immutable after insert. `anon` has no rule → default deny.",
+  "rules": [
+    {
+      "id": "notes_tenant_guard",
+      "table": "notes",
+      "action": "select",
+      "role": "authenticated",
+      "mode": "restrictive",
+      "using": {
+        "kind": "compare",
+        "op": "eq",
+        "left": { "kind": "column", "table": "notes", "name": "tenant_id" },
+        "right": { "kind": "context", "name": "tenantId" }
+      },
+      "check": null,
+      "fields": { "read": "*", "write": "*", "immutable": [] }
+    },
+    {
+      "id": "notes_select_own",
+      "table": "notes",
+      "action": "select",
+      "role": "authenticated",
+      "mode": "permissive",
+      "using": {
+        "kind": "logic",
+        "op": "and",
+        "terms": [
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "tenant_id" },
+            "right": { "kind": "context", "name": "tenantId" }
+          },
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "owner_id" },
+            "right": { "kind": "context", "name": "subjectId" }
+          }
+        ]
+      },
+      "check": null,
+      "fields": {
+        "read": ["id", "tenant_id", "owner_id", "title", "body", "created_at"],
+        "write": [],
+        "immutable": []
+      }
+    },
+    {
+      "id": "notes_insert_own",
+      "table": "notes",
+      "action": "insert",
+      "role": "authenticated",
+      "mode": "permissive",
+      "using": null,
+      "check": {
+        "kind": "logic",
+        "op": "and",
+        "terms": [
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "tenant_id" },
+            "right": { "kind": "context", "name": "tenantId" }
+          },
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "owner_id" },
+            "right": { "kind": "context", "name": "subjectId" }
+          }
+        ]
+      },
+      "fields": {
+        "read": ["id", "tenant_id", "owner_id", "title", "body", "created_at"],
+        "write": ["tenant_id", "owner_id", "title", "body"],
+        "immutable": ["id", "created_at"]
+      }
+    },
+    {
+      "id": "notes_update_own",
+      "table": "notes",
+      "action": "update",
+      "role": "authenticated",
+      "mode": "permissive",
+      "using": {
+        "kind": "logic",
+        "op": "and",
+        "terms": [
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "tenant_id" },
+            "right": { "kind": "context", "name": "tenantId" }
+          },
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "owner_id" },
+            "right": { "kind": "context", "name": "subjectId" }
+          }
+        ]
+      },
+      "check": {
+        "kind": "compare",
+        "op": "eq",
+        "left": { "kind": "column", "table": "notes", "name": "owner_id" },
+        "right": { "kind": "context", "name": "subjectId" }
+      },
+      "fields": {
+        "read": ["id", "tenant_id", "owner_id", "title", "body", "created_at"],
+        "write": ["title", "body"],
+        "immutable": ["id", "tenant_id", "owner_id", "created_at"]
+      }
+    },
+    {
+      "id": "notes_delete_own",
+      "table": "notes",
+      "action": "delete",
+      "role": "authenticated",
+      "mode": "permissive",
+      "using": {
+        "kind": "logic",
+        "op": "and",
+        "terms": [
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "tenant_id" },
+            "right": { "kind": "context", "name": "tenantId" }
+          },
+          {
+            "kind": "compare",
+            "op": "eq",
+            "left": { "kind": "column", "table": "notes", "name": "owner_id" },
+            "right": { "kind": "context", "name": "subjectId" }
+          }
+        ]
+      },
+      "check": null,
+      "fields": { "read": "*", "write": "*", "immutable": [] }
+    }
+  ]
+}

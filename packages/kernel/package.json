@@ -2,7 +2,7 @@
   "name": "@supakernel/kernel",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel kernel (stub; see contract)",
+  "description": "Kernel: project lifecycle, service composition, clean disposal / restart (contract §16, §30 L9)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,26 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/data": "workspace:*",
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/storage": "workspace:*",
+    "@supakernel/realtime": "workspace:*",
+    "@supakernel/management": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supabase/supabase-js": "2.115.0",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

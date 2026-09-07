@@ -66,11 +66,12 @@ class D1Driver implements SqliteDriver {
 
   async all(sql: string, params: readonly PhysicalValue[]): Promise<PhysicalRow[]> {
     try {
-      const res = await this.db
-        .prepare(sql)
-        .bind(...params.map(bindParam))
-        .all()
-      return (res.results as Record<string, unknown>[]).map(normalizeRow)
+      const stmt = this.db.prepare(sql).bind(...params.map(bindParam))
+      // A write with RETURNING must go through `.run()` — D1's `.all()` does not commit the
+      // mutation, only reads back the projected rows (workerd quirk). `.run()` both commits
+      // and returns `results` for the RETURNING clause.
+      const res = MUTATION_RETURNING.test(sql) ? await stmt.run() : await stmt.all()
+      return ((res.results ?? []) as Record<string, unknown>[]).map(normalizeRow)
     } catch (err) {
       throw withStatement(err, sql)
     }
@@ -101,6 +102,8 @@ class D1Driver implements SqliteDriver {
     return Promise.resolve()
   }
 }
+
+const MUTATION_RETURNING = /^\s*(insert|update|delete)\b[\s\S]*\breturning\b/i
 
 function withStatement(err: unknown, sql: string): Error {
   const e = err instanceof Error ? err : new Error(String(err))

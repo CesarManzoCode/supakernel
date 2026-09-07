@@ -14,6 +14,66 @@
       "path": "packages/schema"
     },
     {
+      "path": "packages/policy"
+    },
+    {
+      "path": "packages/data"
+    },
+    {
+      "path": "packages/auth"
+    },
+    {
+      "path": "packages/blob-fs"
+    },
+    {
+      "path": "packages/blob-s3"
+    },
+    {
+      "path": "packages/blob-opfs"
+    },
+    {
+      "path": "packages/storage"
+    },
+    {
+      "path": "packages/realtime"
+    },
+    {
+      "path": "packages/management"
+    },
+    {
+      "path": "packages/kernel"
+    },
+    {
+      "path": "packages/gateway"
+    },
+    {
+      "path": "apps/cli"
+    },
+    {
+      "path": "apps/fixture-app"
+    },
+    {
+      "path": "packages/runtime-node"
+    },
+    {
+      "path": "packages/runtime-bun"
+    },
+    {
+      "path": "packages/runtime-deno"
+    },
+    {
+      "path": "packages/runtime-workers"
+    },
+    {
+      "path": "packages/runtime-browser"
+    },
+    {
+      "path": "packages/runtime-lambda"
+    },
+    {
+      "path": "labs/runtime-matrix"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

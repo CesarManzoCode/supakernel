@@ -2,7 +2,7 @@
   "name": "@supakernel/data",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel data (stub; see contract)",
+  "description": "PostgREST-compatible Data subset: URL/prefer/select/filter parsing, planning, execution, result + error mapping, OpenAPI (contract §11, §30 L5)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,22 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supabase/supabase-js": "2.115.0",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

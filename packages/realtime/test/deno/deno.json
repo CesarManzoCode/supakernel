@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "@supakernel/contracts": "../../../contracts/dist/index.js",
+    "@supakernel/ports": "../../../ports/dist/index.js",
+    "@supakernel/policy": "../../../policy/dist/index.js",
+    "zod": "npm:zod@4.5.4"
+  }
+}

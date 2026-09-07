@@ -132,7 +132,7 @@ function booleanTest(node: Node, table: string): Expr {
     kind: 'compare',
     op: 'eq',
     left: arg,
-    right: { kind: 'literal', value: t.includes('NOT') ? false : true },
+    right: { kind: 'literal', value: !t.includes('NOT') },
   }
   if (t === 'IS_TRUE' || t === 'IS_NOT_TRUE' || t === 'IS_FALSE' || t === 'IS_NOT_FALSE') {
     return trueExpr

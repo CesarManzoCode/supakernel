@@ -1,6 +1,12 @@
 // SupaKernel canonical contracts. Dependency-free except the JSON-boundary validator (zod).
 // See docs/SupaKernel-Contract.md §8.
 
+export {
+  base64ToBytes,
+  base64ToUtf8,
+  bytesToBase64,
+  bytesToBase64Url,
+} from './bytes.js'
 export type {
   CapabilityManifest,
   DatabaseCapabilities,
@@ -26,6 +32,7 @@ export {
   MAX_EXPR_DEPTH,
   referencedTables,
 } from './expr.js'
+export { sha256Hex } from './hash.js'
 export type {
   Brand,
   Family,

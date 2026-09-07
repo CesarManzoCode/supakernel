@@ -1,0 +1,56 @@
+{
+  "name": "@supakernel/lab-runtime-matrix",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SupaKernel lab: the six real runtime profile receipts (contract §10, §30 L10)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/fixture-app": "workspace:*",
+    "@supakernel/gateway": "workspace:*",
+    "@supakernel/kernel": "workspace:*",
+    "@supakernel/ports": "workspace:*"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
+    "@supabase/realtime-js": "2.115.0",
+    "@supabase/supabase-js": "2.115.0",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/blob-opfs": "workspace:*",
+    "@supakernel/blob-s3": "workspace:*",
+    "@supakernel/db-pglite": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/realtime": "workspace:*",
+    "@supakernel/runtime-browser": "workspace:*",
+    "@supakernel/runtime-bun": "workspace:*",
+    "@supakernel/runtime-deno": "workspace:*",
+    "@supakernel/runtime-lambda": "workspace:*",
+    "@supakernel/runtime-node": "workspace:*",
+    "@supakernel/runtime-workers": "workspace:*",
+    "@types/node": "24.13.3",
+    "esbuild": "0.28.1",
+    "playwright": "1.63.0",
+    "vitest": "5.0.0",
+    "wrangler": "4.129.0",
+    "ws": "8.21.3"
+  }
+}

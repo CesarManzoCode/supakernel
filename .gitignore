@@ -23,3 +23,8 @@ packages/db-sqlite/harness/browser/.dist/
 # runtime harness scratch
 .wrangler*/
 **/.wrangler-*/
+labs/runtime-matrix/browser/.dist/
+labs/runtime-matrix/**/.wrangler
+labs/runtime-matrix/**/.wrangler-state
+.bundle-audit/
+labs/runtime-matrix/receipts/

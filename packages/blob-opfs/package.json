@@ -2,7 +2,7 @@
   "name": "@supakernel/blob-opfs",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel blob-opfs (stub; see contract)",
+  "description": "Browser OPFS BlobAdapter (contract §14).",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,15 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

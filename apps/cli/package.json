@@ -2,8 +2,11 @@
   "name": "@supakernel/cli-app",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel sk CLI (stub)",
+  "description": "SupaKernel `sk` CLI — Commander argument parsing; semantics/refusals ours (contract §27, §30 L9)",
   "type": "module",
+  "bin": {
+    "sk": "./dist/main.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -18,5 +21,18 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/management": "workspace:*",
+    "commander": "15.0.0"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/management": "workspace:*",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

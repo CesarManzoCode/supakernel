@@ -2,7 +2,7 @@
   "name": "@supakernel/gateway",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel gateway (stub; see contract)",
+  "description": "Hono routing / middleware only \u2014 limits, CORS, error translation. No domain, SQL or authz (contract \u00a76.2, \u00a730 L9)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,21 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/kernel": "workspace:*",
+    "hono": "4.13.7"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/kernel": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/auth": "workspace:*",
+    "@supabase/supabase-js": "2.115.0",
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0",
+    "@supakernel/ports": "workspace:*"
+  }
 }

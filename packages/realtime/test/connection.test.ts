@@ -153,7 +153,7 @@ describe('RealtimeConnection state machine (contract §15)', () => {
     ).toHaveLength(0)
     const mine = c.deliver(ev('INSERT', { id: 2, owner_id: 'user-a', title: 'mine', secret: 'S' }))
     expect(mine.frames).toHaveLength(1)
-    const data = (mine.frames[0]?.payload as { data: { record: Record<string, unknown> } }).data
+    const data = (mine.frames[0]!.payload as { data: { record: Record<string, unknown> } }).data
     expect(data.record.title).toBe('mine')
     expect(data.record.secret).toBeUndefined()
   })

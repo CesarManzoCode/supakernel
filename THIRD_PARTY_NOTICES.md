@@ -14,11 +14,15 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `@supabase/realtime-js` | 2.115.0 | MIT |
 | `@supabase/supabase-js` | 2.115.0 | MIT |
 | `@types/emscripten` | 1.41.6 | MIT |
+| `@types/js-yaml` | 4.0.9 | MIT |
 | `@types/node` | 24.13.3 | MIT |
 | `@types/ws` | 8.18.1 | MIT |
+| `commander` | 15.0.0 | MIT |
 | `esbuild` | 0.28.1 | MIT |
+| `hono` | 4.13.7 | MIT |
 | `jose` | 6.2.11 | MIT |
 | `libpg-query` | 17.7.4 | MIT |
+| `openapi-typescript` | 7.13.0 | MIT |
 | `playwright` | 1.63.0 | Apache-2.0 |
 | `postgres` | 3.4.9 | Unlicense |
 | `typescript` | 6.0.3 | Apache-2.0 |

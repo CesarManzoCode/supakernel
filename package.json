@@ -56,12 +56,22 @@
     "test:realtime": "vitest run --project @supakernel/realtime",
     "test:realtime:node": "vitest run --project @supakernel/realtime",
     "test:realtime:bun": "bun test packages/realtime/test/bun",
-    "test:realtime:deno": "cd packages/realtime/test/deno && deno test -A --no-check"
+    "test:realtime:deno": "cd packages/realtime/test/deno && deno test -A --no-check",
+    "generate": "node scripts/generate-management-api.mts",
+    "test:kernel": "vitest run --project @supakernel/kernel",
+    "test:gateway": "vitest run --project @supakernel/gateway",
+    "test:management": "vitest run --project @supakernel/management",
+    "test:management:mcp": "vitest run --project @supakernel/management test/mcp.test.ts",
+    "test:cli": "vitest run --project @supakernel/cli",
+    "docs:test": "node scripts/docs-test.mts",
+    "build:cli": "tsc -b apps/cli/tsconfig.json"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
     "@types/node": "24.13.3",
     "typescript": "6.0.3",
-    "vitest": "5.0.0"
+    "vitest": "5.0.0",
+    "openapi-typescript": "7.13.0",
+    "@types/js-yaml": "4.0.9"
   }
 }

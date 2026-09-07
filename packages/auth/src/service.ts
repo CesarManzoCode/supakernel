@@ -384,6 +384,10 @@ export class AuthService {
     return this.issueFullSession(userId)
   }
 
+  get signingKeyId(): string {
+    return this.keyring.activeKeyId
+  }
+
   unsupported(feature: string): AuthError {
     return AUTH_ERRORS.unsupported(feature)
   }

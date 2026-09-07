@@ -2,7 +2,19 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext.Disposable"]
   },
+  "references": [
+    { "path": "../contracts" },
+    { "path": "../ports" },
+    { "path": "../policy" },
+    { "path": "../data" },
+    { "path": "../auth" },
+    { "path": "../storage" },
+    { "path": "../realtime" },
+    { "path": "../management" }
+  ],
   "include": ["src/**/*.ts"]
 }

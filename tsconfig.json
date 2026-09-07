@@ -38,6 +38,18 @@
       "path": "packages/realtime"
     },
     {
+      "path": "packages/management"
+    },
+    {
+      "path": "packages/kernel"
+    },
+    {
+      "path": "packages/gateway"
+    },
+    {
+      "path": "apps/cli"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

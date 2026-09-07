@@ -2,7 +2,7 @@
   "name": "@supakernel/lab-conformance",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel lab: conformance (stub)",
+  "description": "SupaKernel lab: multi-oracle conformance and reference trace lab (contract §18, §19, §30 L11)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,25 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supabase/supabase-js": "2.115.0",
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/data": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/gateway": "workspace:*",
+    "@supakernel/kernel": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/realtime": "workspace:*",
+    "@supakernel/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "postgres": "3.4.9",
+    "vitest": "5.0.0"
+  }
 }

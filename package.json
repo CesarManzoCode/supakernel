@@ -73,7 +73,13 @@
     "test:runtime:bun": "bun test labs/runtime-matrix/bun",
     "test:runtime:deno": "cd labs/runtime-matrix/deno && deno test -A --no-check",
     "test:runtime:all": "pnpm test:runtime:node && pnpm test:runtime:lambda && pnpm test:runtime:workers && pnpm test:runtime:browser && bun test labs/runtime-matrix/bun && (cd labs/runtime-matrix/deno && deno test -A --no-check)",
-    "verify:bundles": "node scripts/verify-bundles.mts"
+    "verify:bundles": "node scripts/verify-bundles.mts",
+    "test:conformance": "vitest run --project @supakernel/lab-conformance labs/conformance/test/unit.test.ts && vitest run --project @supakernel/lab-reference-traces",
+    "conformance": "node labs/conformance/runtime/conformance.mjs",
+    "conformance:pr": "node labs/conformance/runtime/conformance.mjs pr",
+    "conformance:nightly": "node labs/conformance/runtime/conformance.mjs nightly",
+    "conformance:replay": "tsc -b labs/conformance && node labs/conformance/dist/cli.js replay",
+    "trace:audit": "tsc -b labs/conformance labs/reference-traces && node labs/reference-traces/dist/cli.js"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

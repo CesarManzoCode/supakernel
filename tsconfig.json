@@ -74,6 +74,12 @@
       "path": "labs/runtime-matrix"
     },
     {
+      "path": "labs/conformance"
+    },
+    {
+      "path": "labs/reference-traces"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

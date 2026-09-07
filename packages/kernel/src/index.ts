@@ -55,6 +55,15 @@ export interface KernelConfig {
     readonly token?: string
   }
   readonly realtimeManagedTables?: readonly string[]
+  /**
+   * Skip installing the service schema (auth / storage / migrations / realtime outbox +
+   * triggers). Use on a restart against a database a previous boot already provisioned — the
+   * schema installers are reset-on-install, so re-running them would wipe auth and storage
+   * state (contract §6.3, §10 — clean shutdown/restart).
+   */
+  readonly skipSchemaInstall?: boolean
+  /** Hash of the portable core build, published verbatim at the capability endpoint (contract §10). */
+  readonly coreHash?: string
 }
 
 type Handler = (request: Request) => Promise<Response>
@@ -134,25 +143,29 @@ export class KernelInstance {
 
   static async create(config: KernelConfig): Promise<KernelInstance> {
     const family: Family = config.adapter.capabilities.family
-    for (const stmt of authSchemaStatements(family)) {
-      await config.adapter.execute({ text: stmt, parameters: [] })
-    }
-    for (const stmt of storageSchemaStatements(family)) {
-      await config.adapter.execute({ text: stmt, parameters: [] })
-    }
-    await ensureMigrationTable(config.adapter)
-    for (const stmt of outboxSchemaStatements(family)) {
-      await config.adapter.execute({ text: stmt, parameters: [] }).catch(() => undefined)
-    }
-    const managed = new Set(config.realtimeManagedTables ?? config.schema.tables.map((t) => t.name))
-    for (const table of config.schema.tables) {
-      if (!managed.has(table.name)) continue
-      for (const stmt of outboxTriggerStatements(family, {
-        name: table.name,
-        columns: table.columns.map((c) => c.name),
-        primaryKey: table.primaryKey,
-      })) {
+    if (!config.skipSchemaInstall) {
+      for (const stmt of authSchemaStatements(family)) {
+        await config.adapter.execute({ text: stmt, parameters: [] })
+      }
+      for (const stmt of storageSchemaStatements(family)) {
+        await config.adapter.execute({ text: stmt, parameters: [] })
+      }
+      await ensureMigrationTable(config.adapter)
+      for (const stmt of outboxSchemaStatements(family)) {
         await config.adapter.execute({ text: stmt, parameters: [] }).catch(() => undefined)
+      }
+      const managed = new Set(
+        config.realtimeManagedTables ?? config.schema.tables.map((t) => t.name),
+      )
+      for (const table of config.schema.tables) {
+        if (!managed.has(table.name)) continue
+        for (const stmt of outboxTriggerStatements(family, {
+          name: table.name,
+          columns: table.columns.map((c) => c.name),
+          primaryKey: table.primaryKey,
+        })) {
+          await config.adapter.execute({ text: stmt, parameters: [] }).catch(() => undefined)
+        }
       }
     }
     const auth = await AuthService.create({
@@ -210,7 +223,7 @@ export class KernelInstance {
       databaseFamilies: [this.family],
       services: ['data', 'auth', 'storage', 'realtime', 'management'],
       exclusions: ['rpc', 'broadcast', 'presence', 'oauth', 'mfa', 'edge-functions'],
-      coreHash: 'sk-core-1',
+      coreHash: this.config.coreHash ?? 'sk-core-1',
     })
   }
 

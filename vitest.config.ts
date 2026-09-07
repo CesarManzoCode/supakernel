@@ -26,6 +26,7 @@ export default defineConfig({
       'packages/kernel',
       'packages/gateway',
       'apps/cli',
+      'labs/runtime-matrix',
       'packages/auth',
       'packages/db-postgres',
       'packages/db-pglite',

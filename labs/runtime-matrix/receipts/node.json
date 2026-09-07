@@ -1,0 +1,331 @@
+{
+  "runtime": "node",
+  "runtimeVersion": "node v24.20.0",
+  "coreHash": "sha256:16bbbfe72d19bcd1664ee2fe5d22d84ebdbc7a1e3ba3f8df7948a9ee3b1a1263",
+  "services": ["data", "auth", "storage", "realtime", "management"],
+  "databases": ["postgres", "node:sqlite", "pglite"],
+  "blobs": ["fs", "s3"],
+  "exclusions": ["rpc", "broadcast", "presence", "oauth", "mfa", "edge-functions"],
+  "capabilityEndpoint": {
+    "schemaVersion": 1,
+    "runtime": "node",
+    "core_hash": "sha256:16bbbfe72d19bcd1664ee2fe5d22d84ebdbc7a1e3ba3f8df7948a9ee3b1a1263",
+    "services": {
+      "data": true,
+      "auth": true,
+      "storage": true,
+      "realtime": true,
+      "management": "read-only-plus-loopback-sql"
+    },
+    "database": {
+      "families": ["sqlite"]
+    },
+    "limits": {
+      "maxRequestBodyBytes": 10485760,
+      "maxObjectUploadBytes": 52428800,
+      "maxQueryParams": 100,
+      "maxExprDepth": 12,
+      "defaultRowLimit": 1000,
+      "maxRowLimit": 10000,
+      "requestTimeoutMs": 30000,
+      "shutdownTimeoutMs": 10000,
+      "socketQueueBytes": 1048576,
+      "socketQueueEvents": 1024
+    },
+    "exclusions": ["rpc", "broadcast", "presence", "oauth", "mfa", "edge-functions"]
+  },
+  "passList": [
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "auth: sign up user A",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "auth: sign in user A",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "auth: getUser reflects the signed-in identity",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: A inserts an owned row (WITH CHECK passes)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: A reads back exactly its own row",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: an anon insert is rejected (default-deny)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: A updates its row title",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "auth: sign up + sign in user B",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: B cannot see A rows (row-level isolation)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: B cannot insert a row owned by A (WITH CHECK)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "storage: A round-trips an object through a bucket",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "data: A deletes its row",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + fs)",
+      "name": "auth: A signs out; the token no longer authenticates",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "auth: sign up user A",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "auth: sign in user A",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "auth: getUser reflects the signed-in identity",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: A inserts an owned row (WITH CHECK passes)",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: A reads back exactly its own row",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: an anon insert is rejected (default-deny)",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: A updates its row title",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "auth: sign up + sign in user B",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: B cannot see A rows (row-level isolation)",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: B cannot insert a row owned by A (WITH CHECK)",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "storage: A round-trips an object through a bucket",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "data: A deletes its row",
+      "ok": true
+    },
+    {
+      "target": "node (pglite + fs)",
+      "name": "auth: A signs out; the token no longer authenticates",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "auth: sign up user A",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "auth: sign in user A",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "auth: getUser reflects the signed-in identity",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: A inserts an owned row (WITH CHECK passes)",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: A reads back exactly its own row",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: an anon insert is rejected (default-deny)",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: A updates its row title",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "auth: sign up + sign in user B",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: B cannot see A rows (row-level isolation)",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: B cannot insert a row owned by A (WITH CHECK)",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "storage: A round-trips an object through a bucket",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "data: A deletes its row",
+      "ok": true
+    },
+    {
+      "target": "node (postgres 18.6 + fs)",
+      "name": "auth: A signs out; the token no longer authenticates",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "auth: sign up user A",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "auth: sign in user A",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "auth: getUser reflects the signed-in identity",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: A inserts an owned row (WITH CHECK passes)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: A reads back exactly its own row",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: an anon insert is rejected (default-deny)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: A updates its row title",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "auth: sign up + sign in user B",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: B cannot see A rows (row-level isolation)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: B cannot insert a row owned by A (WITH CHECK)",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "storage: A round-trips an object through a bucket",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "data: A deletes its row",
+      "ok": true
+    },
+    {
+      "target": "node (node:sqlite + s3)",
+      "name": "auth: A signs out; the token no longer authenticates",
+      "ok": true
+    }
+  ],
+  "extraChecks": [
+    {
+      "name": "realtime: postgres_changes over ws",
+      "ok": true,
+      "detail": "INSERT change frame delivered over ws@8.21.3"
+    },
+    {
+      "name": "limits: capability endpoint matches NODE_LIMITS",
+      "ok": true,
+      "detail": "maxRequestBodyBytes=10485760"
+    },
+    {
+      "name": "limits: a body over maxRequestBodyBytes → 413",
+      "ok": true,
+      "detail": "status=413"
+    },
+    {
+      "name": "restart: state persists across a clean dispose + recompose",
+      "ok": true,
+      "detail": "rows after restart: 1"
+    },
+    {
+      "name": "restart: disposed instance returns 503",
+      "ok": true,
+      "detail": "status=503"
+    }
+  ],
+  "bundleAudit": {
+    "checked": true,
+    "forbidden": [],
+    "ok": true
+  }
+}

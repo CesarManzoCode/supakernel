@@ -24,7 +24,11 @@ export function outboxSchemaStatements(family: Family): string[] {
         new_record jsonb,
         commit_ts timestamptz NOT NULL DEFAULT now()
       )`,
-      `CREATE OR REPLACE FUNCTION _supakernel.emit_change() RETURNS trigger LANGUAGE plpgsql AS $$
+      // SECURITY DEFINER: the trigger fires inside the caller's transaction, which runs under
+      // `SET LOCAL ROLE "authenticated"` when native RLS is active. Writing to the managed
+      // `_supakernel.outbox` must not depend on the caller's schema privileges (contract §15).
+      `CREATE OR REPLACE FUNCTION _supakernel.emit_change() RETURNS trigger
+       LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
        DECLARE pk_cols text[] := TG_ARGV; pk_obj jsonb := '{}'::jsonb; c text; src jsonb;
        BEGIN
          src := CASE WHEN TG_OP = 'DELETE' THEN to_jsonb(OLD) ELSE to_jsonb(NEW) END;
@@ -35,6 +39,7 @@ export function outboxSchemaStatements(family: Family): string[] {
                  CASE WHEN TG_OP <> 'DELETE' THEN to_jsonb(NEW) END);
          RETURN NULL;
        END $$`,
+      'REVOKE ALL ON FUNCTION _supakernel.emit_change() FROM PUBLIC',
     ]
   }
   return [

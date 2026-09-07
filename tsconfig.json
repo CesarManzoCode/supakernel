@@ -50,6 +50,30 @@
       "path": "apps/cli"
     },
     {
+      "path": "apps/fixture-app"
+    },
+    {
+      "path": "packages/runtime-node"
+    },
+    {
+      "path": "packages/runtime-bun"
+    },
+    {
+      "path": "packages/runtime-deno"
+    },
+    {
+      "path": "packages/runtime-workers"
+    },
+    {
+      "path": "packages/runtime-browser"
+    },
+    {
+      "path": "packages/runtime-lambda"
+    },
+    {
+      "path": "labs/runtime-matrix"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

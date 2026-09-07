@@ -2,7 +2,7 @@
   "name": "@supakernel/runtime-node",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel runtime-node (stub; see contract)",
+  "description": "Node 24.20.0 runtime profile: http⇄fetch bridge, ws realtime, env + limits (contract §10, §30 L10)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,15 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@types/node": "24.13.3",
+    "@types/ws": "8.18.1",
+    "vitest": "5.0.0"
+  }
 }

@@ -96,6 +96,7 @@ describe('L0 — repository skeleton matches the contract package map', () => {
     'apps/cli',
     'apps/fixture-app',
     'labs/conformance',
+    'labs/runtime-matrix',
     'labs/reference-traces',
     'labs/faults',
     'labs/mutation',

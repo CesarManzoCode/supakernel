@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext.Disposable"]
+  },
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/ports" },
+    { "path": "../../packages/auth" },
+    { "path": "../../packages/gateway" },
+    { "path": "../../packages/kernel" },
+    { "path": "../../apps/fixture-app" }
+  ],
+  "include": ["src/**/*.ts"]
+}

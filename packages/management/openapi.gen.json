@@ -83,9 +83,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "query"
-                ],
+                "required": ["query"],
                 "properties": {
                   "query": {
                     "type": "string"
@@ -152,10 +150,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "name",
-                  "query"
-                ],
+                "required": ["name", "query"],
                 "properties": {
                   "name": {
                     "type": "string"

@@ -2,7 +2,7 @@
   "name": "@supakernel/runtime-bun",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel runtime-bun (stub; see contract)",
+  "description": "Bun 1.4.1 runtime profile: Bun.serve bridge, native WebSocket realtime, env + limits (contract §10, §30 L10)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,12 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "vitest": "5.0.0"
+  }
 }

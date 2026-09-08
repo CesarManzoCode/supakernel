@@ -12,14 +12,19 @@ recorded with its resolved tarball integrity in `vendor-lock/packages.json` and
 | `@biomejs/biome` | 2.5.12 | MIT OR Apache-2.0 |
 | `@electric-sql/pglite` | 0.5.8 | Apache-2.0 |
 | `@sqlite.org/sqlite-wasm` | 3.53.0-build1 | Apache-2.0 |
+| `@stryker-mutator/core` | 10.0.0 | Apache-2.0 |
+| `@stryker-mutator/vitest-runner` | 10.0.0 | Apache-2.0 |
 | `@supabase/realtime-js` | 2.115.0 | MIT |
 | `@supabase/supabase-js` | 2.115.0 | MIT |
 | `@types/emscripten` | 1.41.6 | MIT |
 | `@types/js-yaml` | 4.0.9 | MIT |
 | `@types/node` | 24.13.3 | MIT |
 | `@types/ws` | 8.18.1 | MIT |
+| `autocannon` | 8.0.0 | MIT |
+| `bknd` | 0.20.0 | FSL-1.1-MIT |
 | `commander` | 15.0.0 | MIT |
 | `esbuild` | 0.28.1 | MIT |
+| `fast-check` | 4.9.0 | MIT |
 | `hono` | 4.13.7 | MIT |
 | `jose` | 6.2.11 | MIT |
 | `json-schema-to-ts` | 3.1.1 | MIT |

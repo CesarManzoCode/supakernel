@@ -34,6 +34,22 @@
       "version": "3.53.0-build1"
     },
     {
+      "integrity": "sha512-ZvMsRyaXQQ5e6Thcid9pkuODv6Fn9E3nrBQJUap+hcJuGJ4unm26afo3m6YKSjn8kinyxJ/3TXf0cTWRDaTxVw==",
+      "license": "Apache-2.0",
+      "name": "@stryker-mutator/core",
+      "publishedAt": "2026-08-14T16:51:22.686Z",
+      "resolved": "https://registry.npmjs.org/@stryker-mutator/core/-/core-10.0.0.tgz",
+      "version": "10.0.0"
+    },
+    {
+      "integrity": "sha512-SHK2/vfvRUpiz7jXPnQMBnr6zLdm69DK03Mo5mPhaZWcRSygrKUqYsPqWsXsK+5ySHzlMTfCyFK5NQ/X9sJFFw==",
+      "license": "Apache-2.0",
+      "name": "@stryker-mutator/vitest-runner",
+      "publishedAt": "2026-08-14T16:50:27.414Z",
+      "resolved": "https://registry.npmjs.org/@stryker-mutator/vitest-runner/-/vitest-runner-10.0.0.tgz",
+      "version": "10.0.0"
+    },
+    {
       "integrity": "sha512-5HyBkvlA/IUV2v8jX3uLTdy15jmTPRVXwXKoxvH2SKw5jZMNURxCxt+VpCEukscXQlY7pUpH8Cy4NH6io4iaRw==",
       "license": "MIT",
       "name": "@supabase/realtime-js",
@@ -82,6 +98,22 @@
       "version": "8.18.1"
     },
     {
+      "integrity": "sha512-fMMcWc2JPFcUaqHeR6+PbmEpTxCrPZyBUM95oG4w3ngJ8NfBNas/ZXA+pTHXLqJ0UlFVTcy05GC25WxKx/M20A==",
+      "license": "MIT",
+      "name": "autocannon",
+      "publishedAt": "2024-10-14T16:59:44.028Z",
+      "resolved": "https://registry.npmjs.org/autocannon/-/autocannon-8.0.0.tgz",
+      "version": "8.0.0"
+    },
+    {
+      "integrity": "sha512-Xh3YfEwOx0QeUsHOSXty4gkrymBMPezrJq50ukghgTQHV9q/nxz0krX2M6vqJJ8qBh4eVk1nKH3EZ0OYEtrLdg==",
+      "license": "FSL-1.1-MIT",
+      "name": "bknd",
+      "publishedAt": "2026-01-09T13:53:06.937Z",
+      "resolved": "https://registry.npmjs.org/bknd/-/bknd-0.20.0.tgz",
+      "version": "0.20.0"
+    },
+    {
       "integrity": "sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==",
       "license": "MIT",
       "name": "commander",
@@ -96,6 +128,14 @@
       "publishedAt": "2026-06-11T22:47:05.085Z",
       "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.1.tgz",
       "version": "0.28.1"
+    },
+    {
+      "integrity": "sha512-7ms6T7SybUev/PQITciI0yLM2pOSFy5zpG8Ty7tQofcVaQUvrMXp6CBwqF6fThLCLOrfBtuHAtwq6Yu4XPCllg==",
+      "license": "MIT",
+      "name": "fast-check",
+      "publishedAt": "2026-07-08T21:33:03.026Z",
+      "resolved": "https://registry.npmjs.org/fast-check/-/fast-check-4.9.0.tgz",
+      "version": "4.9.0"
     },
     {
       "integrity": "sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ==",

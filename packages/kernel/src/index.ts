@@ -40,6 +40,8 @@ export interface KernelPorts {
   readonly clock: ClockPort
   readonly random: RandomPort
   readonly mail: MailPort
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: import('@supakernel/ports').FaultPort
 }
 
 export interface KernelConfig {
@@ -99,7 +101,9 @@ export class KernelInstance {
     this.family = config.adapter.capabilities.family
     this.authService = auth
     this.storageService = storage
-    this.dispatcher = new OutboxDispatcher(config.adapter, this.family)
+    this.dispatcher = new OutboxDispatcher(config.adapter, this.family, {
+      ...(config.ports.fault ? { fault: config.ports.fault } : {}),
+    })
 
     this.data = this.guard(
       createDataHandler({
@@ -109,6 +113,7 @@ export class KernelInstance {
         family: this.family,
         now: () => config.ports.clock.now(),
         resolvePrincipal: (headers) => auth.resolvePrincipal(headers),
+        ...(config.ports.fault ? { fault: config.ports.fault } : {}),
       }),
     )
     this.auth = this.guard(createAuthHandler(auth))
@@ -186,7 +191,11 @@ export class KernelInstance {
       blob: config.blob,
       crypto: auth.crypto,
       signingKeyId: auth.signingKeyId,
-      ports: { clock: config.ports.clock, random: config.ports.random },
+      ports: {
+        clock: config.ports.clock,
+        random: config.ports.random,
+        ...(config.ports.fault ? { fault: config.ports.fault } : {}),
+      },
       projectRef: config.projectRef,
       ...(config.policies ? { policies: config.policies } : {}),
     })

@@ -14,8 +14,10 @@ import type {
   ClockPort,
   CryptoPort,
   DatabaseAdapter,
+  FaultPort,
   RandomPort,
 } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import { canonicalPath, isValidBucketName } from './canonical.js'
 import { StorageDb, storageTable } from './db.js'
 import { STORAGE_ERRORS, StorageError } from './errors.js'
@@ -26,6 +28,8 @@ const DEFAULT_LIMIT = 50 * 1024 * 1024
 export interface StoragePorts {
   readonly clock: ClockPort
   readonly random: RandomPort
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: FaultPort
 }
 
 export interface StorageServiceOptions {
@@ -73,6 +77,7 @@ export class StorageService {
   private readonly crypto: CryptoPort
   private readonly signingKeyId: string
   private readonly ports: StoragePorts
+  private readonly fault: FaultPort
   private readonly projectRef: string
   private readonly policySchema: SchemaIR
 
@@ -83,6 +88,7 @@ export class StorageService {
     this.crypto = o.crypto
     this.signingKeyId = o.signingKeyId
     this.ports = o.ports
+    this.fault = o.ports.fault ?? NULL_FAULT_PORT
     this.projectRef = o.projectRef
     this.policySchema = {
       version: 1,
@@ -259,6 +265,7 @@ export class StorageService {
         tx,
       )
     })
+    await this.fault.hit('storage.after_reserve', { id })
 
     // 2/3. write staged bytes; enforce size + hash
     const limit = bucket.file_size_limit ?? DEFAULT_LIMIT
@@ -274,10 +281,14 @@ export class StorageService {
       throw err
     }
 
+    await this.fault.hit('storage.after_bytes', { id })
+
     // 4. promote to the final key idempotently
     await this.blob.promote(staged, this.finalKey(bucket.id, path, version))
+    await this.fault.hit('storage.after_promote', { id })
 
     // 5. CAS staging → ready with size + hash; only `ready` is visible
+    await this.fault.hit('storage.before_ready', { id })
     const cas = await this.db.run(
       `UPDATE ${this.O()} SET state = 'ready', size = ?, sha256 = ?, updated_at = ? WHERE id = ? AND state = 'staging'`,
       [this.i64(staged.bytes), staged.sha256, this.ports.clock.now(), id],
@@ -286,6 +297,7 @@ export class StorageService {
       await this.blob.delete(this.finalKey(bucket.id, path, version)).catch(() => undefined)
       throw STORAGE_ERRORS.integrityFailure()
     }
+    await this.fault.hit('storage.after_ready', { id })
 
     // 6. upsert: keep the previous object visible until now, then retire it
     if (prior) {
@@ -456,6 +468,7 @@ export class StorageService {
       this.ports.clock.now(),
       obj.id,
     ])
+    await this.fault.hit('storage.during_delete', { id: obj.id })
     await this.blob.delete(this.finalKey(bucket.id, path, obj.version)).catch(() => undefined)
     await this.db.run(`DELETE FROM ${this.O()} WHERE id = ?`, [obj.id])
   }

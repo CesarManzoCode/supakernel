@@ -122,7 +122,54 @@ importers:
         specifier: 8.21.3
         version: 8.21.3
 
-  labs/faults: {}
+  labs/faults:
+    dependencies:
+      '@supakernel/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@supakernel/blob-fs':
+        specifier: workspace:*
+        version: link:../../packages/blob-fs
+      '@supakernel/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@supakernel/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@supakernel/db-pglite':
+        specifier: workspace:*
+        version: link:../../packages/db-pglite
+      '@supakernel/db-postgres':
+        specifier: workspace:*
+        version: link:../../packages/db-postgres
+      '@supakernel/db-sqlite':
+        specifier: workspace:*
+        version: link:../../packages/db-sqlite
+      '@supakernel/policy':
+        specifier: workspace:*
+        version: link:../../packages/policy
+      '@supakernel/ports':
+        specifier: workspace:*
+        version: link:../../packages/ports
+      '@supakernel/realtime':
+        specifier: workspace:*
+        version: link:../../packages/realtime
+      '@supakernel/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@supakernel/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
+      postgres:
+        specifier: 3.4.9
+        version: 3.4.9
+      vitest:
+        specifier: 5.0.0
+        version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
 
   labs/mutation: {}
 

@@ -79,7 +79,12 @@
     "conformance:pr": "node labs/conformance/runtime/conformance.mjs pr",
     "conformance:nightly": "node labs/conformance/runtime/conformance.mjs nightly",
     "conformance:replay": "tsc -b labs/conformance && node labs/conformance/dist/cli.js replay",
-    "trace:audit": "tsc -b labs/conformance labs/reference-traces && node labs/reference-traces/dist/cli.js"
+    "trace:audit": "tsc -b labs/conformance labs/reference-traces && node labs/reference-traces/dist/cli.js",
+    "test:upgrade:local": "node labs/faults/runtime/run.mjs test/upgrade.local.test.ts",
+    "fault:all": "node labs/faults/runtime/run.mjs test/fault.all.test.ts",
+    "property:pr": "SUPAKERNEL_PROPERTY_SCALE=pr vitest run --project @supakernel/lab-mutation labs/mutation/test/property.test.ts",
+    "property:release": "SUPAKERNEL_PROPERTY_SCALE=release vitest run --project @supakernel/lab-mutation labs/mutation/test/property.test.ts",
+    "mutation:critical": "node labs/mutation/runtime/stryker.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

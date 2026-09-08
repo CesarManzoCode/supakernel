@@ -80,6 +80,9 @@
       "path": "labs/reference-traces"
     },
     {
+      "path": "labs/faults"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

@@ -29,6 +29,7 @@ export default defineConfig({
       'labs/runtime-matrix',
       'labs/conformance',
       'labs/reference-traces',
+      'labs/faults',
       'packages/auth',
       'packages/db-postgres',
       'packages/db-pglite',

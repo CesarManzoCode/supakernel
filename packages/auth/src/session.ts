@@ -1,5 +1,6 @@
 import type { Transaction } from '@supakernel/contracts'
 import type { CryptoPort } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import type { AuthConfig, AuthPorts } from './config.js'
 import { type AuthDb, boolValue, readBool } from './db.js'
 import { AUTH_ERRORS } from './errors.js'
@@ -155,6 +156,9 @@ export async function rotateRefresh(d: SessionDeps, presented: string): Promise<
       await revokeFamily(d, tx, String(row.family_id))
       return { kind: 'reused' }
     }
+    await (d.ports.fault ?? NULL_FAULT_PORT).hit('auth.after_parent_cas', {
+      session: String(row.session_id),
+    })
 
     const child = randomToken(d.ports.random)
     await d.db.run(
@@ -172,6 +176,9 @@ export async function rotateRefresh(d: SessionDeps, presented: string): Promise<
       ],
       tx,
     )
+    await (d.ports.fault ?? NULL_FAULT_PORT).hit('auth.after_child_insert', {
+      session: String(row.session_id),
+    })
     await d.db.run(
       `UPDATE ${T('sessions', d)} SET refreshed_at = ?, updated_at = ? WHERE id = ?`,
       [now, now, String(row.session_id)],
@@ -186,6 +193,10 @@ export async function rotateRefresh(d: SessionDeps, presented: string): Promise<
     )
     return { kind: 'ok', tokens: minted }
   })
+
+  // The transaction has committed here — a fault now must NOT lose the rotation (contract §22:
+  // "commit sin response puede requerir idempotency key/retry y jamás duplica").
+  await (d.ports.fault ?? NULL_FAULT_PORT).hit('auth.after_commit_before_response', {})
 
   if (outcome.kind === 'not_found') throw AUTH_ERRORS.refreshTokenNotFound()
   if (outcome.kind === 'reused') throw AUTH_ERRORS.refreshTokenReused()

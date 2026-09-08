@@ -11,7 +11,8 @@ import {
   sql,
 } from '@supakernel/contracts'
 import { checkRowAllowed, principalGucs } from '@supakernel/policy'
-import type { DatabaseAdapter } from '@supakernel/ports'
+import type { DatabaseAdapter, FaultPort } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import { buildStatement, type StatementSpec } from './compile/statement.js'
 import { checkViolationError, dataError, policyDeniedError } from './error-map.js'
 import type { ParsedRequest } from './parse-url.js'
@@ -38,6 +39,7 @@ export async function executeData(
   adapter: DatabaseAdapter,
   parsed: ParsedRequest,
   plan: DataQueryPlan,
+  fault: FaultPort = NULL_FAULT_PORT,
 ): Promise<ExecOutcome> {
   if (plan.decision === 'deny') throw policyDeniedError()
 
@@ -57,14 +59,18 @@ export async function executeData(
           for (const [k, v] of Object.entries(gucs)) {
             await tx.execute(sql('SELECT set_config($1, $2, true)', [k, v]))
           }
-          return fn((s) => tx.execute(s).then((r) => r.rows))
+          const r = await fn((s) => tx.execute(s).then((rr) => rr.rows))
+          if (!readOnly) await fault.hit('transaction.before_commit', {})
+          return r
         },
       )
     }
     if (readOnly) return fn((s) => adapter.execute(s).then((r) => r.rows))
-    return adapter.transaction({ isolation: 'serializable' }, (tx) =>
-      fn((s) => tx.execute(s).then((r) => r.rows)),
-    )
+    return adapter.transaction({ isolation: 'serializable' }, async (tx) => {
+      const r = await fn((s) => tx.execute(s).then((rr) => rr.rows))
+      await fault.hit('transaction.before_commit', {})
+      return r
+    })
   }
 
   const op = plan.op

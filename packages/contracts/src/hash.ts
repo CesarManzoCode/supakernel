@@ -22,7 +22,11 @@ function rotr(x: number, n: number): number {
 
 /** Lowercase hex SHA-256 of a UTF-8 string. */
 export function sha256Hex(input: string): string {
-  const bytes = new TextEncoder().encode(input)
+  return sha256HexBytes(new TextEncoder().encode(input))
+}
+
+/** Lowercase hex SHA-256 of a byte array — the object-integrity primitive (contract §14, §17.2). */
+export function sha256HexBytes(bytes: Uint8Array): string {
   const bitLen = bytes.length * 8
   const withPad = new Uint8Array((((bytes.length + 8) >> 6) + 1) * 64)
   withPad.set(bytes)

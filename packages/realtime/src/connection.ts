@@ -48,6 +48,8 @@ export interface ConnectionConfig {
   verifyToken(token: string): Promise<Principal | null>
   /** The principal for the connection's `apikey` (anon / service). */
   readonly anonPrincipal: Principal
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: import('@supakernel/ports').FaultPort
 }
 
 export interface Outgoing {

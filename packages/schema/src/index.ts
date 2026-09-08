@@ -45,4 +45,5 @@ export {
   planMigration,
   type RenameMapping,
 } from './plan.js'
+export * from './upgrade/index.js'
 export { type SchemaProblem, validateSchema } from './validate.js'

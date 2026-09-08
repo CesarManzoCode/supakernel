@@ -2,7 +2,7 @@
   "name": "@supakernel/lab-faults",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel lab: faults (stub)",
+  "description": "SupaKernel lab: upgrade fixture + fault-injection / recovery campaign (contract §17.2, §22, §30 L12)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,24 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/data": "workspace:*",
+    "@supakernel/db-pglite": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/realtime": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "postgres": "3.4.9",
+    "vitest": "5.0.0"
+  }
 }

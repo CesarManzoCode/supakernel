@@ -88,7 +88,14 @@
     "benchmark:validate": "tsc -b labs/benchmarks && node labs/benchmarks/runtime/benchmark.mjs --validate",
     "benchmark:run": "tsc -b labs/benchmarks && node labs/benchmarks/runtime/benchmark.mjs",
     "evidence:bundle": "tsc -b labs/upstream-evidence && node labs/upstream-evidence/runtime/evidence.mjs",
-    "eval:agent": "tsc -b labs/agent-evals && node labs/agent-evals/runtime/eval.mjs"
+    "eval:agent": "tsc -b labs/agent-evals && node labs/agent-evals/runtime/eval.mjs",
+    "release:audit": "node scripts/release-audit.mts",
+    "security:audit": "node scripts/security-audit.mts",
+    "artifacts:audit": "node scripts/artifacts-audit.mts",
+    "docs:links": "node scripts/docs-link-audit.mts",
+    "pack:all": "node scripts/pack-all.mts",
+    "test:consumer": "node scripts/pack-all.mts && node scripts/test-consumer.mts",
+    "reproduce": "node scripts/reproduce.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

@@ -44,6 +44,51 @@ jobs:
           node-version: 24.20.0
           package-manager-cache: false
       - run: corepack enable && corepack pnpm install --frozen-lockfile
-      # Full §31 acceptance matrix, dual-arch build hashes, provenance / SBOM / signature and
-      # consumer install from packed tarballs are wired in L14.
-      - run: echo "release acceptance audit is implemented in L14"
+      - run: corepack pnpm build
+      # §31 acceptance matrix: binds every supported claim to a command + immutable artifact +
+      # hash + result + known limitations. A GATE row that fails with no documented external
+      # blocker fails the job. Publishes nothing.
+      - run: corepack pnpm release:audit
+      - run: corepack pnpm docs:links
+      - run: corepack pnpm security:audit
+      - run: corepack pnpm artifacts:audit
+      # consumer install from the packed tarballs (public surface smoke)
+      - run: corepack pnpm test:consumer
+      # the committed release proof must reproduce byte-for-byte from a clean tree
+      - run: corepack pnpm reproduce --artifact release/manifest.json
+      # no stray generated source drift. Excluded: release/ (a regenerated audit record whose
+      # host/sha fields are point-in-time and covered by `reproduce`) and the conformance
+      # goldens (self-updating vendor snapshots refreshed on every lane run; vendor drift is
+      # surfaced by the classifier's `vendor_divergence` class, not by this check).
+      - run: git diff --exit-code -- ':!release' ':!labs/conformance/goldens'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-proof
+          path: |
+            release/manifest.json
+            release/acceptance.json
+            release/sbom.json
+            release/checksums.txt
+            release/claims.md
+
+  signed-tag:
+    needs: acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # A signed, annotated tag is created here ONLY when an authorized signing identity is
+      # configured for this workflow (SUPAKERNEL_SIGNING_KEY). It is never force-pushed and
+      # never triggers a publish. Without a signing identity this step reports the external
+      # blocker (contract §32, §33.4) rather than fabricating a signature.
+      - name: create signed tag (guarded)
+        env:
+          SIGNING_KEY: ${{ secrets.SUPAKERNEL_SIGNING_KEY }}
+        run: |
+          if [ -z "${SIGNING_KEY}" ]; then
+            echo "::warning::no signing identity configured — signed tag is an external blocker (contract §32); not fabricating a signature"
+            exit 0
+          fi
+          echo "${SIGNING_KEY}" | gpg --batch --import
+          git config user.signingkey "$(gpg --list-secret-keys --keyid-format=long | awk '/sec/{print $2}' | cut -d/ -f2 | head -1)"
+          git tag -s "${{ github.event.inputs.tag }}" -m "SupaKernel ${{ github.event.inputs.tag }}"
+          echo "signed tag ${{ github.event.inputs.tag }} created locally (not pushed)"

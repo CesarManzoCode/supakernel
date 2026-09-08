@@ -10,7 +10,19 @@
 // + AST diff). Score + timeouts are published to artifacts/mutation/stryker.json.
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+
+/** Honest, machine-readable record of what `mutation:critical` actually established. */
+function writeCriticalReport(record) {
+  const path = 'artifacts/mutation/critical-report.json'
+  mkdirSync(dirname(path), { recursive: true })
+  writeFileSync(
+    path,
+    `${JSON.stringify({ generatedAt: new Date().toISOString(), ...record }, null, 2)}\n`,
+  )
+  return path
+}
 
 function run(cmd, args) {
   return spawnSync(cmd, args, {
@@ -33,6 +45,13 @@ const semantic = run('pnpm', [
   'labs/mutation/test/semantic-mutants.test.ts',
 ])
 if ((semantic.status ?? 1) !== 0) {
+  writeCriticalReport({
+    bindingGate: 'manual-semantic-catalog',
+    bindingGateStatus: 'FAILED',
+    strykerStatus: 'not-run',
+    verdict: 'fail',
+    note: 'a manual semantic mutant survived (release impossible, §21)',
+  })
   console.error(
     '\nmutation:critical FAILED: a manual semantic mutant survived (release impossible, §21)',
   )
@@ -74,6 +93,19 @@ if (existsSync(reportPath)) {
     `\nStryker: ${killed}/${total} killed, ${survivors.length} unclassified survivor(s), ${timeouts.length} timeout(s)`,
   )
   if (!executed) {
+    writeCriticalReport({
+      bindingGate: 'manual-semantic-catalog',
+      bindingGateStatus: 'GREEN',
+      strykerStatus: 'did-not-execute',
+      strykerTotalMutants: total,
+      strykerTestsPerMutant: 0,
+      verdict: 'binding-gate-green; stryker-generative-pass-not-asserted',
+      note:
+        'Known @stryker-mutator/vitest-runner 10 + vitest 5 + pnpm project-refs incompatibility: ' +
+        'Stryker mutates and boots vitest per mutant but the sandboxed run executes 0 covering tests. ' +
+        'The binding §21 gate (manual critical-mutant catalog, Appendix A) is green; a global mutation ' +
+        'percentage is explicitly rejected by §21. Re-assert the generative pass once the runner integration is fixed.',
+    })
     console.error(
       '\nStryker executed 0 tests per mutant in this environment (a known @stryker-mutator/vitest-runner + vitest 5 + pnpm project-refs incompatibility). ' +
         'The manual critical-mutant catalog (step 1, green) is the binding §21 gate; the Stryker generative pass is not asserted here until the runner integration is fixed.',
@@ -81,11 +113,45 @@ if (existsSync(reportPath)) {
     process.exit(2)
   }
   if (survivors.length > 0 || timeouts.length > 0) {
+    writeCriticalReport({
+      bindingGate: 'manual-semantic-catalog',
+      bindingGateStatus: 'GREEN',
+      strykerStatus: 'executed',
+      strykerKilled: killed,
+      strykerTotalMutants: total,
+      unclassifiedSurvivors: survivors.map((s) => ({
+        id: s.id,
+        mutator: s.mutatorName,
+        line: s.location?.start?.line,
+      })),
+      timeouts: timeouts.map((t) => ({ id: t.id, mutator: t.mutatorName })),
+      verdict: 'fail',
+    })
     for (const s of survivors.slice(0, 20))
       console.log(`  SURVIVOR ${s.id} ${s.mutatorName} @ ${s.location?.start?.line}`)
     for (const t of timeouts.slice(0, 20)) console.log(`  TIMEOUT  ${t.id} ${t.mutatorName}`)
     process.exit(1)
   }
+  writeCriticalReport({
+    bindingGate: 'manual-semantic-catalog',
+    bindingGateStatus: 'GREEN',
+    strykerStatus: 'executed',
+    strykerKilled: killed,
+    strykerTotalMutants: total,
+    unclassifiedSurvivors: [],
+    timeouts: [],
+    verdict: 'pass',
+  })
+} else {
+  writeCriticalReport({
+    bindingGate: 'manual-semantic-catalog',
+    bindingGateStatus: 'GREEN',
+    strykerStatus: 'no-report',
+    strykerExitCode: stryker.status ?? null,
+    verdict: 'binding-gate-green; stryker-generative-pass-not-asserted',
+    note: 'Stryker produced no mutation report in this environment (runner integration). The binding §21 gate (manual critical-mutant catalog) is green.',
+  })
+  process.exit(2)
 }
 
 process.exit(stryker.status ?? 0)

@@ -2,7 +2,7 @@
   "name": "supakernel-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel — portable TypeScript backend runtime with a single semantic core and a verification lab. See docs/SupaKernel-Contract.md.",
+  "description": "SupaKernel \u2014 portable TypeScript backend runtime with a single semantic core and a verification lab. See docs/SupaKernel-Contract.md.",
   "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@11.25.0",
@@ -84,7 +84,11 @@
     "fault:all": "node labs/faults/runtime/run.mjs test/fault.all.test.ts",
     "property:pr": "SUPAKERNEL_PROPERTY_SCALE=pr vitest run --project @supakernel/lab-mutation labs/mutation/test/property.test.ts",
     "property:release": "SUPAKERNEL_PROPERTY_SCALE=release vitest run --project @supakernel/lab-mutation labs/mutation/test/property.test.ts",
-    "mutation:critical": "node labs/mutation/runtime/stryker.mjs"
+    "mutation:critical": "node labs/mutation/runtime/stryker.mjs",
+    "benchmark:validate": "tsc -b labs/benchmarks && node labs/benchmarks/runtime/benchmark.mjs --validate",
+    "benchmark:run": "tsc -b labs/benchmarks && node labs/benchmarks/runtime/benchmark.mjs",
+    "evidence:bundle": "tsc -b labs/upstream-evidence && node labs/upstream-evidence/runtime/evidence.mjs",
+    "eval:agent": "tsc -b labs/agent-evals && node labs/agent-evals/runtime/eval.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

@@ -2,7 +2,7 @@
   "name": "@supakernel/lab-upstream-evidence",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel lab: upstream-evidence (stub)",
+  "description": "SupaKernel lab: upstream contribution evidence bundles (contract §28, §30 L13) — generates, never publishes",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,12 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

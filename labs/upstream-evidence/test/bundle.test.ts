@@ -25,7 +25,9 @@ describe('upstream evidence bundle (contract §28)', () => {
   })
 
   it('the divergence signature is stable', () => {
-    expect(divergenceSignature(STORAGE_404_DIVERGENCE)).toBe(divergenceSignature(STORAGE_404_DIVERGENCE))
+    expect(divergenceSignature(STORAGE_404_DIVERGENCE)).toBe(
+      divergenceSignature(STORAGE_404_DIVERGENCE),
+    )
   })
 
   it('the reducer keeps only the steps that preserve the signature', async () => {
@@ -33,7 +35,9 @@ describe('upstream evidence bundle (contract §28)', () => {
     const { minimalSteps, signature } = await reduceDivergence(STORAGE_404_DIVERGENCE, {
       async evaluate(stepIds) {
         // the divergence needs a bucket + the GET; upload/delete are noise
-        return stepIds.includes('create-private-bucket') && stepIds.includes('get-missing-object') ? target : ''
+        return stepIds.includes('create-private-bucket') && stepIds.includes('get-missing-object')
+          ? target
+          : ''
       },
     })
     expect(signature).toBe(target)
@@ -41,7 +45,11 @@ describe('upstream evidence bundle (contract §28)', () => {
   })
 
   it('ownership classification is explainable', () => {
-    const o = classifyOwnership({ capability: 'storage', symbols: ['getObject'], observedIn: 'supabase/storage' })
+    const o = classifyOwnership({
+      capability: 'storage',
+      symbols: ['getObject'],
+      observedIn: 'supabase/storage',
+    })
     expect(o.rationale).toContain('storage')
     expect(o.contributing).toContain('CONTRIBUTING')
   })

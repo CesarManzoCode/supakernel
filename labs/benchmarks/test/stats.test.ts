@@ -48,7 +48,11 @@ describe('benchmark environment + workload (contract §23.1)', () => {
     expect(env.note).toMatch(env.dedicated ? /dedicated/ : /SHARED/)
   })
   it('the workload is the strict BKND intersection — no RLS/Auth/Storage', () => {
-    expect(WORKLOAD_OPS.every((o) => ['list', 'get', 'page', 'insert', 'update', 'delete'].includes(o.kind))).toBe(true)
+    expect(
+      WORKLOAD_OPS.every((o) =>
+        ['list', 'get', 'page', 'insert', 'update', 'delete'].includes(o.kind),
+      ),
+    ).toBe(true)
     expect(REQUIRED_DURABILITY.journalMode).toBe('WAL')
   })
   it('validate is exported and typed', () => {

@@ -69,7 +69,16 @@ describe('agent eval harness (contract §24)', () => {
 
   it('a report with no provider makes NO DX claim', () => {
     const report = buildAbReport({
-      experiment: { id: 'x', modelId: 'm', systemPromptHash: 'h', deterministicProvider: true, releaseA: 'a', releaseB: 'b', docsSnapshotHash: 'd', repetitions: 1 },
+      experiment: {
+        id: 'x',
+        modelId: 'm',
+        systemPromptHash: 'h',
+        deterministicProvider: true,
+        releaseA: 'a',
+        releaseB: 'b',
+        docsSnapshotHash: 'd',
+        repetitions: 1,
+      },
       providerAvailable: false,
       providerNote: 'no key',
       results: [],

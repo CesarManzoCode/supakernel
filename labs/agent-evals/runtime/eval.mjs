@@ -64,7 +64,7 @@ for (const task of tasks) {
           docsDir: sandbox.docsDir,
           projectBaseUrl: 'http://127.0.0.1:0',
           budget: task.budget,
-          async tool(name, input) {
+          async tool(name, _input) {
             // sandboxed tool surface — network is denied by NO_NETWORK; only file + http-to-project
             if (name === 'read-file') return docsSnapshot['quickstart.md'] ?? ''
             if (name === 'http') return { status: 200 }

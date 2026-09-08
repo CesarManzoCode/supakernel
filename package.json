@@ -2,7 +2,7 @@
   "name": "supakernel-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel \u2014 portable TypeScript backend runtime with a single semantic core and a verification lab. See docs/SupaKernel-Contract.md.",
+  "description": "SupaKernel — portable TypeScript backend runtime with a single semantic core and a verification lab. See docs/SupaKernel-Contract.md.",
   "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@11.25.0",
@@ -41,7 +41,7 @@
     "test:policy": "vitest run --project @supakernel/policy",
     "test:policy:matrix": "vitest run --project @supakernel/policy",
     "test:security:attacks": "vitest run --project @supakernel/policy test/attacks.test.ts test/semantic-mutants.test.ts",
-    "mutation:semantic": "vitest run --project @supakernel/policy test/semantic-mutants.test.ts",
+    "mutation:semantic": "vitest run --project @supakernel/policy test/semantic-mutants.test.ts --project @supakernel/lab-mutation labs/mutation/test/semantic-mutants.test.ts",
     "test:db:sqlite-matrix": "vitest run --project @supakernel/db-sqlite && bun test packages/db-sqlite/test/bun && vitest run --config packages/db-sqlite/harness/d1/vitest.config.ts && node packages/db-sqlite/harness/browser/run.mts",
     "test:data": "vitest run --project @supakernel/data",
     "test:data:codec": "vitest run --project @supakernel/data test/codec.test.ts",
@@ -94,6 +94,8 @@
     "openapi-typescript": "7.13.0",
     "@types/js-yaml": "4.0.9",
     "esbuild": "0.28.1",
-    "json-schema-to-ts": "3.1.1"
+    "json-schema-to-ts": "3.1.1",
+    "@stryker-mutator/core": "10.0.0",
+    "@stryker-mutator/vitest-runner": "10.0.0"
   }
 }

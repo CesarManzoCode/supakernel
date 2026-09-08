@@ -2,7 +2,7 @@
   "name": "@supakernel/lab-mutation",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel lab: mutation (stub)",
+  "description": "SupaKernel lab: property / state-machine models + semantic mutation catalog + Stryker (contract §20, §21, §30 L12)",
   "type": "module",
   "exports": {
     ".": {
@@ -18,5 +18,23 @@
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/auth": "workspace:*",
+    "@supakernel/blob-fs": "workspace:*",
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/data": "workspace:*",
+    "@supakernel/db-postgres": "workspace:*",
+    "@supakernel/db-sqlite": "workspace:*",
+    "@supakernel/policy": "workspace:*",
+    "@supakernel/ports": "workspace:*",
+    "@supakernel/realtime": "workspace:*",
+    "@supakernel/schema": "workspace:*",
+    "@supakernel/storage": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "fast-check": "4.9.0",
+    "vitest": "5.0.0"
+  }
 }

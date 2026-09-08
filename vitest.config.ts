@@ -30,6 +30,7 @@ export default defineConfig({
       'labs/conformance',
       'labs/reference-traces',
       'labs/faults',
+      'labs/mutation',
       'packages/auth',
       'packages/db-postgres',
       'packages/db-pglite',

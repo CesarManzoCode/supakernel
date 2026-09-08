@@ -16,13 +16,7 @@
         "action": "data.select",
         "input": {
           "columns": "*",
-          "filters": [
-            [
-              "owner",
-              "eq",
-              "a"
-            ]
-          ],
+          "filters": [["owner", "eq", "a"]],
           "seat": "service",
           "single": true,
           "table": "notes"
@@ -47,13 +41,7 @@
         "action": "data.select",
         "input": {
           "columns": "*",
-          "filters": [
-            [
-              "owner",
-              "eq",
-              "zzz"
-            ]
-          ],
+          "filters": [["owner", "eq", "zzz"]],
           "seat": "service",
           "single": true,
           "table": "notes"
@@ -75,13 +63,7 @@
         "action": "data.select",
         "input": {
           "columns": "*",
-          "filters": [
-            [
-              "owner",
-              "eq",
-              "zzz"
-            ]
-          ],
+          "filters": [["owner", "eq", "zzz"]],
           "maybeSingle": true,
           "seat": "service",
           "table": "notes"

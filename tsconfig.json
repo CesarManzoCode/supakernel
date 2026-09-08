@@ -83,6 +83,9 @@
       "path": "labs/faults"
     },
     {
+      "path": "labs/mutation"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

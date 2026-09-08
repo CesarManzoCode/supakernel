@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-js/master/packages/api/schema/stryker-core.json",
+  "_comment": "Contract §21: generative mutation over critical changed code — policy, auth/session + jwt, schema/migrate, storage/state. Gate: zero UNCLASSIFIED survivors and zero timeouts in critical code (not a coverage %). Survivors are triaged against equivalent-mutants.json (two-person review + AST diff). Timeouts count as `timeout`, never `killed`. Score + timeouts are published; the baseline may not fall.",
+  "packageManager": "pnpm",
+  "testRunner": "vitest",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "vitest": { "configFile": "labs/mutation/stryker.vitest.config.ts" },
+  "reporters": ["clear-text", "progress", "json"],
+  "jsonReporter": { "fileName": "artifacts/mutation/stryker.json" },
+  "coverageAnalysis": "perTest",
+  "timeoutMS": 60000,
+  "timeoutFactor": 2,
+  "concurrency": 3,
+  "mutate": [
+    "packages/policy/src/**/*.ts",
+    "packages/auth/src/session.ts",
+    "packages/auth/src/crypto/jwt.ts",
+    "packages/schema/src/apply.ts",
+    "packages/schema/src/plan.ts",
+    "packages/schema/src/diff.ts",
+    "packages/storage/src/service.ts"
+  ],
+  "thresholds": { "high": 90, "low": 80, "break": 0 },
+  "tempDirName": ".stryker-tmp",
+  "cleanTempDir": true
+}

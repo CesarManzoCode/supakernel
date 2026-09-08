@@ -1,0 +1,8 @@
+{
+  "id": "upgrade-sequence-91-to-92",
+  "schema": { "table": "events", "identityColumn": "id", "sequence": "events_id_seq" },
+  "rows": 91,
+  "maxId": 91,
+  "expectedNextId": 92,
+  "regressions": ["supabase/supabase#69"]
+}

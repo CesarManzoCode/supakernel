@@ -23,9 +23,7 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": [
-                    "email"
-                  ]
+                  "providers": ["email"]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -48,9 +46,7 @@
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": [
-                  "email"
-                ]
+                "providers": ["email"]
               },
               "aud": "authenticated",
               "created_at": "<ts:1>",
@@ -91,9 +87,7 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": [
-                "email"
-              ]
+              "providers": ["email"]
             },
             "aud": "authenticated",
             "created_at": "<ts:1>",
@@ -168,9 +162,7 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": [
-                    "email"
-                  ]
+                  "providers": ["email"]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -193,9 +185,7 @@
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": [
-                  "email"
-                ]
+                "providers": ["email"]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -238,9 +228,7 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": [
-                "email"
-              ]
+              "providers": ["email"]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",
@@ -338,9 +326,7 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": [
-                    "email"
-                  ]
+                  "providers": ["email"]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -363,9 +349,7 @@
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": [
-                  "email"
-                ]
+                "providers": ["email"]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -407,9 +391,7 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": [
-                "email"
-              ]
+              "providers": ["email"]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",
@@ -483,9 +465,7 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": [
-                    "email"
-                  ]
+                  "providers": ["email"]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -508,9 +488,7 @@
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": [
-                  "email"
-                ]
+                "providers": ["email"]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -552,9 +530,7 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": [
-                "email"
-              ]
+              "providers": ["email"]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",

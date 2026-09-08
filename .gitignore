@@ -28,3 +28,4 @@ labs/runtime-matrix/**/.wrangler
 labs/runtime-matrix/**/.wrangler-state
 .bundle-audit/
 labs/runtime-matrix/receipts/
+.stryker-tmp/

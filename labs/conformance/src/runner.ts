@@ -223,6 +223,40 @@ export async function runConformance(opts: RunOptions): Promise<RunSummary> {
       const r = runs.get(id)
       return r !== undefined && r.targetFailure === undefined
     }
+
+    // A realtime observation is degenerate when the target subscribed and mutations were made
+    // but zero change events came back — the container's WAL -> logical-replication ->
+    // websocket path did not deliver in time (contract §19.1, Realtime is a nightly lane).
+    // If the configured oracle is degenerate while a product target did observe events, the
+    // oracle failed to observe: drop it so the check falls back to the committed golden.
+    if (scenario.capability === 'realtime') {
+      const observedEvents = (r: NormalizedTargetResult | undefined): number => {
+        const steps = (
+          r?.normalized as { steps?: { action?: string; body?: { events?: unknown } }[] }
+        )?.steps
+        if (!Array.isArray(steps)) return -1
+        let n = 0
+        for (const s of steps) {
+          if (s.action === 'realtime.collect' && Array.isArray(s.body?.events))
+            n += s.body.events.length
+        }
+        return n
+      }
+      const oracleEvents = observedEvents(runs.get(opts.oracleId))
+      const productSaw = applicable.some(
+        (t) => t.nature === 'product' && observedEvents(runs.get(t.id)) > 0,
+      )
+      if (oracleEvents === 0 && productSaw) {
+        const bad = runs.get(opts.oracleId)
+        if (bad) {
+          runs.set(opts.oracleId, {
+            ...bad,
+            targetFailure: 'realtime oracle observed no change events (replication/propagation)',
+          })
+        }
+      }
+    }
+
     let oracleId = opts.oracleId
     if (!ranOk(oracleId)) {
       const productOracle = applicable.find((t) => t.nature === 'product' && ranOk(t.id))

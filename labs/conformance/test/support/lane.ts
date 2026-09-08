@@ -47,9 +47,23 @@ function loadGoldens(dir: string): Record<string, Json> {
   return out
 }
 
+/** True when a realtime observation carries at least one change event. */
+function realtimeObservationIsUseful(normalized: Json): boolean {
+  const steps = (normalized as { steps?: { action?: string; body?: { events?: unknown } }[] })
+    ?.steps
+  if (!Array.isArray(steps)) return true // non-realtime scenarios are always fine to save
+  const collects = steps.filter((s) => s.action === 'realtime.collect')
+  if (collects.length === 0) return true
+  return collects.some((s) => Array.isArray(s.body?.events) && s.body.events.length > 0)
+}
+
 function saveGolden(dir: string, id: string, normalized: Json): void {
+  const p = join(dir, `${id}.json`)
+  // Never regress a good realtime golden to an empty one: if the oracle flaked and observed
+  // no events this run, keep the committed golden (contract §19.1).
+  if (!realtimeObservationIsUseful(normalized) && existsSync(p)) return
   mkdirSync(dir, { recursive: true })
-  writeFileSync(join(dir, `${id}.json`), `${JSON.stringify(normalized, null, 2)}\n`)
+  writeFileSync(p, `${JSON.stringify(normalized, null, 2)}\n`)
 }
 
 const TOOLCHAIN: Json = {

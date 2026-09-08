@@ -323,7 +323,7 @@ export const CLAIMS: readonly Claim[] = [
     capabilityId: 'blackbox.supalite',
     contractSection: '§19.1, §31',
     realTargets: 'black-box supalite 0.10.0',
-    command: 'pnpm conformance:nightly (SUPAKERNEL_CONF_SUPALITE=1)',
+    command: 'SUPAKERNEL_CONF_SUPALITE=1 pnpm conformance:nightly',
     artifact: 'artifacts/conformance',
     criterion: '#64/#69 replay, not counted as kernel pass',
     knownLimitations:

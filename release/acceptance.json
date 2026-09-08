@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T19:51:00-06:00",
-  "git": "8268197c367b6f642c7d6fe0f3d92a0581447b21",
+  "generatedAt": "2026-09-07T20:16:34-06:00",
+  "git": "abbbda316aa60bf699daf47bc810aa77e62df8ee",
   "gate": {
     "total": 22,
     "pass": 20,
@@ -14,7 +14,7 @@
       "id": "bknd-performance",
       "result": "artifact-only",
       "artifact": "artifacts/benchmarks",
-      "hash": "18a4018f04d4001a8fd0d50528ca14920299bfccabb8fabf979d34eddd37214e",
+      "hash": "99d2e08edc1f296606c7f6da3454f26ae0680d15a76b27468c9dbc42a2340fa2",
       "limitation": "SHARED runner — no \"faster than BKND\" claim (needs a dedicated runner); the report records the environment and returns an inconclusive verdict"
     },
     {
@@ -35,7 +35,7 @@
       "id": "supalite-divergences",
       "result": "artifact-only",
       "artifact": "artifacts/conformance",
-      "hash": "7bf66149c9391e7b4792e996ea927835dc4e6e5c5aff4ae62fcbbc41cfd567d7",
+      "hash": "04e31e570bee682e1ec449d237fcce84b3a8a633f50e8011c162f7411bc0dead",
       "limitation": "the supalite lane requires a vendored supalite@0.10.0 kept out of the frozen lockfile; #64/#69 are documented in labs/reference-traces + labs/upstream-evidence"
     }
   ],

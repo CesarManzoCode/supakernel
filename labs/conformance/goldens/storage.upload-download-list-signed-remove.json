@@ -59,7 +59,7 @@
               "contentLength": 17,
               "eTag": "\"18fba46a17aea01359c2478a2635afb8\"",
               "httpStatusCode": 200,
-              "lastModified": "<ts:2>",
+              "lastModified": "<mtime>",
               "mimetype": "application/octet-stream",
               "size": 17
             },
@@ -138,7 +138,7 @@
               "contentLength": 17,
               "eTag": "\"18fba46a17aea01359c2478a2635afb8\"",
               "httpStatusCode": 200,
-              "lastModified": "<ts:2>",
+              "lastModified": "<mtime>",
               "mimetype": "application/octet-stream",
               "size": 17
             },

@@ -12,6 +12,12 @@ import { stepInput } from '../../src/index.js'
 
 const SUBSCRIBE_TIMEOUT_MS = 5000
 const SETTLE_MS = 1200
+// The in-process kernel has its change events synchronously; the containerised Supabase
+// Realtime oracle propagates WAL -> logical replication -> websocket and can lag several
+// seconds under a loaded host. `collect` polls to that deadline and returns as soon as the
+// event set has been stable across two samples (contract §19.1 — Realtime is a nightly lane).
+const COLLECT_DEADLINE_MS = 12_000
+const COLLECT_SAMPLE_MS = 400
 
 export function createRealtimeDriver(): RealtimeDriver {
   // biome-ignore lint/suspicious/noExplicitAny: supabase-js RealtimeChannel handle
@@ -84,7 +90,15 @@ export function createRealtimeDriver(): RealtimeDriver {
     },
 
     async collect(session: InterpretSession, step: ScenarioStep): Promise<StepResult> {
-      await new Promise((r) => setTimeout(r, SETTLE_MS))
+      const deadline = Date.now() + COLLECT_DEADLINE_MS
+      let prev = -1
+      // Wait until the event set is non-empty and stable across one sample, or the deadline.
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, COLLECT_SAMPLE_MS))
+        const n = session.realtime.events.length
+        if (n > 0 && n === prev) break
+        prev = n
+      }
       const events = session.realtime.events
       for (const channel of channels.values()) {
         try {

@@ -99,6 +99,14 @@ function normalizeJwt(value: string, opts: NormalizeOptions): JsonObject {
  */
 const EPOCH_SECONDS_KEYS = new Set(['expires_at'])
 
+/**
+ * Object-storage modification instants: second-precision HTTP `Last-Modified`-style values
+ * whose exact ordinal relative to the sub-second DB row timestamps is timing luck and carries
+ * no cross-oracle signal. Collapsed to a fixed `<mtime>` under `timestamp-window` so the
+ * observation stays deterministic run to run.
+ */
+const MTIME_KEYS = new Set(['lastModified'])
+
 /** Opaque secret/token fields that differ by construction between issuers. */
 const OPAQUE_TOKEN_KEYS = new Set([
   'refresh_token',
@@ -157,6 +165,8 @@ function walk(value: Json, opts: NormalizeOptions): Json {
         typeof v === 'number'
       ) {
         out[key] = '<epoch>'
+      } else if (active.has('timestamp-window') && MTIME_KEYS.has(key) && v !== null) {
+        out[key] = '<mtime>'
       } else {
         out[key] = walk(v, opts)
       }

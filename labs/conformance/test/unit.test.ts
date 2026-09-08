@@ -51,6 +51,18 @@ describe('normalize (contract §19.2)', () => {
     expect(out).toEqual({ expires_at: '<epoch>', expires_in: 3600, other: 42 })
   })
 
+  it('collapses a second-precision object-storage mtime to a fixed placeholder', () => {
+    const ctx = newContext()
+    const out = normalize(
+      {
+        created_at: '2026-01-01T00:00:00.123Z',
+        info: { lastModified: '2026-01-01T00:00:00.000Z' },
+      },
+      { normalizers: ['timestamp-window'], ctx },
+    ) as Record<string, unknown>
+    expect(out).toEqual({ created_at: '<ts:1>', info: { lastModified: '<mtime>' } })
+  })
+
   it('never removes an error field — it only rewrites generated identifiers', () => {
     const ctx = newContext()
     const before: Json = {

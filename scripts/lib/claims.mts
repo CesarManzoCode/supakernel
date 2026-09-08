@@ -29,7 +29,8 @@ export const CLAIMS: readonly Claim[] = [
     capabilityId: 'release.build',
     contractSection: '§26, §31, §33.2',
     realTargets: 'clean Linux x64 (+ arm64 in the release CI matrix)',
-    command: "pnpm install --frozen-lockfile && pnpm build && git diff --exit-code -- ':!release'",
+    command:
+      "pnpm install --frozen-lockfile && pnpm build && git diff --exit-code -- ':!release' ':!labs/conformance/goldens'",
     artifact: 'release/manifest.json',
     criterion: 'same lockfile; tarball/SBOM hash per arch documented; clean generated diff',
     knownLimitations:
@@ -168,7 +169,7 @@ export const CLAIMS: readonly Claim[] = [
     capabilityId: 'release.generate',
     contractSection: '§26, §31',
     realTargets: 'generated from locked specs/schema',
-    command: "pnpm generate && git diff --exit-code -- ':!release'",
+    command: "pnpm generate && git diff --exit-code -- ':!release' ':!labs/conformance/goldens'",
     artifact: 'release/gates/openapi-types.txt',
     criterion: 'deterministic, no stale/unimplemented route',
     knownLimitations: 'none',

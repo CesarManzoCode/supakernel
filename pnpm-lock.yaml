@@ -99,6 +99,9 @@ importers:
       '@supakernel/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
+      '@supakernel/runtime-node':
+        specifier: workspace:*
+        version: link:../../packages/runtime-node
       '@supakernel/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -106,12 +109,18 @@ importers:
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
+      '@types/ws':
+        specifier: 8.18.1
+        version: 8.18.1
       postgres:
         specifier: 3.4.9
         version: 3.4.9
       vitest:
         specifier: 5.0.0
         version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.1))
+      ws:
+        specifier: 8.21.3
+        version: 8.21.3
 
   labs/faults: {}
 

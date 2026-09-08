@@ -169,9 +169,16 @@ describe('classify (contract §19.2)', () => {
 
   it('a registered rationale downgrades a kernel diff to intentional_divergence', () => {
     const c = classify({
-      scenario: 'auth.wrong-password-error',
+      scenario: 'data.unique-violation-error',
       target: { id: 'supakernel.pg', nature: 'product' },
-      diffs: [{ path: '/error/legacy', expected: null, actual: 'x', note: 'v' }],
+      diffs: [
+        {
+          path: '/steps/0/body/error/message',
+          expected: 'a "x_key"' as Json,
+          actual: 'a' as Json,
+          note: 'v',
+        },
+      ],
       secondaryVendorAgrees: true,
       registry: DIVERGENCE_REGISTRY,
     })

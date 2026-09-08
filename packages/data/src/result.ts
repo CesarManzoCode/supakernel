@@ -26,8 +26,18 @@ export function shapeResult(
     const totalPart = outcome.total !== null ? String(outcome.total) : '*'
     headers['content-range'] =
       len === 0 ? `*/${totalPart}` : `${offset}-${offset + len - 1}/${totalPart}`
-    if (parsed.expectObject) return single(200, headers, outcome.rows)
-    return { status: 200, headers, body: outcome.rows as Json[] }
+    // PostgREST answers a bounded window (a `Range` header / `limit`/`offset`) that does not
+    // span the whole set with 206 Partial Content; an unbounded select stays 200 (contract
+    // §11.1, PostgREST `Response.hs`).
+    let status = 200
+    if (op.page && len > 0) {
+      const end = offset + len - 1
+      const partial =
+        offset > 0 || (outcome.total !== null ? end < outcome.total - 1 : len >= op.page.limit)
+      if (partial) status = 206
+    }
+    if (parsed.expectObject) return single(status, headers, outcome.rows)
+    return { status, headers, body: outcome.rows as Json[] }
   }
 
   if (parsed.prefer.count === 'exact' && outcome.total !== null) {

@@ -43,13 +43,28 @@ function git(cmd: string): string {
   }
 }
 
-const SECRET_RE =
-  /(eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})|(sb_secret_[A-Za-z0-9]+)|(service_role[^\s"]*)|(password"\s*:\s*"[^"]*")/g
+// Scrub secret-looking substrings inside string leaves only — the JSON structure is never
+// touched, so redaction can never corrupt an artifact (contract §26 redaction audit).
+const SECRET_SUBSTR_RE =
+  /eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{6,}|sb_secret_[A-Za-z0-9_-]+|sk_secret_[A-Za-z0-9_-]+/g
+const SECRET_KEY_RE =
+  /^(password|refresh_token|access_token|token|secret|apikey|api_key|serverSecret)$/i
+
+function redactString(s: string): string {
+  return s.replace(SECRET_SUBSTR_RE, '<redacted>')
+}
 
 export function redact(value: Json): Json {
-  const s = canonicalJson(value)
-  const scrubbed = s.replace(SECRET_RE, '"<redacted>"')
-  return JSON.parse(scrubbed) as Json
+  if (typeof value === 'string') return redactString(value)
+  if (Array.isArray(value)) return value.map((v) => redact(v))
+  if (value !== null && typeof value === 'object') {
+    const out: { [k: string]: Json } = {}
+    for (const [k, v] of Object.entries(value)) {
+      out[k] = SECRET_KEY_RE.test(k) && typeof v === 'string' ? '<redacted>' : redact(v as Json)
+    }
+    return out
+  }
+  return value
 }
 
 export interface WriteArtifactsInput {

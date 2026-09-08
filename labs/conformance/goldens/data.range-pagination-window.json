@@ -1,0 +1,69 @@
+{
+  "observations": [],
+  "steps": [
+    {
+      "action": "data.select",
+      "body": {
+        "count": 6,
+        "data": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "id",
+          "count": "exact",
+          "order": {
+            "column": "id"
+          },
+          "range": [0, 1],
+          "seat": "service",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 206,
+      "step": "page-1"
+    },
+    {
+      "action": "data.select",
+      "body": {
+        "count": 6,
+        "data": [
+          {
+            "id": 3
+          },
+          {
+            "id": 4
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "id",
+          "count": "exact",
+          "order": {
+            "column": "id"
+          },
+          "range": [2, 3],
+          "seat": "service",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 206,
+      "step": "page-2"
+    }
+  ]
+}

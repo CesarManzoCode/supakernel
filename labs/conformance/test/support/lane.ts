@@ -11,6 +11,7 @@ import {
   scenariosByCapability,
   scenariosForLane,
   type Target,
+  uniquifyScenarioTables,
   writeArtifacts,
 } from '../../src/index.js'
 import { createKernelTarget } from './kernel-target.js'
@@ -69,9 +70,19 @@ export function buildTargets(): { targets: Target[]; oracleId: string } {
 export async function runLane(opts: LaneOptions): Promise<LaneResult> {
   const startedAt = new Date().toISOString()
   const { targets, oracleId } = buildTargets()
-  const scenarios: readonly ScenarioSpec[] = opts.capability
+  const baseScenarios: readonly ScenarioSpec[] = opts.capability
     ? scenariosByCapability(opts.capability)
     : scenariosForLane(opts.lane)
+  // Per-run unique table names keep the oracle's schema-cache reload monotonic (see
+  // uniquifyScenarioTables); the alias map normalizes them back so the golden and the
+  // three-replay hashes stay stable.
+  const runTag = Math.random().toString(36).slice(2, 8)
+  const aliases: Record<string, Record<string, string>> = {}
+  const scenarios: readonly ScenarioSpec[] = baseScenarios.map((s) => {
+    const u = uniquifyScenarioTables(s, runTag)
+    aliases[s.id] = { ...u.aliases }
+    return { ...u.scenario, id: s.id }
+  })
   const goldens = loadGoldens(GOLDENS_DIR)
   const seed = opts.seed ?? '0123456789abcdef0123456789abcdef'
   const runId = `${opts.lane}${opts.capability ? `-${opts.capability}` : ''}-${startedAt.replace(/[:.]/g, '-')}`
@@ -83,14 +94,19 @@ export async function runLane(opts: LaneOptions): Promise<LaneResult> {
     realtime: createRealtimeDriver(),
     oracleId,
     goldens,
+    aliases,
   })
 
+  const VENDOR_CAPS = new Set(['data', 'auth', 'storage', 'realtime'])
   let oracleRan = false
+  let oracleExpectedButMissing = false
   for (const report of summary.reports) {
     const oracle = report.results.find((r) => r.target === oracleId && !r.targetFailure)
     if (oracle) {
       oracleRan = true
       saveGolden(GOLDENS_DIR, report.scenario, oracle.normalized)
+    } else if (VENDOR_CAPS.has(report.capability)) {
+      oracleExpectedButMissing = true
     }
   }
 
@@ -106,8 +122,9 @@ export async function runLane(opts: LaneOptions): Promise<LaneResult> {
   })
 
   const missingMandatory: string[] = []
-  if (!oracleRan && Object.keys(goldens).length === 0)
+  if (oracleExpectedButMissing && Object.keys(goldens).length === 0) {
     missingMandatory.push('vendor.supabase-local')
+  }
   if (!process.env.SUPAKERNEL_TEST_PG_URL) missingMandatory.push('supakernel.pg')
 
   const ok =

@@ -122,7 +122,7 @@ async function runSelect(ctx: DataContext, exec: Exec, plan: DataQueryPlan): Pro
     columnType: ct,
   }
   const raw = await exec(buildStatement(spec, ct2dialect(ctx)))
-  const rows = raw.map((r) => projectRow(r, plan.projection))
+  const rows = raw.map((r) => projectRow(r, plan.projection, ct))
 
   await attachEmbeds(ctx, exec, plan.embeds, rows, raw)
   return { rows, total, affected: rows.length }
@@ -196,7 +196,7 @@ async function runMutation(
       countOnly: false,
       columnType: ct,
     }
-    const targets = (await exec(buildStatement(preSpec, dialect))).map((r) => normalizeRow(r))
+    const targets = (await exec(buildStatement(preSpec, dialect))).map((r) => normalizeRow(r, ct))
     for (const t of targets) {
       const postImage = { ...t, ...op.patch }
       if (!checkRowAllowed(plan.security, postImage, ctx.now)) throw checkViolationError()
@@ -204,7 +204,7 @@ async function runMutation(
   }
 
   const raw = await exec(buildStatement(spec, dialect))
-  const full = raw.map((r) => normalizeRow(r))
+  const full = raw.map((r) => normalizeRow(r, ct))
 
   // Belt-and-suspenders for an interactive binding: a post-image check still rolls back.
   if (ctx.family === 'sqlite' && (op.kind === 'insert' || op.kind === 'update')) {
@@ -213,7 +213,7 @@ async function runMutation(
     }
   }
 
-  const projected = full.map((r) => projectRow(r as DbRow, plan.projection))
+  const projected = full.map((r) => projectRow(r as DbRow, plan.projection, ct))
   const returning = op.returning === 'minimal' ? [] : projected
   if (returning.length > 0) await attachEmbeds(ctx, exec, plan.embeds, returning, raw)
   void adapter
@@ -269,7 +269,7 @@ async function attachEmbeds(
     for (const cr of childRaw) {
       const fk = normalizeScalar((cr as Record<string, unknown>)[embed.foreignColumn])
       const list = grouped.get(String(fk)) ?? []
-      list.push(projectRow(cr, embed.projection))
+      list.push(projectRow(cr, embed.projection, ct))
       grouped.set(String(fk), list)
     }
 
@@ -287,22 +287,30 @@ function ct2dialect(ctx: DataContext): 'postgres' | 'sqlite' {
   return ctx.family === 'postgres' ? 'postgres' : 'sqlite'
 }
 
-function projectRow(row: DbRow, projection: readonly ProjectedColumn[]): Record<string, Json> {
+type ColumnType = (name: string) => PortableType | undefined
+
+function projectRow(
+  row: DbRow,
+  projection: readonly ProjectedColumn[],
+  columnType?: ColumnType,
+): Record<string, Json> {
   const out: Record<string, Json> = {}
   const src = row as Record<string, unknown>
   for (const p of projection) {
-    out[p.alias] = normalizeScalar(src[p.name])
+    out[p.alias] = normalizeScalar(src[p.name], columnType?.(p.name))
   }
   return out
 }
 
-function normalizeRow(row: DbRow): Record<string, Json> {
+function normalizeRow(row: DbRow, columnType?: ColumnType): Record<string, Json> {
   const out: Record<string, Json> = {}
-  for (const [k, v] of Object.entries(row as Record<string, unknown>)) out[k] = normalizeScalar(v)
+  for (const [k, v] of Object.entries(row as Record<string, unknown>)) {
+    out[k] = normalizeScalar(v, columnType?.(k))
+  }
   return out
 }
 
-function normalizeScalar(v: unknown): Json {
+function normalizeScalar(v: unknown, type?: PortableType): Json {
   if (v === null || v === undefined) return null
   if (typeof v === 'bigint') return v.toString(10)
   if (v instanceof Date) return v.toISOString()
@@ -310,6 +318,13 @@ function normalizeScalar(v: unknown): Json {
   if (typeof v === 'object') {
     // jsonb from postgres.js arrives already parsed
     return v as Json
+  }
+  // A `bool` column on the SQLite family surfaces as 0/1; PostgREST/PostgreSQL always emit a
+  // JSON boolean, so the portable Data response must too (contract §9.2, §11.3).
+  if (type === 'bool' && typeof v !== 'boolean') {
+    if (typeof v === 'number') return v !== 0
+    if (v === '0' || v === 'false' || v === 'f') return false
+    if (v === '1' || v === 'true' || v === 't') return true
   }
   if (typeof v === 'boolean' || typeof v === 'number' || typeof v === 'string') return v
   return String(v)

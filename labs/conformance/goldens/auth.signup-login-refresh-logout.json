@@ -1,0 +1,605 @@
+{
+  "observations": [],
+  "steps": [
+    {
+      "action": "auth.signUp",
+      "body": {
+        "data": {
+          "session": {
+            "access_token": {
+              "kind": "<jwt>",
+              "header": {
+                "alg": "ES256",
+                "kid": "<kid>",
+                "typ": "JWT"
+              },
+              "claims": {
+                "iss": "<present>",
+                "sub": "<uuid:1>",
+                "aud": "<present>",
+                "exp": "<present>",
+                "iat": "<present>",
+                "email": "alice@conformance.test",
+                "phone": "",
+                "app_metadata": {
+                  "provider": "email",
+                  "providers": ["email"]
+                },
+                "user_metadata": {
+                  "email": "alice@conformance.test",
+                  "email_verified": true,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "role": "authenticated",
+                "aal": "<issuer-specific>",
+                "amr": "<issuer-specific>",
+                "session_id": "<uuid:2>",
+                "is_anonymous": false
+              },
+              "validitySeconds": 3600
+            },
+            "expires_at": 1788829400,
+            "expires_in": 3600,
+            "refresh_token": "<opaque-token>",
+            "token_type": "bearer",
+            "user": {
+              "app_metadata": {
+                "provider": "email",
+                "providers": ["email"]
+              },
+              "aud": "authenticated",
+              "created_at": "<ts:1>",
+              "email": "alice@conformance.test",
+              "email_confirmed_at": "<ts:2>",
+              "id": "<uuid:1>",
+              "identities": [
+                {
+                  "created_at": "<ts:3>",
+                  "email": "alice@conformance.test",
+                  "id": "<uuid:1>",
+                  "identity_data": {
+                    "email": "alice@conformance.test",
+                    "email_verified": true,
+                    "phone_verified": false,
+                    "sub": "<uuid:1>"
+                  },
+                  "identity_id": "<uuid:3>",
+                  "last_sign_in_at": "<ts:3>",
+                  "provider": "email",
+                  "updated_at": "<ts:3>",
+                  "user_id": "<uuid:1>"
+                }
+              ],
+              "is_anonymous": false,
+              "last_sign_in_at": "<ts:4>",
+              "phone": "",
+              "role": "authenticated",
+              "updated_at": "<ts:5>",
+              "user_metadata": {
+                "email": "alice@conformance.test",
+                "email_verified": true,
+                "phone_verified": false,
+                "sub": "<uuid:1>"
+              }
+            }
+          },
+          "user": {
+            "app_metadata": {
+              "provider": "email",
+              "providers": ["email"]
+            },
+            "aud": "authenticated",
+            "created_at": "<ts:1>",
+            "email": "alice@conformance.test",
+            "email_confirmed_at": "<ts:2>",
+            "id": "<uuid:1>",
+            "identities": [
+              {
+                "created_at": "<ts:3>",
+                "email": "alice@conformance.test",
+                "id": "<uuid:1>",
+                "identity_data": {
+                  "email": "alice@conformance.test",
+                  "email_verified": true,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "identity_id": "<uuid:3>",
+                "last_sign_in_at": "<ts:3>",
+                "provider": "email",
+                "updated_at": "<ts:3>",
+                "user_id": "<uuid:1>"
+              }
+            ],
+            "is_anonymous": false,
+            "last_sign_in_at": "<ts:4>",
+            "phone": "",
+            "role": "authenticated",
+            "updated_at": "<ts:5>",
+            "user_metadata": {
+              "email": "alice@conformance.test",
+              "email_verified": true,
+              "phone_verified": false,
+              "sub": "<uuid:1>"
+            }
+          }
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.signUp",
+        "input": {
+          "email": "alice@conformance.test",
+          "password": "Sup3r-secret-pw",
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 200,
+      "step": "signup"
+    },
+    {
+      "action": "auth.signInWithPassword",
+      "body": {
+        "data": {
+          "session": {
+            "access_token": {
+              "kind": "<jwt>",
+              "header": {
+                "alg": "ES256",
+                "kid": "<kid>",
+                "typ": "JWT"
+              },
+              "claims": {
+                "iss": "<present>",
+                "sub": "<uuid:1>",
+                "aud": "<present>",
+                "exp": "<present>",
+                "iat": "<present>",
+                "email": "alice@conformance.test",
+                "phone": "",
+                "app_metadata": {
+                  "provider": "email",
+                  "providers": ["email"]
+                },
+                "user_metadata": {
+                  "email": "alice@conformance.test",
+                  "email_verified": true,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "role": "authenticated",
+                "aal": "<issuer-specific>",
+                "amr": "<issuer-specific>",
+                "session_id": "<uuid:4>",
+                "is_anonymous": false
+              },
+              "validitySeconds": 3600
+            },
+            "expires_at": 1788829400,
+            "expires_in": 3600,
+            "refresh_token": "<opaque-token>",
+            "token_type": "bearer",
+            "user": {
+              "app_metadata": {
+                "provider": "email",
+                "providers": ["email"]
+              },
+              "aud": "authenticated",
+              "confirmed_at": "<ts:2>",
+              "created_at": "<ts:1>",
+              "email": "alice@conformance.test",
+              "email_confirmed_at": "<ts:2>",
+              "id": "<uuid:1>",
+              "identities": [
+                {
+                  "created_at": "<ts:3>",
+                  "email": "alice@conformance.test",
+                  "id": "<uuid:1>",
+                  "identity_data": {
+                    "email": "alice@conformance.test",
+                    "email_verified": false,
+                    "phone_verified": false,
+                    "sub": "<uuid:1>"
+                  },
+                  "identity_id": "<uuid:3>",
+                  "last_sign_in_at": "<ts:3>",
+                  "provider": "email",
+                  "updated_at": "<ts:3>",
+                  "user_id": "<uuid:1>"
+                }
+              ],
+              "is_anonymous": false,
+              "last_sign_in_at": "<ts:6>",
+              "phone": "",
+              "role": "authenticated",
+              "updated_at": "<ts:7>",
+              "user_metadata": {
+                "email": "alice@conformance.test",
+                "email_verified": true,
+                "phone_verified": false,
+                "sub": "<uuid:1>"
+              }
+            },
+            "weak_password": null
+          },
+          "user": {
+            "app_metadata": {
+              "provider": "email",
+              "providers": ["email"]
+            },
+            "aud": "authenticated",
+            "confirmed_at": "<ts:2>",
+            "created_at": "<ts:1>",
+            "email": "alice@conformance.test",
+            "email_confirmed_at": "<ts:2>",
+            "id": "<uuid:1>",
+            "identities": [
+              {
+                "created_at": "<ts:3>",
+                "email": "alice@conformance.test",
+                "id": "<uuid:1>",
+                "identity_data": {
+                  "email": "alice@conformance.test",
+                  "email_verified": false,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "identity_id": "<uuid:3>",
+                "last_sign_in_at": "<ts:3>",
+                "provider": "email",
+                "updated_at": "<ts:3>",
+                "user_id": "<uuid:1>"
+              }
+            ],
+            "is_anonymous": false,
+            "last_sign_in_at": "<ts:6>",
+            "phone": "",
+            "role": "authenticated",
+            "updated_at": "<ts:7>",
+            "user_metadata": {
+              "email": "alice@conformance.test",
+              "email_verified": true,
+              "phone_verified": false,
+              "sub": "<uuid:1>"
+            }
+          }
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.signInWithPassword",
+        "input": {
+          "email": "alice@conformance.test",
+          "password": "Sup3r-secret-pw",
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 200,
+      "step": "login"
+    },
+    {
+      "action": "auth.getUser",
+      "body": {
+        "data": {
+          "user": null
+        },
+        "error": {
+          "message": "Auth session missing!",
+          "status": 400
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.getUser",
+        "input": {
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 400,
+      "step": "me"
+    },
+    {
+      "action": "auth.refreshSession",
+      "body": {
+        "data": {
+          "session": {
+            "access_token": {
+              "kind": "<jwt>",
+              "header": {
+                "alg": "ES256",
+                "kid": "<kid>",
+                "typ": "JWT"
+              },
+              "claims": {
+                "iss": "<present>",
+                "sub": "<uuid:1>",
+                "aud": "<present>",
+                "exp": "<present>",
+                "iat": "<present>",
+                "email": "alice@conformance.test",
+                "phone": "",
+                "app_metadata": {
+                  "provider": "email",
+                  "providers": ["email"]
+                },
+                "user_metadata": {
+                  "email": "alice@conformance.test",
+                  "email_verified": true,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "role": "authenticated",
+                "aal": "<issuer-specific>",
+                "amr": "<issuer-specific>",
+                "session_id": "<uuid:4>",
+                "is_anonymous": false
+              },
+              "validitySeconds": 3600
+            },
+            "expires_at": 1788829400,
+            "expires_in": 3600,
+            "refresh_token": "<opaque-token>",
+            "token_type": "bearer",
+            "user": {
+              "app_metadata": {
+                "provider": "email",
+                "providers": ["email"]
+              },
+              "aud": "authenticated",
+              "confirmed_at": "<ts:2>",
+              "created_at": "<ts:1>",
+              "email": "alice@conformance.test",
+              "email_confirmed_at": "<ts:2>",
+              "id": "<uuid:1>",
+              "identities": [
+                {
+                  "created_at": "<ts:3>",
+                  "email": "alice@conformance.test",
+                  "id": "<uuid:1>",
+                  "identity_data": {
+                    "email": "alice@conformance.test",
+                    "email_verified": false,
+                    "phone_verified": false,
+                    "sub": "<uuid:1>"
+                  },
+                  "identity_id": "<uuid:3>",
+                  "last_sign_in_at": "<ts:3>",
+                  "provider": "email",
+                  "updated_at": "<ts:3>",
+                  "user_id": "<uuid:1>"
+                }
+              ],
+              "is_anonymous": false,
+              "last_sign_in_at": "<ts:6>",
+              "phone": "",
+              "role": "authenticated",
+              "updated_at": "<ts:8>",
+              "user_metadata": {
+                "email": "alice@conformance.test",
+                "email_verified": true,
+                "phone_verified": false,
+                "sub": "<uuid:1>"
+              }
+            }
+          },
+          "user": {
+            "app_metadata": {
+              "provider": "email",
+              "providers": ["email"]
+            },
+            "aud": "authenticated",
+            "confirmed_at": "<ts:2>",
+            "created_at": "<ts:1>",
+            "email": "alice@conformance.test",
+            "email_confirmed_at": "<ts:2>",
+            "id": "<uuid:1>",
+            "identities": [
+              {
+                "created_at": "<ts:3>",
+                "email": "alice@conformance.test",
+                "id": "<uuid:1>",
+                "identity_data": {
+                  "email": "alice@conformance.test",
+                  "email_verified": false,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "identity_id": "<uuid:3>",
+                "last_sign_in_at": "<ts:3>",
+                "provider": "email",
+                "updated_at": "<ts:3>",
+                "user_id": "<uuid:1>"
+              }
+            ],
+            "is_anonymous": false,
+            "last_sign_in_at": "<ts:6>",
+            "phone": "",
+            "role": "authenticated",
+            "updated_at": "<ts:8>",
+            "user_metadata": {
+              "email": "alice@conformance.test",
+              "email_verified": true,
+              "phone_verified": false,
+              "sub": "<uuid:1>"
+            }
+          }
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.refreshSession",
+        "input": {
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 200,
+      "step": "refresh"
+    },
+    {
+      "action": "auth.refreshSession",
+      "body": {
+        "data": {
+          "session": {
+            "access_token": {
+              "kind": "<jwt>",
+              "header": {
+                "alg": "ES256",
+                "kid": "<kid>",
+                "typ": "JWT"
+              },
+              "claims": {
+                "iss": "<present>",
+                "sub": "<uuid:1>",
+                "aud": "<present>",
+                "exp": "<present>",
+                "iat": "<present>",
+                "email": "alice@conformance.test",
+                "phone": "",
+                "app_metadata": {
+                  "provider": "email",
+                  "providers": ["email"]
+                },
+                "user_metadata": {
+                  "email": "alice@conformance.test",
+                  "email_verified": true,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "role": "authenticated",
+                "aal": "<issuer-specific>",
+                "amr": "<issuer-specific>",
+                "session_id": "<uuid:4>",
+                "is_anonymous": false
+              },
+              "validitySeconds": 3600
+            },
+            "expires_at": 1788829400,
+            "expires_in": 3600,
+            "refresh_token": "<opaque-token>",
+            "token_type": "bearer",
+            "user": {
+              "app_metadata": {
+                "provider": "email",
+                "providers": ["email"]
+              },
+              "aud": "authenticated",
+              "confirmed_at": "<ts:2>",
+              "created_at": "<ts:1>",
+              "email": "alice@conformance.test",
+              "email_confirmed_at": "<ts:2>",
+              "id": "<uuid:1>",
+              "identities": [
+                {
+                  "created_at": "<ts:3>",
+                  "email": "alice@conformance.test",
+                  "id": "<uuid:1>",
+                  "identity_data": {
+                    "email": "alice@conformance.test",
+                    "email_verified": false,
+                    "phone_verified": false,
+                    "sub": "<uuid:1>"
+                  },
+                  "identity_id": "<uuid:3>",
+                  "last_sign_in_at": "<ts:3>",
+                  "provider": "email",
+                  "updated_at": "<ts:3>",
+                  "user_id": "<uuid:1>"
+                }
+              ],
+              "is_anonymous": false,
+              "last_sign_in_at": "<ts:6>",
+              "phone": "",
+              "role": "authenticated",
+              "updated_at": "<ts:9>",
+              "user_metadata": {
+                "email": "alice@conformance.test",
+                "email_verified": true,
+                "phone_verified": false,
+                "sub": "<uuid:1>"
+              }
+            }
+          },
+          "user": {
+            "app_metadata": {
+              "provider": "email",
+              "providers": ["email"]
+            },
+            "aud": "authenticated",
+            "confirmed_at": "<ts:2>",
+            "created_at": "<ts:1>",
+            "email": "alice@conformance.test",
+            "email_confirmed_at": "<ts:2>",
+            "id": "<uuid:1>",
+            "identities": [
+              {
+                "created_at": "<ts:3>",
+                "email": "alice@conformance.test",
+                "id": "<uuid:1>",
+                "identity_data": {
+                  "email": "alice@conformance.test",
+                  "email_verified": false,
+                  "phone_verified": false,
+                  "sub": "<uuid:1>"
+                },
+                "identity_id": "<uuid:3>",
+                "last_sign_in_at": "<ts:3>",
+                "provider": "email",
+                "updated_at": "<ts:3>",
+                "user_id": "<uuid:1>"
+              }
+            ],
+            "is_anonymous": false,
+            "last_sign_in_at": "<ts:6>",
+            "phone": "",
+            "role": "authenticated",
+            "updated_at": "<ts:9>",
+            "user_metadata": {
+              "email": "alice@conformance.test",
+              "email_verified": true,
+              "phone_verified": false,
+              "sub": "<uuid:1>"
+            }
+          }
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.refreshSession",
+        "input": {
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 200,
+      "step": "refresh-again"
+    },
+    {
+      "action": "auth.signOut",
+      "body": {
+        "data": {
+          "ok": true
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "auth.signOut",
+        "input": {
+          "seat": "anon"
+        },
+        "seat": "anon"
+      },
+      "status": 200,
+      "step": "logout"
+    }
+  ]
+}

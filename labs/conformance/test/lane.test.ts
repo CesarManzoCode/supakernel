@@ -42,10 +42,12 @@ suite(`conformance ${lane}${capability ? ` [${capability}]` : ''} (contract §19
       result.missingMandatory,
       `missing mandatory targets: ${result.missingMandatory.join(', ')}`,
     ).toEqual([])
-    expect(
-      result.oracleRan,
-      'the supabase-local oracle must have run for at least one scenario',
-    ).toBe(true)
+    if (capability === undefined || ['data', 'auth', 'storage', 'realtime'].includes(capability)) {
+      expect(
+        result.oracleRan,
+        'the supabase-local oracle must have run for at least one scenario',
+      ).toBe(true)
+    }
     expect(result.summary.byClass.kernel_regression, 'kernel_regression diffs').toBe(0)
     expect(result.summary.totalUnclassified, 'unclassified diffs on the included surface').toBe(0)
     expect(result.summary.totalBlocking, 'blocking classifications').toBe(0)

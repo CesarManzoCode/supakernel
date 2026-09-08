@@ -4,12 +4,24 @@ import type { Json } from '@supakernel/contracts'
 import type { DiffEntry } from './compare.js'
 
 export type DiffClass =
+  | 'match'
   | 'kernel_regression'
   | 'vendor_divergence'
   | 'supalite_divergence'
   | 'intentional_divergence'
   | 'normalizer_bug'
   | 'environment_failure'
+
+/** The six contract classifications for an actual diff (contract §19.2); `match` is the
+ *  no-diff case and is not one of them. */
+export const DIFF_CLASSES: readonly DiffClass[] = [
+  'kernel_regression',
+  'vendor_divergence',
+  'supalite_divergence',
+  'intentional_divergence',
+  'normalizer_bug',
+  'environment_failure',
+] as const
 
 export const BLOCKING_CLASSES: readonly DiffClass[] = ['kernel_regression'] as const
 
@@ -67,11 +79,11 @@ export function classify(input: ClassifyInput): Classification {
 
   if (input.diffs.length === 0) {
     return {
-      class: 'intentional_divergence',
+      class: 'match',
       blocking: false,
       diffs: [],
       matchedRegistryIds: [],
-      note: 'no diff',
+      note: 'observations match the oracle',
     }
   }
 

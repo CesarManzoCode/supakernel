@@ -10,25 +10,27 @@ import { join } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import { seededRandom, systemClock } from '@supakernel/auth'
 import { openFsBlob } from '@supakernel/blob-fs'
-import type { Family, Json, PolicyRule, Principal, SchemaIR } from '@supakernel/contracts'
+import type { Family, Json, PolicyRule, Principal, ScenarioSpec } from '@supakernel/contracts'
 import { openPostgres } from '@supakernel/db-postgres'
 import { openNodeSqlite } from '@supakernel/db-sqlite/node'
 import { createGateway } from '@supakernel/gateway'
 import { KernelInstance } from '@supakernel/kernel'
 import { compilePostgresRls } from '@supakernel/policy'
 import { createMemoryMailSink, type DatabaseAdapter } from '@supakernel/ports'
-import { outboxTriggerStatements } from '@supakernel/realtime'
+import { decodeFrame, encodeFrame, outboxTriggerStatements } from '@supakernel/realtime'
+import { attachNodeRealtime, serveNode } from '@supakernel/runtime-node'
 import {
   type ControlChannel,
   createTableSql,
   type PortableTable,
+  scenarioSchemaIR,
+  scenarioTables,
   type Target,
   type TargetClient,
   type TargetHealth,
   type TargetSession,
 } from '../../src/index.js'
 
-const CONF_SCHEMA: SchemaIR = { version: 1, tables: [], sequences: [], policies: [] }
 const SERVICE: Principal = {
   kind: 'service',
   subjectId: null,
@@ -38,8 +40,20 @@ const SERVICE: Principal = {
   claims: {},
   credentialSource: 'secret_key',
 }
+const ANON: Principal = {
+  kind: 'anonymous',
+  subjectId: null,
+  tenantId: 'local',
+  role: 'anon',
+  sessionId: null,
+  claims: {},
+  credentialSource: 'none',
+}
 
-async function compose(family: Family): Promise<TargetSession & { dispose(): Promise<void> }> {
+async function compose(
+  family: Family,
+  scenario: ScenarioSpec,
+): Promise<TargetSession & { dispose(): Promise<void> }> {
   const controlFamily: 'postgres' | 'sqlite' = family === 'postgres' ? 'postgres' : 'sqlite'
   const adapter: DatabaseAdapter =
     family === 'postgres'
@@ -48,13 +62,46 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
   const blobDir = await mkdtemp(join(tmpdir(), 'sk-conf-blob-'))
   const blob = openFsBlob({ root: blobDir })
   const mail = createMemoryMailSink()
+  const scenarioSchema = scenarioSchemaIR(scenario)
+  const declaredTables = scenarioTables(scenario)
+
+  // Clean any leftovers from a prior scenario/run on the shared Postgres cluster before the
+  // kernel installs its service schema.
+  if (family === 'postgres') {
+    for (const t of declaredTables) {
+      await adapter
+        .execute({ text: `DROP TABLE IF EXISTS "${t.name}" CASCADE`, parameters: [] })
+        .catch(() => undefined)
+    }
+    await adapter.execute({ text: `DELETE FROM auth.users`, parameters: [] }).catch(() => undefined)
+    await adapter
+      .execute({ text: `DELETE FROM storage.objects`, parameters: [] })
+      .catch(() => undefined)
+    await adapter
+      .execute({ text: `DELETE FROM storage.buckets`, parameters: [] })
+      .catch(() => undefined)
+    // The kernel's PG Data path runs `SET LOCAL ROLE`; the standard Supabase roles must
+    // exist and hold table grants exactly as a real deployment provisions them.
+    for (const role of ['anon', 'authenticated', 'service_role']) {
+      await adapter
+        .execute({
+          text: `DO $$ BEGIN CREATE ROLE "${role}" NOLOGIN; EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
+          parameters: [],
+        })
+        .catch(() => undefined)
+    }
+    await adapter
+      .execute({ text: `ALTER ROLE "service_role" BYPASSRLS`, parameters: [] })
+      .catch(() => undefined)
+  }
+
   const kernel = await KernelInstance.create({
     projectRef: 'local',
     serverSecret: 'conformance-server-secret',
     runtime: 'node',
     adapter,
     blob,
-    schema: CONF_SCHEMA,
+    schema: scenarioSchema,
     policies: [],
     ports: { clock: systemClock(), random: seededRandom('conformance'), mail },
     management: { token: 'sk_mgmt_conformance', queryEnabled: true, loopbackOnly: false },
@@ -69,29 +116,65 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
     const res = await adapter.execute({ text, parameters: params as never[] })
     return (res.rows ?? []) as Record<string, unknown>[]
   }
-  const fetchImpl = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url =
-      typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
-    return Promise.resolve(app.fetch(new Request(url, init)))
-  }
+
+  // A real HTTP + WebSocket server, so the fixed public client talks to the kernel over the
+  // wire exactly as a deployment would — including realtime-js over ws@8.21.3 (contract §10,
+  // §15, §19.2 — operations use the fixed public client).
+  // biome-ignore lint/suspicious/noExplicitAny: realtime socket set
+  const sockets = new Set<{ conn: any; socket: any }>()
+  const http = await serveNode({
+    fetch: (req: Request) => app.fetch(req),
+    onServer: (server) => {
+      attachNodeRealtime(server, {
+        path: '/realtime/v1',
+        handle: (socket) => {
+          const conn = kernel.realtimeConnection(ANON)
+          const entry = { conn, socket }
+          sockets.add(entry)
+          socket.onMessage(async (data: string) => {
+            try {
+              const out = await conn.handleFrame(decodeFrame(data))
+              for (const f of out.frames) socket.send(encodeFrame(f))
+              if (out.close) socket.close(out.close.code, out.close.reason)
+            } catch {
+              /* malformed frame ignored per codec contract */
+            }
+          })
+          socket.onClose(() => sockets.delete(entry))
+        },
+      })
+    },
+  })
+  const pumpTimer = setInterval(() => {
+    void (async () => {
+      const events = await kernel.dispatcher.pump().catch(() => [])
+      for (const ev of events) {
+        for (const { conn, socket } of sockets) {
+          const out = conn.deliver(ev)
+          for (const f of out.frames) socket.send(encodeFrame(f))
+        }
+      }
+    })()
+  }, 120)
+
   const keyFor = (seat: string): string =>
     seat === 'service' ? kernel.authService.apiKeys.secret : kernel.authService.apiKeys.publishable
 
   const client: TargetClient = {
-    baseUrl: 'http://sk.conformance',
+    baseUrl: http.url,
     client: (seat) =>
-      createClient('http://sk.conformance', keyFor(seat), {
+      createClient(http.url, keyFor(seat), {
         auth: { persistSession: false, autoRefreshToken: false },
-        global: { fetch: fetchImpl as typeof fetch },
+        realtime: { params: { apikey: keyFor(seat) } },
       }) as unknown as ReturnType<TargetClient['client']>,
-    fetch: (path, init) => app.fetch(new Request(`http://sk.conformance${path}`, init)),
+    fetch: (path, init) => fetch(`${http.url}${path}`, init),
     managementToken: () => 'sk_mgmt_conformance',
   }
 
   const control: ControlChannel = {
     family: controlFamily,
     async reset() {
-      for (const t of created) {
+      for (const t of new Set([...created, ...declaredTables.map((d) => d.name)])) {
         await exec(
           `DROP TABLE IF EXISTS "${t}"${controlFamily === 'postgres' ? ' CASCADE' : ''}`,
         ).catch(() => undefined)
@@ -102,8 +185,16 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
       )
     },
     async createTable(table: PortableTable) {
+      await exec(
+        `DROP TABLE IF EXISTS "${table.name}"${controlFamily === 'postgres' ? ' CASCADE' : ''}`,
+      ).catch(() => undefined)
       await exec(createTableSql(table, controlFamily))
       created.add(table.name)
+      if (controlFamily === 'postgres') {
+        await exec(`GRANT ALL ON "${table.name}" TO anon, authenticated, service_role`).catch(
+          () => undefined,
+        )
+      }
       for (const stmt of outboxTriggerStatements(controlFamily, {
         name: table.name,
         columns: table.columns.map((c) => c.name),
@@ -115,7 +206,7 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
     async deployPolicies(policies: Json) {
       if (controlFamily !== 'postgres') return
       const rules = policies as unknown as PolicyRule[]
-      for (const stmt of compilePostgresRls({ ...CONF_SCHEMA, policies: rules }, rules)) {
+      for (const stmt of compilePostgresRls({ ...scenarioSchema, policies: rules }, rules)) {
         await adapter.execute(stmt).catch(() => undefined)
       }
     },
@@ -147,7 +238,19 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
       if (of === 'db-state') {
         const sel = selector as { table?: string; orderBy?: string }
         const order = sel.orderBy ? ` ORDER BY "${sel.orderBy}"` : ''
-        return (await exec(`SELECT * FROM "${sel.table}"${order}`)) as unknown as Json
+        const rows = await exec(`SELECT * FROM "${sel.table}"${order}`)
+        // Canonicalize the raw storage representation to JSON types (SQLite bool -> 0/1) so
+        // db-state observations compare like-for-like across families.
+        const boolCols = new Set(
+          (scenarioSchema.tables.find((t) => t.name === sel.table)?.columns ?? [])
+            .filter((c) => c.type === 'bool')
+            .map((c) => c.name),
+        )
+        return rows.map((r) => {
+          const o: Record<string, unknown> = { ...r }
+          for (const c of boolCols) if (typeof o[c] === 'number') o[c] = o[c] !== 0
+          return o
+        }) as unknown as Json
       }
       if (of === 'mail') {
         return mail.sent.map((m) => ({ to: m.to, templateId: m.templateId })) as unknown as Json
@@ -160,6 +263,15 @@ async function compose(family: Family): Promise<TargetSession & { dispose(): Pro
     control,
     client,
     async dispose() {
+      clearInterval(pumpTimer)
+      for (const { socket } of sockets) {
+        try {
+          socket.close(1000, 'done')
+        } catch {
+          /* ignore */
+        }
+      }
+      await http.close().catch(() => undefined)
       await kernel.dispose()
       await rm(blobDir, { recursive: true, force: true })
     },
@@ -179,6 +291,6 @@ export function createKernelTarget(family: Family): Target {
       }
       return { ok: true, detail: `${id} in-process` }
     },
-    open: (_scenario) => compose(family),
+    open: (scenario) => compose(family, scenario),
   }
 }

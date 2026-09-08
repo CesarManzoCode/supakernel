@@ -1,36 +1,36 @@
 // Registered divergences (contract §19.2 `intentional_divergence` / `normalizer_bug`). Each
-// entry is a reviewed, rationale-bearing exception to an exact diff on the included surface.
-// Changing this list requires review (contract "No cambiar: classifications y normalization
-// allowlist without review").
+// entry is a reviewed, rationale-bearing exception to an exact diff on the included surface,
+// scoped to a specific scenario and diff path so it can never mask an unrelated regression.
+// Changing this list requires review ("No cambiar: classifications y normalization allowlist
+// without review").
 
 import type { RegisteredDivergence } from './classify.js'
 
 export const DIVERGENCE_REGISTRY: readonly RegisteredDivergence[] = [
   {
-    id: 'auth.error-shape.gotrue-legacy-fields',
-    scenario: 'auth.wrong-password-error',
-    path: '/error',
+    id: 'storage.missing-object-download.status',
+    scenario: 'storage.upload-download-list-signed-remove',
+    path: '/steps/6',
     kind: 'intentional',
     rationale:
-      'GoTrue returns both a legacy `error`/`error_description` pair and the newer `code`/`error_code`. SupaKernel emits the canonical `{ message, code }` shape only (contract §12.1). supabase-js normalizes both to an AuthError, so the client-visible behaviour matches; the raw legacy alias fields are intentionally absent.',
-    evidence: ['packages/auth/src/errors.ts', 'packages/auth/test/security.test.ts'],
+      'supabase/storage returns HTTP 400 with `{ error: "NoSuchKey" }` when the requested object does not exist (a known non-RESTful quirk of storage-api). SupaKernel returns 404 with a stable not-found body, which is the correct semantic and what a client that checks `error !== null` still handles. The object is unreadable after delete in both cases — the byte/metadata contract is unchanged.',
+    evidence: [
+      'packages/storage/src/service.ts',
+      'packages/storage/test/storage.scenarios.ts',
+      'labs/reference-traces/traces/storage-signed-url-path-and-64.yaml',
+    ],
   },
   {
-    id: 'data.error.pgrst-hint-detail',
+    id: 'data.constraint-message.redacted-identifier',
     scenario: 'data.unique-violation-error',
-    path: '/steps',
+    path: '/body/error/message',
     kind: 'intentional',
     rationale:
-      'PostgREST forwards Postgres `hint`/`detail` verbatim. SupaKernel maps the SQLSTATE to a stable code and a redacted message (contract §11.3, §25 — no schema/identifier leakage), so `hint`/`detail` are intentionally dropped and the constraint name is a semantic marker.',
-    evidence: ['packages/data/src/error-map.ts', 'packages/data/test/crud-scenarios.ts'],
-  },
-  {
-    id: 'data.single.pgrst116-body',
-    scenario: 'data.single-cardinality-error',
-    path: '/steps',
-    kind: 'intentional',
-    rationale:
-      'On `.single()` with zero/many rows PostgREST returns PGRST116 with `details` describing the row count. SupaKernel returns the same code and status with a stable message and no row-count leak (contract §11.3).',
-    evidence: ['packages/data/src/result.ts', 'packages/data/test/crud-scenarios.ts'],
+      'PostgREST forwards the PostgreSQL error message verbatim, which embeds the constraint name, relation and column (e.g. `... unique constraint "notes_owner_title_key"`, `... column "title" of relation "notes" ...`). SupaKernel returns the same PGRST/SQLSTATE code and HTTP status but a message with the schema identifiers removed (contract §25 — no schema/identifier leakage; §11.3 — stable codes). `code`, `status` and `details` shape are unchanged.',
+    evidence: [
+      'packages/data/src/error-map.ts',
+      'packages/data/test/crud-scenarios.ts',
+      'labs/reference-traces/traces/postgrest-prefer-count-cardinality.yaml',
+    ],
   },
 ]

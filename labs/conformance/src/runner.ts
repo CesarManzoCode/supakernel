@@ -89,12 +89,48 @@ export interface NormalizedTargetResult {
   readonly normalizedHash: string
 }
 
-function normalizeRun(scenario: ScenarioSpec, run: TargetRunResult): NormalizedTargetResult {
-  const ctx = newContext()
-  const raw: Json = {
-    steps: run.steps as unknown as Json,
-    observations: run.observations as unknown as Json,
+function stripAliases(value: Json, aliases: Readonly<Record<string, string>>): Json {
+  const entries = Object.entries(aliases)
+  if (entries.length === 0) return value
+  const rewrite = (s: string): string => {
+    let out = s
+    for (const [unique, base] of entries) out = out.split(unique).join(base)
+    return out
   }
+  const walk = (v: Json): Json => {
+    if (typeof v === 'string') return rewrite(v)
+    if (Array.isArray(v)) return v.map(walk)
+    if (v !== null && typeof v === 'object') {
+      const o: { [k: string]: Json } = {}
+      for (const [k, val] of Object.entries(v)) o[rewrite(k)] = walk(val as Json)
+      return o
+    }
+    return v
+  }
+  return walk(value)
+}
+
+function normalizeRun(
+  scenario: ScenarioSpec,
+  run: TargetRunResult,
+  aliases: Readonly<Record<string, string>>,
+): NormalizedTargetResult {
+  const ctx = newContext()
+  // The StepResult `error` field is a convenience mirror of `body.error` (it is whatever the
+  // public client surfaced as `Error.message`); it carries no signal `body` doesn't and its
+  // wording tracks the client, so it is kept in the artifact but not part of the compared
+  // observation. `unsupported` (a stable capability refusal) *is* compared.
+  const comparedSteps = run.steps.map((s) => {
+    const { error: _drop, ...rest } = s
+    return rest
+  })
+  const raw: Json = stripAliases(
+    {
+      steps: comparedSteps as unknown as Json,
+      observations: run.observations as unknown as Json,
+    },
+    aliases,
+  )
   const normalized = normalize(raw, { normalizers: scenario.normalization, ctx })
   return {
     target: run.target,
@@ -131,6 +167,8 @@ export interface RunOptions {
   readonly goldens: Readonly<Record<string, Json>>
   /** A second vendor reference id whose agreement makes a kernel diff a regression. */
   readonly secondaryVendorId?: string
+  /** Per-scenario `run-unique table name -> canonical name` map (see uniquifyScenarioTables). */
+  readonly aliases?: Readonly<Record<string, Readonly<Record<string, string>>>>
 }
 
 export interface RunSummary {
@@ -143,6 +181,7 @@ export interface RunSummary {
 export async function runConformance(opts: RunOptions): Promise<RunSummary> {
   const reports: ScenarioReport[] = []
   const byClass: Record<DiffClass, number> = {
+    match: 0,
     kernel_regression: 0,
     vendor_divergence: 0,
     supalite_divergence: 0,
@@ -156,10 +195,11 @@ export async function runConformance(opts: RunOptions): Promise<RunSummary> {
     const healths = await Promise.all(applicable.map((t) => t.health()))
     const live = applicable.filter((_, i) => healths[i]?.ok)
 
+    const aliases = opts.aliases?.[scenario.id] ?? {}
     const runs = new Map<string, NormalizedTargetResult>()
     for (const target of live) {
       const raw = await runScenarioOnTarget(target, scenario, opts.realtime)
-      runs.set(target.id, normalizeRun(scenario, raw))
+      runs.set(target.id, normalizeRun(scenario, raw, aliases))
     }
     // Targets that failed health entirely still get an environment_failure record.
     for (let i = 0; i < applicable.length; i++) {
@@ -175,13 +215,24 @@ export async function runConformance(opts: RunOptions): Promise<RunSummary> {
       }
     }
 
-    const oracleResult = runs.get(opts.oracleId)
-    const oracleNormalized: Json =
-      oracleResult && !oracleResult.targetFailure
-        ? oracleResult.normalized
-        : (opts.goldens[scenario.id] ?? null)
-    const oracleName =
-      oracleResult && !oracleResult.targetFailure ? opts.oracleId : `golden:${scenario.id}`
+    // Oracle selection: the configured vendor oracle if it served this scenario; otherwise
+    // (e.g. Management, whose vendor oracle is hosted-only, §16) the first mandatory product
+    // target that ran — so the check becomes cross-family self-consistency; otherwise the
+    // committed golden.
+    const ranOk = (id: string): boolean => {
+      const r = runs.get(id)
+      return r !== undefined && r.targetFailure === undefined
+    }
+    let oracleId = opts.oracleId
+    if (!ranOk(oracleId)) {
+      const productOracle = applicable.find((t) => t.nature === 'product' && ranOk(t.id))
+      if (productOracle) oracleId = productOracle.id
+    }
+    const oracleResult = ranOk(oracleId) ? runs.get(oracleId) : undefined
+    const oracleNormalized: Json = oracleResult
+      ? oracleResult.normalized
+      : (opts.goldens[scenario.id] ?? null)
+    const oracleName = oracleResult ? oracleId : `golden:${scenario.id}`
 
     const secondary = opts.secondaryVendorId ? runs.get(opts.secondaryVendorId) : undefined
     const secondaryAgrees =
@@ -198,7 +249,7 @@ export async function runConformance(opts: RunOptions): Promise<RunSummary> {
     let unclassified = 0
     let blocking = 0
     for (const [id, result] of runs) {
-      if (id === opts.oracleId && !result.targetFailure) continue
+      if (id === oracleId && !result.targetFailure) continue
       const target = applicable.find((t) => t.id === id)
       if (!target) continue
       let diffs: readonly DiffEntry[] = []

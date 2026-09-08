@@ -18,11 +18,18 @@ export type {
   RegisteredDivergence,
   TargetInfo,
 } from './classify.js'
-export { BLOCKING_CLASSES, classify } from './classify.js'
+export { BLOCKING_CLASSES, classify, DIFF_CLASSES } from './classify.js'
 export type { CompareInput, DiffEntry } from './compare.js'
 export { compare } from './compare.js'
 export type { ControlChannel, PortableColumn, PortableTable } from './control.js'
-export { createTableSql, portableTableFromStep, runSetupStep } from './control.js'
+export {
+  createTableSql,
+  portableTableFromStep,
+  runSetupStep,
+  scenarioSchemaIR,
+  scenarioTables,
+  uniquifyScenarioTables,
+} from './control.js'
 export type {
   AuthState,
   InterpretSession,

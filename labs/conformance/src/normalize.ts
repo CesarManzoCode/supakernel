@@ -57,8 +57,17 @@ function decodeJwtPart(part: string): Json {
   }
 }
 
-/** JWT -> { header, claims (sans iat/exp values, keeping presence), validitySeconds }. */
-function normalizeJwt(value: string): JsonObject {
+// Claims whose presence/wording is issuer-specific and carries no cross-oracle signal for the
+// §12 endpoint/state observations: compared as `<present>` so the shape still matters.
+const VOLATILE_CLAIMS = new Set(['iat', 'exp', 'nbf', 'iss', 'aud', 'jti', 'kid', 'ref'])
+const ISSUER_CLAIMS = new Set(['aal', 'amr'])
+
+/**
+ * JWT -> { header, claims, validitySeconds }. Claim *values* are run through the shared
+ * normalize context so a `sub` UUID lines up with the same user's `id` elsewhere in the
+ * observation; issuer-specific timing/identity claims collapse to `<present>`.
+ */
+function normalizeJwt(value: string, opts: NormalizeOptions): JsonObject {
   const [h, p] = value.split('.')
   const header = decodeJwtPart(h ?? '')
   const payload = decodeJwtPart(p ?? '')
@@ -66,20 +75,31 @@ function normalizeJwt(value: string): JsonObject {
   let validitySeconds: Json = null
   if (isJsonObject(payload)) {
     for (const [k, v] of Object.entries(payload)) {
-      if (k === 'iat' || k === 'exp' || k === 'nbf') {
-        claims[k] = '<present>'
-      } else if (k === 'session_id' && typeof v === 'string' && UUID_RE.test(v)) {
-        claims[k] = '<uuid>'
-      } else {
-        claims[k] = v
-      }
+      if (VOLATILE_CLAIMS.has(k)) claims[k] = '<present>'
+      else if (ISSUER_CLAIMS.has(k)) claims[k] = '<issuer-specific>'
+      else claims[k] = walk(v as Json, opts)
     }
     if (typeof payload.exp === 'number' && typeof payload.iat === 'number') {
       validitySeconds = payload.exp - payload.iat
     }
   }
-  return { kind: '<jwt>', header: isJsonObject(header) ? header : {}, claims, validitySeconds }
+  const headerOut: JsonObject = {}
+  if (isJsonObject(header)) {
+    for (const [k, v] of Object.entries(header)) {
+      headerOut[k] = k === 'kid' ? '<kid>' : (v as Json)
+    }
+  }
+  return { kind: '<jwt>', header: headerOut, claims, validitySeconds }
 }
+
+/** Opaque secret/token fields that differ by construction between issuers. */
+const OPAQUE_TOKEN_KEYS = new Set([
+  'refresh_token',
+  'provider_token',
+  'provider_refresh_token',
+  'confirmation_token',
+  'recovery_token',
+])
 
 function normalizeUrlOrigin(value: string, ctx: NormalizeContext): string {
   try {
@@ -121,7 +141,12 @@ function walk(value: Json, opts: NormalizeOptions): Json {
   const recurseObject = (obj: JsonObject): JsonObject => {
     const out: JsonObject = {}
     for (const key of Object.keys(obj).sort()) {
-      out[key] = walk(obj[key] as Json, opts)
+      const v = obj[key] as Json
+      if (active.has('jwt-claims') && OPAQUE_TOKEN_KEYS.has(key) && typeof v === 'string') {
+        out[key] = '<opaque-token>'
+      } else {
+        out[key] = walk(v, opts)
+      }
     }
     return out
   }
@@ -132,7 +157,7 @@ function walk(value: Json, opts: NormalizeOptions): Json {
   if (typeof value !== 'string') return value
 
   let s = value
-  if (active.has('jwt-claims') && JWT_RE.test(s)) return normalizeJwt(s)
+  if (active.has('jwt-claims') && JWT_RE.test(s)) return normalizeJwt(s, opts)
   if (active.has('uuid-bijection') && UUID_RE.test(s)) return normalizeUuid(s, opts.ctx)
   if (active.has('timestamp-window') && ISO_TS_RE.test(s)) return normalizeTimestamp(s, opts.ctx)
   if (active.has('url-origin') && /^https?:\/\//.test(s)) return normalizeUrlOrigin(s, opts.ctx)

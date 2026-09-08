@@ -32,11 +32,14 @@
     "@supakernel/policy": "workspace:*",
     "@supakernel/ports": "workspace:*",
     "@supakernel/realtime": "workspace:*",
+    "@supakernel/runtime-node": "workspace:*",
     "@supakernel/storage": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
+    "@types/ws": "8.18.1",
     "postgres": "3.4.9",
-    "vitest": "5.0.0"
+    "vitest": "5.0.0",
+    "ws": "8.21.3"
   }
 }

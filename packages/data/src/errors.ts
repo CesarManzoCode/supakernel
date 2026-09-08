@@ -27,14 +27,15 @@ export function dataUnsupported(feature: string): KernelError {
   })
 }
 
-/** Cardinality mismatch for `.single()` / `.maybeSingle()` — PostgREST `PGRST116`. */
-export function cardinality(expected: string, got: number): KernelError {
+/** Cardinality mismatch for `.single()` / `.maybeSingle()` — PostgREST `PGRST116`
+ *  (message + details wording matches PostgREST v12, contract §11.1). */
+export function cardinality(_expected: string, got: number): KernelError {
   return kernelError({
     category: 'conflict',
     code: 'PGRST116',
-    message: 'JSON object requested, multiple (or no) rows returned',
+    message: 'Cannot coerce the result to a single JSON object',
     httpStatus: 406,
-    details: `results contain ${got} rows, ${expected} expected`,
+    details: `The result contains ${got} rows`,
     retryable: false,
   })
 }

@@ -1,0 +1,72 @@
+{
+  "observations": [
+    {
+      "id": "rows",
+      "of": "db-state",
+      "value": [
+        {
+          "done": false,
+          "id": 1,
+          "owner": "a",
+          "title": "dup"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "action": "data.insert",
+      "body": {
+        "count": null,
+        "data": null,
+        "error": {
+          "code": "23505",
+          "message": "duplicate key value violates unique constraint \"<constraint>\""
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "data.insert",
+        "input": {
+          "seat": "service",
+          "table": "notes",
+          "values": {
+            "done": false,
+            "id": 2,
+            "owner": "a",
+            "title": "dup"
+          }
+        },
+        "seat": "service"
+      },
+      "status": 409,
+      "step": "insert-dup"
+    },
+    {
+      "action": "data.insert",
+      "body": {
+        "count": null,
+        "data": null,
+        "error": {
+          "code": "23502",
+          "message": "null value in column \"title\" of relation \"notes\" violates not-null constraint"
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "data.insert",
+        "input": {
+          "seat": "service",
+          "table": "notes",
+          "values": {
+            "id": 3,
+            "owner": "a"
+          }
+        },
+        "seat": "service"
+      },
+      "status": 400,
+      "step": "insert-missing-col"
+    }
+  ]
+}

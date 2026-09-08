@@ -303,6 +303,15 @@ const authSignupLoginRefresh = define({
       'weak_password',
       'provider_token',
       'provider_refresh_token',
+      // issuer-specific session/JWT extras — supabase-js does not require them
+      'sessionId',
+      'session_id',
+      'aal',
+      'amr',
+      'expires_at',
+      'expires_in',
+      'role',
+      'is_sso_user',
     ],
   },
   normalization: ['jwt-claims', 'uuid-bijection', 'timestamp-window'],
@@ -415,6 +424,7 @@ const storageRoundTrip = define({
       'mimetype',
       'size',
       'path_tokens',
+      'user_metadata',
     ],
   },
   normalization: ['url-origin', 'jwt-claims', 'uuid-bijection', 'timestamp-window'],
@@ -478,7 +488,28 @@ const managementSurface = define({
     },
   ],
   observe: [],
-  compare: { mode: 'exact' },
+  compare: {
+    // Management has no local vendor oracle (§16 — hosted is opt-in), so the check is
+    // cross-family self-consistency between supakernel.pg and supakernel.sqlite. The database
+    // *identity* fields legitimately differ and are excluded.
+    mode: 'subset',
+    extraVendorFields: [
+      'version',
+      'families',
+      'family',
+      'postgres_version',
+      'db_host',
+      'db_port',
+      'db_name',
+      'db_user',
+      'host',
+      'cpu',
+      'platform',
+      'release',
+      'coreHash',
+      'core_hash',
+    ],
+  },
   normalization: ['uuid-bijection', 'timestamp-window'],
   seed: SEED,
 })

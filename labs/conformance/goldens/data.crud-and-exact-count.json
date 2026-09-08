@@ -1,0 +1,188 @@
+{
+  "observations": [
+    {
+      "id": "final-rows",
+      "of": "db-state",
+      "value": [
+        {
+          "done": false,
+          "id": 1,
+          "owner": "a",
+          "title": "first"
+        },
+        {
+          "done": true,
+          "id": 2,
+          "owner": "a",
+          "title": "second"
+        },
+        {
+          "done": false,
+          "id": 3,
+          "owner": "b",
+          "title": "third"
+        }
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "action": "data.select",
+      "body": {
+        "count": null,
+        "data": [
+          {
+            "done": false,
+            "id": 1,
+            "owner": "a",
+            "title": "first"
+          },
+          {
+            "done": true,
+            "id": 2,
+            "owner": "a",
+            "title": "second"
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "id,owner,title,done",
+          "filters": [["owner", "eq", "a"]],
+          "order": {
+            "column": "id"
+          },
+          "seat": "service",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "select-eq"
+    },
+    {
+      "action": "data.select",
+      "body": {
+        "count": 3,
+        "data": [
+          {
+            "id": 1
+          },
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "id",
+          "count": "exact",
+          "order": {
+            "column": "id"
+          },
+          "seat": "service",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "select-count"
+    },
+    {
+      "action": "data.insert",
+      "body": {
+        "count": null,
+        "data": [
+          {
+            "done": false,
+            "id": 4,
+            "owner": "b",
+            "title": "fourth"
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.insert",
+        "input": {
+          "seat": "service",
+          "select": "*",
+          "table": "notes",
+          "values": {
+            "done": false,
+            "id": 4,
+            "owner": "b",
+            "title": "fourth"
+          }
+        },
+        "seat": "service"
+      },
+      "status": 201,
+      "step": "insert-return"
+    },
+    {
+      "action": "data.update",
+      "body": {
+        "count": null,
+        "data": [
+          {
+            "done": true,
+            "id": 4
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.update",
+        "input": {
+          "filters": [["id", "eq", 4]],
+          "seat": "service",
+          "select": "id,done",
+          "table": "notes",
+          "values": {
+            "done": true
+          }
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "update-return"
+    },
+    {
+      "action": "data.delete",
+      "body": {
+        "count": null,
+        "data": [
+          {
+            "id": 4
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.delete",
+        "input": {
+          "filters": [["id", "eq", 4]],
+          "seat": "service",
+          "select": "id",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "delete-return"
+    }
+  ]
+}

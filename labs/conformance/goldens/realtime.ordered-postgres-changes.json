@@ -1,0 +1,65 @@
+{
+  "observations": [],
+  "steps": [
+    {
+      "action": "realtime.subscribe",
+      "body": {
+        "subscribed": true
+      },
+      "headers": {},
+      "request": {
+        "action": "realtime.subscribe",
+        "filter": null,
+        "table": "notes"
+      },
+      "status": 200,
+      "step": "subscribe"
+    },
+    {
+      "action": "realtime.mutate",
+      "body": {
+        "mutated": 2
+      },
+      "headers": {},
+      "request": {
+        "action": "realtime.mutate",
+        "table": "notes"
+      },
+      "status": 200,
+      "step": "mutate"
+    },
+    {
+      "action": "realtime.collect",
+      "body": {
+        "events": [
+          {
+            "new": {
+              "done": false,
+              "id": 1,
+              "owner": "a",
+              "title": "r1"
+            },
+            "old": {},
+            "type": "INSERT"
+          },
+          {
+            "new": {
+              "done": false,
+              "id": 2,
+              "owner": "a",
+              "title": "r2"
+            },
+            "old": {},
+            "type": "INSERT"
+          }
+        ]
+      },
+      "headers": {},
+      "request": {
+        "action": "realtime.collect"
+      },
+      "status": 200,
+      "step": "collect"
+    }
+  ]
+}

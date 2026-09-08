@@ -74,6 +74,27 @@
       "path": "labs/runtime-matrix"
     },
     {
+      "path": "labs/conformance"
+    },
+    {
+      "path": "labs/reference-traces"
+    },
+    {
+      "path": "labs/faults"
+    },
+    {
+      "path": "labs/mutation"
+    },
+    {
+      "path": "labs/benchmarks"
+    },
+    {
+      "path": "labs/upstream-evidence"
+    },
+    {
+      "path": "labs/agent-evals"
+    },
+    {
       "path": "packages/db-postgres"
     },
     {

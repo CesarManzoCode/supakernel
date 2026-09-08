@@ -1,0 +1,194 @@
+{
+  "observations": [],
+  "steps": [
+    {
+      "action": "storage.upload",
+      "body": {
+        "data": {
+          "fullPath": "conf-private/docs/hello.txt",
+          "id": "<uuid:1>",
+          "path": "docs/hello.txt"
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.upload",
+        "input": {
+          "bucket": "conf-private",
+          "content": "conformance-bytes",
+          "path": "docs/hello.txt",
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "upload"
+    },
+    {
+      "action": "storage.download",
+      "body": {
+        "data": {
+          "text": "conformance-bytes"
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.download",
+        "input": {
+          "bucket": "conf-private",
+          "path": "docs/hello.txt",
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "download"
+    },
+    {
+      "action": "storage.list",
+      "body": {
+        "data": [
+          {
+            "created_at": "<ts:1>",
+            "id": "<uuid:1>",
+            "last_accessed_at": "<ts:1>",
+            "metadata": {
+              "cacheControl": "max-age=3600",
+              "contentLength": 17,
+              "eTag": "\"18fba46a17aea01359c2478a2635afb8\"",
+              "httpStatusCode": 200,
+              "lastModified": "<mtime>",
+              "mimetype": "application/octet-stream",
+              "size": 17
+            },
+            "name": "hello.txt",
+            "updated_at": "<ts:1>"
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.list",
+        "input": {
+          "bucket": "conf-private",
+          "prefix": "docs",
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "list"
+    },
+    {
+      "action": "storage.createSignedUrl",
+      "body": {
+        "data": {
+          "signedUrl": "<origin>/storage/v1/object/sign/conf-private/docs/hello.txt?token=%3Cjwt%3E"
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.createSignedUrl",
+        "input": {
+          "bucket": "conf-private",
+          "expiresIn": 60,
+          "path": "docs/hello.txt",
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "sign"
+    },
+    {
+      "action": "storage.signedUrlGet",
+      "body": {
+        "data": {
+          "status": 200,
+          "text": "conformance-bytes"
+        },
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.signedUrlGet",
+        "input": {
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "sign-get"
+    },
+    {
+      "action": "storage.remove",
+      "body": {
+        "data": [
+          {
+            "bucket_id": "conf-private",
+            "created_at": "<ts:1>",
+            "id": "<uuid:1>",
+            "last_accessed_at": "<ts:1>",
+            "metadata": {
+              "cacheControl": "max-age=3600",
+              "contentLength": 17,
+              "eTag": "\"18fba46a17aea01359c2478a2635afb8\"",
+              "httpStatusCode": 200,
+              "lastModified": "<mtime>",
+              "mimetype": "application/octet-stream",
+              "size": 17
+            },
+            "name": "docs/hello.txt",
+            "owner": "",
+            "owner_id": "",
+            "updated_at": "<ts:1>",
+            "user_metadata": {},
+            "version": "<uuid:2>"
+          }
+        ],
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.remove",
+        "input": {
+          "bucket": "conf-private",
+          "paths": [
+            "docs/hello.txt"
+          ],
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "remove"
+    },
+    {
+      "action": "storage.download",
+      "body": {
+        "data": null,
+        "error": {
+          "code": "NoSuchKey",
+          "message": "Object not found",
+          "status": 400
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "storage.download",
+        "input": {
+          "bucket": "conf-private",
+          "path": "docs/hello.txt",
+          "seat": "service"
+        },
+        "seat": "service"
+      },
+      "status": 400,
+      "step": "download-gone"
+    }
+  ]
+}

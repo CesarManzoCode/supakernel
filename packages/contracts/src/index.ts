@@ -32,7 +32,7 @@ export {
   MAX_EXPR_DEPTH,
   referencedTables,
 } from './expr.js'
-export { sha256Hex } from './hash.js'
+export { sha256Hex, sha256HexBytes } from './hash.js'
 export type {
   Brand,
   Family,

@@ -5,7 +5,8 @@ import {
   type SqlStatement,
   sql,
 } from '@supakernel/contracts'
-import type { DatabaseAdapter } from '@supakernel/ports'
+import type { DatabaseAdapter, FaultPort } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import {
   acquireLease,
   appliedStepIds,
@@ -28,6 +29,8 @@ export interface ApplyResult {
 export interface ApplyOptions {
   readonly now: string
   readonly holder?: string
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: FaultPort
 }
 
 /**
@@ -80,12 +83,16 @@ export async function applyMigration(
   const needsFkSuspend =
     plan.family === 'sqlite' && plan.steps.some((s) => s.change.kind === 'rebuild-table')
 
+  const fault = options.fault ?? NULL_FAULT_PORT
+
   if (adapter.capabilities.transactions === 'callback') {
     if (needsFkSuspend) await adapter.execute(sql('PRAGMA foreign_keys = OFF'))
     try {
       await adapter.transaction({ isolation: 'serializable' }, async (tx) => {
         for (const step of plan.steps) {
+          await fault.hit('migration.before_step', { step: step.id })
           for (const stmt of flatten(step)) await tx.execute(stmt)
+          await fault.hit('migration.after_effect_before_journal', { step: step.id })
           await tx.execute(
             meta(
               journalStepStatement(
@@ -98,6 +105,7 @@ export async function applyMigration(
               ),
             ),
           )
+          await fault.hit('migration.after_journal', { step: step.id })
         }
         await tx.execute(meta(recordSchemaHashStatement(plan.toHash, options.now)))
       })
@@ -132,10 +140,12 @@ export async function applyMigration(
         resumed = true
         continue
       }
+      await fault.hit('migration.before_step', { step: step.id })
       await adapter.atomicBatch([
         ...flatten(step),
         journalStepStatement(plan.id, step.id, step.phase, 'applied', step.checksum, options.now),
       ])
+      await fault.hit('migration.after_journal', { step: step.id })
       if (!(await postconditionHolds(adapter, step))) {
         throw new Error(`SK_MIGRATION_POSTCONDITION: step ${step.id} did not take effect`)
       }

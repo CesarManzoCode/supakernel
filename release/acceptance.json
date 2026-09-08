@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-07T20:16:34-06:00",
+  "git": "abbbda316aa60bf699daf47bc810aa77e62df8ee",
+  "gate": {
+    "total": 22,
+    "pass": 20,
+    "artifactOnly": 2,
+    "blocked": [],
+    "fail": []
+  },
+  "evidence": [
+    {
+      "id": "bknd-performance",
+      "result": "artifact-only",
+      "artifact": "artifacts/benchmarks",
+      "hash": "99d2e08edc1f296606c7f6da3454f26ae0680d15a76b27468c9dbc42a2340fa2",
+      "limitation": "SHARED runner — no \"faster than BKND\" claim (needs a dedicated runner); the report records the environment and returns an inconclusive verdict"
+    },
+    {
+      "id": "agent-dx",
+      "result": "blocked",
+      "artifact": "artifacts/agent-evals",
+      "hash": "d89e92e4a32e726b5f2940122887cbf104e412e8eb34617396f8304b0716d3bc",
+      "limitation": "EXTERNAL BLOCKER: a real A/B DX comparison needs an LLM provider credential (ANTHROPIC_API_KEY, owner-supplied, §32). The harness is validated with a deterministic scripted agent; NO DX CLAIM is made."
+    },
+    {
+      "id": "external-ownership",
+      "result": "blocked",
+      "artifact": "artifacts/upstream-evidence",
+      "hash": "38628548bde791c2fbf1e2cc85ac955b12679b17253e5e6ddd60a31e5e447cd6",
+      "limitation": "EXTERNAL: upstream acceptance is not fabricated. One evidence bundle from a real, 3×-replayed divergence (supabase/storage 400-vs-404) is produced; submission + acceptance require human review (§32)."
+    },
+    {
+      "id": "supalite-divergences",
+      "result": "artifact-only",
+      "artifact": "artifacts/conformance",
+      "hash": "04e31e570bee682e1ec449d237fcce84b3a8a633f50e8011c162f7411bc0dead",
+      "limitation": "the supalite lane requires a vendored supalite@0.10.0 kept out of the frozen lockfile; #64/#69 are documented in labs/reference-traces + labs/upstream-evidence"
+    }
+  ],
+  "externalBlockers": [
+    {
+      "id": "agent-dx",
+      "limitation": "EXTERNAL BLOCKER: a real A/B DX comparison needs an LLM provider credential (ANTHROPIC_API_KEY, owner-supplied, §32). The harness is validated with a deterministic scripted agent; NO DX CLAIM is made."
+    },
+    {
+      "id": "external-ownership",
+      "limitation": "EXTERNAL: upstream acceptance is not fabricated. One evidence bundle from a real, 3×-replayed divergence (supabase/storage 400-vs-404) is produced; submission + acceptance require human review (§32)."
+    }
+  ],
+  "partial": false,
+  "releasable": true
+}

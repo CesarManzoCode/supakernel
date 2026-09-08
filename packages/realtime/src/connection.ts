@@ -1,4 +1,5 @@
 import type { Json, PolicyRule, Principal, SchemaIR } from '@supakernel/contracts'
+import { findColumn, findTable } from '@supakernel/contracts'
 import { buildSecurityPlan, evalCheck } from '@supakernel/policy'
 import { type ChangeFilter, matchesFilter, parseFilter } from './filter.js'
 import { PHX, type PhoenixFrame, reply, systemFrame } from './phoenix-codec.js'
@@ -47,6 +48,8 @@ export interface ConnectionConfig {
   verifyToken(token: string): Promise<Principal | null>
   /** The principal for the connection's `apikey` (anon / service). */
   readonly anonPrincipal: Principal
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: import('@supakernel/ports').FaultPort
 }
 
 export interface Outgoing {
@@ -233,8 +236,8 @@ export class RealtimeConnection {
               table: ev.table,
               commit_timestamp: ev.commitTs,
               type: ev.op,
-              record: masked.new ?? {},
-              old_record: masked.old ?? {},
+              record: this.canonicalizeRecord(ev.table, masked.new),
+              old_record: this.canonicalizeRecord(ev.table, masked.old),
               columns: [],
               errors: null,
             },
@@ -255,6 +258,34 @@ export class RealtimeConnection {
       }
     }
     return { frames }
+  }
+
+  /**
+   * The change record from the outbox trigger carries the row's *physical* representation
+   * (on the SQLite family a `bool` column is 0/1). PostgreSQL's WAL / Supabase Realtime
+   * always emits a JSON boolean, so the portable postgres_changes payload must too
+   * (contract §9.2, §15).
+   */
+  private canonicalizeRecord(
+    table: string,
+    record: Record<string, Json> | null,
+  ): Record<string, Json> {
+    if (!record) return {}
+    const t = findTable(this.cfg.schema, table)
+    if (!t) return record
+    const out: Record<string, Json> = {}
+    for (const [k, v] of Object.entries(record)) {
+      const col = findColumn(t, k)
+      if (col?.type === 'bool' && typeof v !== 'boolean') {
+        if (typeof v === 'number') out[k] = v !== 0
+        else if (v === '0' || v === 'false' || v === 'f') out[k] = false
+        else if (v === '1' || v === 'true' || v === 't') out[k] = true
+        else out[k] = v
+      } else {
+        out[k] = v
+      }
+    }
+    return out
   }
 
   /** The consumer acknowledges it has drained N bytes / events from its send buffer. */

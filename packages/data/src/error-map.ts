@@ -50,11 +50,37 @@ const PG_SQLSTATE: Record<string, { code: string; status: number }> = {
  * Map any error thrown during Data handling to a redacted `KernelError` (contract §11.3, §25 —
  * constraint errors never expose sensitive values; `internal` never exposes SQL / stack).
  */
+/**
+ * The DB adapters raise constraint failures as `SK_DB_*` `KernelError`s. PostgREST surfaces
+ * the raw Postgres SQLSTATE as the error `code` (e.g. `23505`), so the compatible Data
+ * response must too — the SupaKernel code is remapped here while the message stays redacted
+ * (contract §11.1, §11.3).
+ */
+const ADAPTER_CONSTRAINT_CODE: Record<string, string> = {
+  SK_DB_UNIQUE_VIOLATION: '23505',
+  SK_DB_FK_VIOLATION: '23503',
+  SK_DB_NOT_NULL_VIOLATION: '23502',
+  SK_DB_CHECK_VIOLATION: '23514',
+}
+
+function remapAdapterConstraint(ke: KernelError): KernelError {
+  const sqlstate = ADAPTER_CONSTRAINT_CODE[ke.code]
+  if (!sqlstate) return ke
+  const m = PG_SQLSTATE[sqlstate] as { code: string; status: number }
+  return kernelError({
+    category: m.status === 409 ? 'conflict' : m.status === 403 ? 'authz' : 'input',
+    code: m.code,
+    message: constraintMessage(sqlstate),
+    httpStatus: m.status,
+    retryable: false,
+  })
+}
+
 export function toKernelError(err: unknown): KernelError {
-  if (err instanceof DataError) return redactError(err.kernelError)
+  if (err instanceof DataError) return redactError(remapAdapterConstraint(err.kernelError))
 
   const withKe = err as { kernelError?: KernelError }
-  if (withKe.kernelError) return redactError(withKe.kernelError)
+  if (withKe.kernelError) return redactError(remapAdapterConstraint(withKe.kernelError))
 
   const sqlstate = extractSqlState(err)
   if (sqlstate && PG_SQLSTATE[sqlstate]) {

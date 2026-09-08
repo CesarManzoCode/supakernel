@@ -1,4 +1,4 @@
-import type { ClockPort, MailPort, RandomPort } from '@supakernel/ports'
+import type { ClockPort, FaultPort, MailPort, RandomPort } from '@supakernel/ports'
 
 export interface AuthConfig {
   readonly projectRef: string
@@ -23,4 +23,6 @@ export interface AuthPorts {
   readonly clock: ClockPort
   readonly random: RandomPort
   readonly mail: MailPort
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: FaultPort
 }

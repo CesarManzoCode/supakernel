@@ -1,0 +1,35 @@
+id: postgrest-prefer-count-range-cardinality
+source:
+  repository: PostgREST/postgrest
+  commit: 6de489c7ba20e9004583005b38ca70ffe20ff6b2
+  language: haskell
+  files:
+    - src/PostgREST/ApiRequest/Preferences.hs
+    - src/PostgREST/Response.hs
+    - src/PostgREST/Query.hs
+  symbols:
+    - Preferences
+    - prefCount
+    - RangeQuery
+    - vacuumResponse
+    - singleUpsertResponse
+contract: data.postgrest.prefer_count_range_cardinality
+scenarios:
+  - data.crud-and-exact-count
+  - data.range-pagination-window
+  - data.single-cardinality-error
+implementation: packages/data/src/handler.ts
+resultArtifact: artifacts/conformance/latest/scenarios/data.crud-and-exact-count
+license: MIT
+notes: >-
+  Behavioural reimplementation; no copied code. Only the observable HTTP contract is mirrored.
+summary: >-
+  PostgREST derives an exact or planned count from the Prefer header and returns it in the
+  Content-Range response header alongside the served offset/limit window; an out-of-range
+  window yields a 206 with an unsatisfied range and the total after the slash. A GET or
+  mutation with the resource embedded as a single object (Accept singular / .single())
+  returns 406 PGRST116 when the row count is not exactly one, and the same request with
+  maybeSingle tolerates zero rows by returning null. SupaKernel reproduces the Content-Range
+  shape, the exact-count semantics, the 206 on an over-run range and the PGRST116 code and
+  status for single-cardinality violations, while replacing PostgREST's verbatim Postgres
+  hint/detail with a stable code and a redacted message so no schema identifier leaks.

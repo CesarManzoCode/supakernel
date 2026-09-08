@@ -1,0 +1,34 @@
+id: gotrue-refresh-reuse-family-revocation
+source:
+  repository: supabase/auth
+  commit: 0204331ca41a5b49f076b6fa3dc6c0d20b996590
+  language: go
+  files:
+    - internal/api/token.go
+    - internal/api/token_refresh.go
+    - internal/models/refresh_token.go
+  symbols:
+    - RefreshTokenGrant
+    - GrantAuthenticatedUser
+    - RevokeTokenFamily
+    - GetValidChildToken
+contract: auth.refresh.reuse_revokes_family
+scenarios:
+  - auth.signup-login-refresh-logout
+  - auth.wrong-password-error
+implementation: packages/auth/src/session.ts
+resultArtifact: artifacts/conformance/latest/scenarios/auth.signup-login-refresh-logout
+license: Apache-2.0
+notes: >-
+  Behavioural reimplementation; no copied code. Only the state-machine contract is mirrored.
+summary: >-
+  On a refresh grant GoTrue looks up the presented refresh token, and if it is already
+  revoked but was used within the reuse-detection window it revokes the entire token family
+  and rejects the request; a still-valid token is atomically marked revoked and a new child
+  is issued so only one active descendant exists per family. Password sign-in with a wrong
+  password or unknown email returns a 400 with invalid_credentials and never a token. Logout
+  revokes the current session, and global logout revokes every session for the user.
+  SupaKernel reproduces the single-active-child invariant, the reuse-triggered family
+  revocation, the irreversible revocation, the invalid-credential response and the logout
+  scopes, issuing ES256 tokens whose header/claims/validity are compared after JWT
+  normalization rather than byte-for-byte.

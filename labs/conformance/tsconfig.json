@@ -2,7 +2,23 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": ["node"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "ESNext.Disposable"]
   },
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/ports" },
+    { "path": "../../packages/auth" },
+    { "path": "../../packages/data" },
+    { "path": "../../packages/policy" },
+    { "path": "../../packages/storage" },
+    { "path": "../../packages/realtime" },
+    { "path": "../../packages/kernel" },
+    { "path": "../../packages/gateway" },
+    { "path": "../../packages/blob-fs" },
+    { "path": "../../packages/db-postgres" },
+    { "path": "../../packages/db-sqlite/tsconfig.node.json" }
+  ],
   "include": ["src/**/*.ts"]
 }

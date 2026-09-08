@@ -1,0 +1,95 @@
+{
+  "observations": [],
+  "steps": [
+    {
+      "action": "data.select",
+      "body": {
+        "count": null,
+        "data": null,
+        "error": {
+          "code": "PGRST116",
+          "message": "Cannot coerce the result to a single JSON object"
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "*",
+          "filters": [
+            [
+              "owner",
+              "eq",
+              "a"
+            ]
+          ],
+          "seat": "service",
+          "single": true,
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 406,
+      "step": "single-too-many"
+    },
+    {
+      "action": "data.select",
+      "body": {
+        "count": null,
+        "data": null,
+        "error": {
+          "code": "PGRST116",
+          "message": "Cannot coerce the result to a single JSON object"
+        }
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "*",
+          "filters": [
+            [
+              "owner",
+              "eq",
+              "zzz"
+            ]
+          ],
+          "seat": "service",
+          "single": true,
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 406,
+      "step": "single-none"
+    },
+    {
+      "action": "data.select",
+      "body": {
+        "count": null,
+        "data": null,
+        "error": null
+      },
+      "headers": {},
+      "request": {
+        "action": "data.select",
+        "input": {
+          "columns": "*",
+          "filters": [
+            [
+              "owner",
+              "eq",
+              "zzz"
+            ]
+          ],
+          "maybeSingle": true,
+          "seat": "service",
+          "table": "notes"
+        },
+        "seat": "service"
+      },
+      "status": 200,
+      "step": "maybe-single-none"
+    }
+  ]
+}

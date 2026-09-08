@@ -1,5 +1,6 @@
 import type { Family, Json, PolicyRule, Principal, SchemaIR } from '@supakernel/contracts'
-import type { DatabaseAdapter } from '@supakernel/ports'
+import type { DatabaseAdapter, FaultPort } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import { toKernelError, toPostgrestBody } from './error-map.js'
 import { executeData } from './execute.js'
 import { generateOpenApi } from './openapi.js'
@@ -16,6 +17,8 @@ export interface DataHandlerDeps {
   now(): string
   /** Resolve the verified principal from request headers (Auth is L6; a stub is injected in L5). */
   resolvePrincipal(headers: Headers): Principal | Promise<Principal>
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: FaultPort
 }
 
 /**
@@ -51,7 +54,15 @@ export function createDataHandler(deps: DataHandlerDeps): (request: Request) => 
         now: deps.now(),
       }
       const plan = planData(ctx, parsed)
-      const outcome = await executeData(ctx, deps.adapter, parsed, plan)
+      const outcome = await executeData(
+        ctx,
+        deps.adapter,
+        parsed,
+        plan,
+        deps.fault ?? NULL_FAULT_PORT,
+      )
+      // The write has committed here; a fault must never duplicate on retry (contract §22).
+      await (deps.fault ?? NULL_FAULT_PORT).hit('transaction.after_commit_before_response', {})
       const shaped = shapeResult(parsed, plan, outcome)
       return json(shaped.status, shaped.body, shaped.headers)
     } catch (err) {

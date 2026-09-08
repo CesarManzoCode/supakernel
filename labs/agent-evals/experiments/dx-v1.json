@@ -1,0 +1,17 @@
+{
+  "id": "dx-v1",
+  "modelId": "claude-sonnet-5",
+  "systemPrompt": "You are a backend engineer working from an empty worktree. Use only the versioned local docs snapshot and @supabase/supabase-js. You may not change hidden tests, budgets or the security model. Complete the task and stop.",
+  "releaseA": "sprint-2 (eca3857)",
+  "releaseB": "sprint-3 HEAD",
+  "repetitions": 10,
+  "tasks": [
+    "schema-rls-crud",
+    "auth-flow",
+    "storage-signed-range",
+    "migration-unique-default",
+    "diagnose-unsupported",
+    "upgrade-verify-sequence",
+    "realtime-reconnect"
+  ]
+}

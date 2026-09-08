@@ -2,7 +2,7 @@
   "name": "@supakernel/lab-reference-traces",
   "version": "0.0.0",
   "private": true,
-  "description": "SupaKernel lab: reference-traces (stub)",
+  "description": "SupaKernel lab: upstream reference traces + trace audit (contract §18, §30 L11)",
   "type": "module",
   "exports": {
     ".": {
@@ -12,11 +12,20 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "traces"
   ],
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@supakernel/contracts": "workspace:*",
+    "@supakernel/lab-conformance": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "vitest": "5.0.0"
+  }
 }

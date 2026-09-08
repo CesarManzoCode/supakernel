@@ -1,0 +1,37 @@
+id: storage-signed-url-response-path-and-issue-64
+source:
+  repository: supabase/storage
+  commit: 288dd95c4c06f3df72a2369ea5196a8e400aeed7
+  language: typescript
+  files:
+    - src/http/routes/object/getSignedURL.ts
+    - src/http/routes/object/getSignedObject.ts
+    - src/storage/object.ts
+    - src/storage/renderer/head-renderer.ts
+  symbols:
+    - getSignedURL
+    - getSignedObject
+    - signObjectURL
+    - ObjectStorage.findObject
+    - HeadRenderer
+contract: storage.signed_url.response_shape_and_range
+scenarios:
+  - storage.upload-download-list-signed-remove
+implementation: packages/storage/src/signed-url.ts
+resultArtifact: artifacts/conformance/latest/scenarios/storage.upload-download-list-signed-remove
+license: Apache-2.0
+notes: >-
+  Behavioural reimplementation; no copied code. Includes the supabase/storage-js issue #64
+  divergence (signedURL field name / path prefix) as a pinned regression.
+summary: >-
+  storage-js createSignedUrl returns an object whose signedURL is a path beginning with
+  /object/sign/<bucket>/<key> plus a token query parameter, and the historical issue #64 is
+  that older servers returned the value without the leading path segment, breaking clients
+  that concatenate it to the storage base URL. The signed token binds the exact object path
+  and method; a GET of the signed path streams the bytes and honours a Range request by
+  returning 206 with a Content-Range that concatenates back to the whole object. Delete makes
+  the object immediately unreadable. SupaKernel returns the #64-correct signedURL shape
+  (field name signedURL, path /object/sign/<bucket>/<key>?token=<jwt>, no /storage/v1
+  prefix), verifies the ES256 token's aud/iss and exact path before serving, supports the
+  range concatenation property and returns a not-found after delete. URLs and JWTs are
+  compared after origin/JWT normalization.

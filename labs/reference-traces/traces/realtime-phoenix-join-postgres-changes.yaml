@@ -1,0 +1,34 @@
+id: realtime-phoenix-join-postgres-changes-backpressure
+source:
+  repository: supabase/realtime
+  commit: 91812f42c4653ed55270e0bf4df6e9530de7966e
+  language: elixir
+  files:
+    - lib/realtime/tenants/connect.ex
+    - lib/extensions/postgres_cdc_rls/subscriptions_checker.ex
+    - lib/realtime_web/channels/realtime_channel.ex
+    - lib/realtime/rls/subscriptions.ex
+  symbols:
+    - RealtimeChannel.handle_in
+    - RealtimeChannel.join
+    - PostgresCdcRls.handle_connect
+    - Subscriptions.create
+contract: realtime.postgres_changes.ordered_authorized_bounded
+scenarios:
+  - realtime.ordered-postgres-changes
+implementation: packages/realtime/src/connection.ts
+resultArtifact: artifacts/conformance/latest/scenarios/realtime.ordered-postgres-changes
+license: Apache-2.0
+notes: >-
+  Behavioural reimplementation; no copied code. Only the join/reply and postgres_changes
+  delivery contract is mirrored; Broadcast and Presence are out of scope by contract §5.
+summary: >-
+  A Phoenix channel join for realtime carries a config.postgres_changes list of
+  {event, schema, table, filter}; the join reply echoes each entry with a server-assigned id
+  and the client's exact event/schema/table/filter values. Committed row changes on a
+  subscribed table are pushed as postgres_changes messages carrying the change type, the new
+  and old records and a commit timestamp, in per-connection commit order. A slow consumer is
+  bounded: the server drops the connection rather than buffering without limit. SupaKernel
+  reproduces the join-reply echo shape, the ordered INSERT/UPDATE/DELETE delivery with the
+  realtime-js payload transform, the bounded outbox queue with a system close on overflow,
+  and rejects a join that requests Broadcast or Presence with unsupported_feature.

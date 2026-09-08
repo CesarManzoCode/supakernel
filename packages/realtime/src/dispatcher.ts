@@ -1,5 +1,6 @@
 import { type Family, type Json, sql } from '@supakernel/contracts'
-import type { DatabaseAdapter } from '@supakernel/ports'
+import type { DatabaseAdapter, FaultPort } from '@supakernel/ports'
+import { NULL_FAULT_PORT } from '@supakernel/ports'
 import type { OutboxEvent } from './connection.js'
 import { outboxTable } from './outbox.js'
 
@@ -7,6 +8,8 @@ export interface DispatcherOptions {
   /** Retention window; GC never removes an event newer than this OR below the min active cursor. */
   readonly retentionMs?: number
   readonly maxRetainedEvents?: number
+  /** Fault-injection hook (contract §22). No-op in production. */
+  readonly fault?: FaultPort
 }
 
 /**
@@ -17,13 +20,15 @@ export interface DispatcherOptions {
 export class OutboxDispatcher {
   private readonly adapter: DatabaseAdapter
   private readonly family: Family
-  private readonly opts: Required<DispatcherOptions>
+  private readonly opts: Required<Omit<DispatcherOptions, 'fault'>>
+  private readonly fault: FaultPort
   private watermark = 0
   private publishEnabled = true
 
   constructor(adapter: DatabaseAdapter, family: Family, opts: DispatcherOptions = {}) {
     this.adapter = adapter
     this.family = family
+    this.fault = opts.fault ?? NULL_FAULT_PORT
     this.opts = {
       retentionMs: opts.retentionMs ?? 24 * 3600_000,
       maxRetainedEvents: opts.maxRetainedEvents ?? 100_000,
@@ -67,8 +72,13 @@ export class OutboxDispatcher {
         commitTs: String(rec.commit_ts),
       }
     })
+    if (events.length > 0)
+      await this.fault.hit('realtime.after_outbox_commit', { count: String(events.length) })
     const last = events[events.length - 1]
-    if (last) this.watermark = last.seq
+    if (last) {
+      await this.fault.hit('realtime.after_send_before_cursor', { seq: String(last.seq) })
+      this.watermark = last.seq
+    }
     return events
   }
 

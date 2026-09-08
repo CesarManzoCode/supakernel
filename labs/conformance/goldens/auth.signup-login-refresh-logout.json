@@ -23,7 +23,9 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": ["email"]
+                  "providers": [
+                    "email"
+                  ]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -39,14 +41,16 @@
               },
               "validitySeconds": 3600
             },
-            "expires_at": 1788829400,
+            "expires_at": 1788829562,
             "expires_in": 3600,
             "refresh_token": "<opaque-token>",
             "token_type": "bearer",
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": ["email"]
+                "providers": [
+                  "email"
+                ]
               },
               "aud": "authenticated",
               "created_at": "<ts:1>",
@@ -87,7 +91,9 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": ["email"]
+              "providers": [
+                "email"
+              ]
             },
             "aud": "authenticated",
             "created_at": "<ts:1>",
@@ -162,7 +168,9 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": ["email"]
+                  "providers": [
+                    "email"
+                  ]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -178,14 +186,16 @@
               },
               "validitySeconds": 3600
             },
-            "expires_at": 1788829400,
+            "expires_at": 1788829562,
             "expires_in": 3600,
             "refresh_token": "<opaque-token>",
             "token_type": "bearer",
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": ["email"]
+                "providers": [
+                  "email"
+                ]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -228,7 +238,9 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": ["email"]
+              "providers": [
+                "email"
+              ]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",
@@ -326,7 +338,9 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": ["email"]
+                  "providers": [
+                    "email"
+                  ]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -342,14 +356,16 @@
               },
               "validitySeconds": 3600
             },
-            "expires_at": 1788829400,
+            "expires_at": 1788829562,
             "expires_in": 3600,
             "refresh_token": "<opaque-token>",
             "token_type": "bearer",
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": ["email"]
+                "providers": [
+                  "email"
+                ]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -391,7 +407,9 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": ["email"]
+              "providers": [
+                "email"
+              ]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",
@@ -465,7 +483,9 @@
                 "phone": "",
                 "app_metadata": {
                   "provider": "email",
-                  "providers": ["email"]
+                  "providers": [
+                    "email"
+                  ]
                 },
                 "user_metadata": {
                   "email": "alice@conformance.test",
@@ -481,14 +501,16 @@
               },
               "validitySeconds": 3600
             },
-            "expires_at": 1788829400,
+            "expires_at": 1788829562,
             "expires_in": 3600,
             "refresh_token": "<opaque-token>",
             "token_type": "bearer",
             "user": {
               "app_metadata": {
                 "provider": "email",
-                "providers": ["email"]
+                "providers": [
+                  "email"
+                ]
               },
               "aud": "authenticated",
               "confirmed_at": "<ts:2>",
@@ -530,7 +552,9 @@
           "user": {
             "app_metadata": {
               "provider": "email",
-              "providers": ["email"]
+              "providers": [
+                "email"
+              ]
             },
             "aud": "authenticated",
             "confirmed_at": "<ts:2>",

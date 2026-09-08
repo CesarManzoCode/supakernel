@@ -15,6 +15,7 @@ import {
   writeArtifacts,
 } from '../../src/index.js'
 import { createKernelTarget } from './kernel-target.js'
+import { createSupabaseHostedTarget, createSupaliteTarget } from './opt-in-targets.js'
 import { createRealtimeDriver } from './realtime-driver.js'
 import { createSupabaseLocalTarget, supabaseLocalConfigFromEnv } from './supabase-local-target.js'
 
@@ -64,6 +65,10 @@ export function buildTargets(): { targets: Target[]; oracleId: string } {
   if (sbCfg) targets.push(createSupabaseLocalTarget(sbCfg))
   targets.push(createKernelTarget('postgres'))
   targets.push(createKernelTarget('sqlite'))
+  // Opt-in lanes: self-report unhealthy unless the owner enabled them, so the runner simply
+  // omits them (contract §19.1, §32).
+  targets.push(createSupabaseHostedTarget())
+  targets.push(createSupaliteTarget())
   return { targets, oracleId: 'vendor.supabase-local' }
 }
 

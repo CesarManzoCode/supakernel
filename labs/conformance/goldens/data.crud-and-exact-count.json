@@ -51,7 +51,13 @@
         "action": "data.select",
         "input": {
           "columns": "id,owner,title,done",
-          "filters": [["owner", "eq", "a"]],
+          "filters": [
+            [
+              "owner",
+              "eq",
+              "a"
+            ]
+          ],
           "order": {
             "column": "id"
           },
@@ -146,7 +152,13 @@
       "request": {
         "action": "data.update",
         "input": {
-          "filters": [["id", "eq", 4]],
+          "filters": [
+            [
+              "id",
+              "eq",
+              4
+            ]
+          ],
           "seat": "service",
           "select": "id,done",
           "table": "notes",
@@ -174,7 +186,13 @@
       "request": {
         "action": "data.delete",
         "input": {
-          "filters": [["id", "eq", 4]],
+          "filters": [
+            [
+              "id",
+              "eq",
+              4
+            ]
+          ],
           "seat": "service",
           "select": "id",
           "table": "notes"

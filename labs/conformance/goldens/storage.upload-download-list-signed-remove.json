@@ -157,7 +157,9 @@
         "action": "storage.remove",
         "input": {
           "bucket": "conf-private",
-          "paths": ["docs/hello.txt"],
+          "paths": [
+            "docs/hello.txt"
+          ],
           "seat": "service"
         },
         "seat": "service"

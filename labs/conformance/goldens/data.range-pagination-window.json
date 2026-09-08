@@ -24,7 +24,10 @@
           "order": {
             "column": "id"
           },
-          "range": [0, 1],
+          "range": [
+            0,
+            1
+          ],
           "seat": "service",
           "table": "notes"
         },
@@ -56,7 +59,10 @@
           "order": {
             "column": "id"
           },
-          "range": [2, 3],
+          "range": [
+            2,
+            3
+          ],
           "seat": "service",
           "table": "notes"
         },

@@ -275,6 +275,19 @@ export async function importBundle(input: ImportInput): Promise<ImportResult> {
       completedThrough = step.phase
       continue
     }
+    // Resume: a phase left `running` by a crash whose observable postcondition already holds
+    // is idempotently marked done — re-running its (non-idempotent) DDL would fail.
+    if (current?.state === 'running' && (await step.post())) {
+      set(step.phase, {
+        state: 'applied',
+        postcondition: true,
+        finishedAt: ctx.now(),
+        detail: 'resume: postcondition already satisfied',
+      })
+      await persist()
+      completedThrough = step.phase
+      continue
+    }
     set(step.phase, { state: 'running', startedAt: ctx.now(), detail: '' })
     await persist()
     await step.run()
@@ -290,6 +303,8 @@ export async function importBundle(input: ImportInput): Promise<ImportResult> {
     if (!ok) throw new Error(`SK_UPGRADE_PHASE_INCOMPLETE: ${step.phase}`)
     completedThrough = step.phase
   }
+
+  await ctx.fault.hit('upgrade.before_receipt', {})
 
   return { journal: entries, completedThrough, resumed }
 }

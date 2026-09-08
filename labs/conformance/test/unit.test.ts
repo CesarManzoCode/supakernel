@@ -42,6 +42,15 @@ describe('normalize (contract §19.2)', () => {
     expect(out).toEqual(['<ts:1>', '<ts:2>', '<ts:1>'])
   })
 
+  it('collapses an absolute epoch-seconds field (expires_at) but keeps its relative sibling', () => {
+    const ctx = newContext()
+    const out = normalize(
+      { expires_at: 1_788_833_948, expires_in: 3600, other: 42 },
+      { normalizers: ['timestamp-window', 'jwt-claims'], ctx },
+    ) as Record<string, unknown>
+    expect(out).toEqual({ expires_at: '<epoch>', expires_in: 3600, other: 42 })
+  })
+
   it('never removes an error field — it only rewrites generated identifiers', () => {
     const ctx = newContext()
     const before: Json = {

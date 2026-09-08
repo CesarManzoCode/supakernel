@@ -92,6 +92,13 @@ function normalizeJwt(value: string, opts: NormalizeOptions): JsonObject {
   return { kind: '<jwt>', header: headerOut, claims, validitySeconds }
 }
 
+/**
+ * Numeric fields carrying an absolute wall-clock instant (unix seconds). Their value is
+ * `now + validity` and varies every run; the relative sibling (`expires_in`) carries the
+ * cross-oracle signal and is kept verbatim. Collapsed to `<epoch>` under `timestamp-window`.
+ */
+const EPOCH_SECONDS_KEYS = new Set(['expires_at'])
+
 /** Opaque secret/token fields that differ by construction between issuers. */
 const OPAQUE_TOKEN_KEYS = new Set([
   'refresh_token',
@@ -144,6 +151,12 @@ function walk(value: Json, opts: NormalizeOptions): Json {
       const v = obj[key] as Json
       if (active.has('jwt-claims') && OPAQUE_TOKEN_KEYS.has(key) && typeof v === 'string') {
         out[key] = '<opaque-token>'
+      } else if (
+        active.has('timestamp-window') &&
+        EPOCH_SECONDS_KEYS.has(key) &&
+        typeof v === 'number'
+      ) {
+        out[key] = '<epoch>'
       } else {
         out[key] = walk(v, opts)
       }
